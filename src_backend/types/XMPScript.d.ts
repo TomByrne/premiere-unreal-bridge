@@ -21,17 +21,26 @@ interface XMPMetaConstructor {
 	// Class stuff.
 }
 
-//TODO: fill in
-declare type XMPProperty = String;
+declare type XMPValue = string | boolean | number
+
+declare interface XMPProperty {
+	new (): XMPProperty
+
+	path: string
+	locale: string
+	namespace: string
+	options: number
+	value: XMPValue
+}
 
 interface XMPMetaInstance {
-	doesPropertyExist(namespace:String, value:String): boolean
+	doesPropertyExist(namespace:String, property:String): boolean
 	getProperty(namespace:String, property:String): XMPProperty
-	setProperty(namespace:String, property:String, value:String): boolean
+	setProperty(namespace:String, property:String, value:XMPValue): boolean
 	countArrayItems(namespace:String, property:String): Number
 	getArrayItem(namespace:String, property:String, itemIndex:Number): XMPProperty
 	deleteProperty(namespace:String, property:String): boolean
-	appendArrayItem(namespace:String, property:String, arrayOptions:String, valueToAppend:String, valueOptions:String): boolean
+	appendArrayItem(namespace:String, property:String, arrayOptions:String, valueToAppend:XMPValue, valueOptions:String): boolean
 	dumpObject():String
 	serialize(): String
     // Instance stuff.
@@ -43,6 +52,7 @@ interface XMPConstConstructor {
     new (): XMPConstInstance;
     NS_DM: string;
     NS_DC: string;
+    NS_XMP: string;
     ARRAY_IS_ORDERED: string;
     // Class stuff.
 }

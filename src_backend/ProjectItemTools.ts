@@ -1,10 +1,10 @@
 
 namespace ProjectItemTools {
     export function getSelected() {
-        var viewIDs = app.getProjectViewIDs();
+        let viewIDs = app.getProjectViewIDs();
         if (viewIDs) {
-            for (var a = 0; a < app.projects.numProjects; a++) {
-                var currentProject = app.getProjectFromViewID(viewIDs[a]);
+            for (let a = 0; a < app.projects.numProjects; a++) {
+                let currentProject = app.getProjectFromViewID(viewIDs[a]);
                 if (currentProject) {
                     if (currentProject.documentID === app.project.documentID) { // We're in the right project!
                         return app.getProjectViewSelection(viewIDs[a]);
@@ -15,21 +15,21 @@ namespace ProjectItemTools {
     }
 
     export function doForSelected<T>(f: (p: ProjectItem) => T): T | undefined {
-        var items = getSelected();
+        let items = getSelected();
         if (!items || !items.length) {
             console.warn("No selected items found");
             return;
         }
 
-        var ret:T | undefined;
-        for (var i = 0; i < items.length; i++) {
+        let ret: T | undefined;
+        for (let i = 0; i < items.length; i++) {
             ret = f(items[i]);
         }
         return ret;
     }
 
     export function getFramerate(item: ProjectItem) {
-        var interp = item.getFootageInterpretation();
+        let interp = item.getFootageInterpretation();
         return interp ? interp.frameRate : null;
     }
 
@@ -43,7 +43,7 @@ namespace ProjectItemTools {
             return false;
         }
 
-        var frameRate = getFramerate(item) || 30;
+        let frameRate = getFramerate(item) || 30;
 
         // Reloads the image sequence from disk, but messes up the FPS
         item.changeMediaPath(item.getMediaPath());
@@ -54,13 +54,13 @@ namespace ProjectItemTools {
         }
 
         // THIS DOESN"T SEEM TO WORK ??
-        var interp = item.getFootageInterpretation();
+        let interp = item.getFootageInterpretation();
         if (interp && interp.frameRate != frameRate) {
             interp.frameRate = frameRate;
             item.setFootageInterpretation(interp)
         }
 
-        var actualFps = getFramerate(item);
+        let actualFps = getFramerate(item);
         if (actualFps != 30) {
             console.warn("Frame rate set to " + actualFps + ".\n\nSet default rate rate in:\nPreferences > Media > Indeterminate Media Timebase.");
         }

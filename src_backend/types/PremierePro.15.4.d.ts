@@ -1547,7 +1547,7 @@ declare class ProjectItem extends Dispatcher {
 	 * 
 	 * @returns Returns 0 if update was successful.
 	 */
-	setXMPMetadata(newXMP: String): ResultCode
+	setXMPMetadata(newXMP: String): boolean
 
 	/**
 	 * Returns a Time object, representing start time.
