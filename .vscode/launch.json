@@ -3,13 +3,9 @@
     "configurations": [
         {
             "type": "extendscript-debug",
-            "request": "launch",
+            "request": "attach",
             "name": "Debug in PPro",
-            "program": "${workspaceFolder}/dist/backend.jsx",
-            "stopOnEntry": false,
-            "trace": true,
-            "logFile" : "/Users/bbb/Desktop/PProPanel_Log.txt",
-            "selectTargetColor": "blue"
+            "hostAppSpecifier": "premierepro-22.0"
         },
         {
             "type": "chrome",

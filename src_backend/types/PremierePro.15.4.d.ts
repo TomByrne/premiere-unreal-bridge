@@ -19,11 +19,6 @@ type SampleRateOption = 48000 | 96000;
 type BitsPerSampleOption = 16 | 24;
 type SDKEventType = "warning" | "info" | "error";
 
-declare enum CBool {
-	false = 0,
-	true = 1,
-}
-
 /**
  * If equal to zero represents success.
  * Otherwise represents an error.
@@ -42,10 +37,26 @@ declare type CodecCode = String;
 interface $ {
 	_PPP_: any;
 }
+declare class Dispatcher {
+	/**
+	 *
+	 */
+	bind(eventName: string, function_: any): void
+
+	/**
+	 *
+	 */
+	setTimeout(eventName: string, function_: any, milliseconds: number): void
+
+	/**
+	 *
+	 */
+	unbind(eventName: string): void
+}
 /**
  *
  */
-declare class ProjectItemType {
+declare class ProjectItemType extends Dispatcher {
 	/**
 	 *
 	 */
@@ -65,92 +76,6 @@ declare class ProjectItemType {
 	 *
 	 */
 	static readonly ROOT: number
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
-}
-
-declare enum ProjectPropertyType {
-	Integer = 0,
-	Real = 1,
-	String = 2,
-	Boolean = 3,
-}
-
-declare enum AudioChannelType {
-	Mono = 1,
-	Stereo,
-	Channel51,
-	Multichannel,
-	Channel4,
-	Channel5,
-}
-
-declare enum KfInterpMode {
-	Linear = 0,
-	EaseIn_Obsolete = 1,
-	EaseOut_Obsolete = 2,
-	EaseInEaseOut_Obsolete = 3,
-	Hold = 4,
-	Bezier = 5,
-	Time = 6,
-	TimeTransitionStart = 7,
-	TimeTransitionEnd = 8,
-}
-
-declare enum WhiteLuminance {
-	WL_100 = 100,
-	WL_203 = 203,
-	WL_300 = 300,
-}
-
-declare enum TimeDisplay {
-	TD_24Timecode = 100,
-	TD_25Timecode = 101,
-	TD_2997DropTimecode = 102,
-	TD_2997NonDropTimecode = 103,
-	TD_30Timecode = 104,
-	TD_50Timecode = 105,
-	TD_5994DropTimecode = 106,
-	TD_5994NonDropTimecode = 107,
-	TD_60Timecode = 108,
-	TD_Frames = 109,
-	TD_23976Timecode = 110,
-	TD_16mmFeetFrames = 111,
-	TD_35mmFeetFrames = 112,
-	TD_48Timecode = 113,
-	TD_AudioSamplesTimecode = 200,
-	TD_AudioMsTimecode = 201,
-}
-
-declare enum FieldType {
-	FIELDTYPE_DEFAULT = -1,
-	FIELDTYPE_PROGRESSIVE = 0,
-	ALPHACHANNEL_UPPERFIRST = 1,
-	ALPHACHANNEL_LOWERFIRST = 2,
-}
-
-declare enum VrLayout {
-	VR_LAYOUT_MONOSCOPIC = 0,
-	VR_LAYOUT_STEREO_OVER_UNDER = 1,
-	VR_LAYOUT_STEREO_SIDE_BY_SIDE = 2,
-}
-
-declare enum AudioFileFormat {
-	AIFF = 0,
-	WAV = 1,
 }
 
 // TODO: fill in
@@ -158,18 +83,6 @@ declare type ColorSpace = string;
 
 // TODO: fill in
 declare type Color = unknown;
-
-declare enum AlphaUsage {
-	ALPHACHANNEL_NONE = 0,
-	ALPHACHANNEL_STRAIGHT = 1,
-	ALPHACHANNEL_PREMULTIPLIED = 2,
-	ALPHACHANNEL_IGNORE = 3,
-}
-
-declare enum VrProjection {
-	VR_CONFORM_PROJECTION_NONE = 0,
-	VR_CONFORM_PROJECTION_EQUIRECTANGULAR = 1,
-}
 
 declare interface FootageInterpretation {
 	alphaUsage: AlphaUsage
@@ -227,7 +140,7 @@ declare class AudioChannelMapping {
 /**
  * A sequence.
  */
-declare class Sequence {
+declare class Sequence extends Dispatcher {
 
 	/**
 	 *
@@ -317,11 +230,6 @@ declare class Sequence {
 	attachCustomProperty(propertyID: string, propertyValue: string): void
 
 	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
-
-	/**
 	 * Clones a sequence.
 	 * @returns the clone Sequence.
 	 */
@@ -406,11 +314,6 @@ declare class Sequence {
 	 * @param pos The new position, as a string, representing ticks.
 	 */
 	setPlayerPosition(pos: string): void
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
 
 	/**
 	 * Sets the timecode of the first frame of the sequence.
@@ -546,41 +449,6 @@ declare class Sequence {
 	 * @param sensitivity 'LowSensitivity', 'MediumSensitivity', or 'HighSensitivity'
 	 */
 	performCutDetectionOnSelection(action: String, applyCutsToLinkedAudio: Boolean, sensitivity: String): boolean
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
-}
-
-declare enum ClipTranscoderOption {
-
-	/**
-	 * Transcode mode setting: Transcode source media to a specific preset
-	 */
-	MatchPreset = 'CLIP_TRANSCODE_MATCH_PRESET',
-
-	/**
-	 * Transcode mode setting: Transcode source media to match clips
-	 */
-	MatchClips = 'CLIP_TRANSCODE_MATCH_CLIPS',
-
-	/**
-	 * Transcode mode setting: Transcode source media to match sequence settings
-	 */
-	MatchSequence = 'CLIP_TRANSCODE_MATCH_SEQUENCE',
-}
-
-declare enum ClipTransferOption {
-
-	/**
-	 * Transfer mode setting: Copy source media
-	 */
-	Copy = 'CLIP_TRANSFER_COPY',
-
-	/**
-	 * Transfer mode setting: Transcode source media
-	 */
-	Transcode = 'CLIP_TRANSFER_TRANSCODE',
 }
 
 
@@ -665,7 +533,7 @@ declare class ProjectManagerOptions {
 	copyToPreventAlphaLoss: boolean
 }
 
-declare class ProjectManager {
+declare class ProjectManager extends Dispatcher {
 
 	/**
 	 * An array of strings describing errors encountered.
@@ -683,31 +551,11 @@ declare class ProjectManager {
 	 * @param project the `Project` to consolidate.
 	 */
 	process(project: Project): number
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 /**
  *
  */
 declare class ComponentParamCollection extends Collection<ComponentParam> {
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
@@ -718,27 +566,12 @@ declare class SequenceCollection extends Collection<Sequence> {
 	 *
 	 */
 	readonly numSequences: number
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
  *
  */
-declare class Metadata {
+declare class Metadata extends Dispatcher {
 	/**
 	 *
 	 */
@@ -748,11 +581,6 @@ declare class Metadata {
 	 *
 	 */
 	addMarker(): void
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
 
 	/**
 	 *
@@ -772,27 +600,13 @@ declare class Metadata {
 	/**
 	 *
 	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
-
-	/**
-	 *
-	 */
 	updateMarker(): void
 }
 
 /**
  *
  */
-declare class Anywhere {
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
+declare class Anywhere extends Dispatcher {
 
 	/**
 	 *
@@ -833,26 +647,12 @@ declare class Anywhere {
 	 *
 	 */
 	setAuthenticationToken(inAuthToken: string, inEmail: string): boolean
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
  *
  */
-declare class CsxsResourceCentral {
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
+declare class CsxsResourceCentral extends Dispatcher {
 
 	/**
 	 *
@@ -867,28 +667,13 @@ declare class CsxsResourceCentral {
 	/**
 	 *
 	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
-
-	/**
-	 *
-	 */
 	validateClient(token: string): boolean
 }
 
 /**
  *
  */
-declare class SourceMonitor {
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
-
+declare class SourceMonitor extends Dispatcher {
 	/**
 	 *
 	 */
@@ -910,16 +695,6 @@ declare class SourceMonitor {
 	play(speed?: number): void
 
 	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
-
-	/**
 	 * 
 	 */
 	getPosition(): Time
@@ -934,7 +709,7 @@ declare class SourceMonitor {
 /**
  *
  */
-declare class Time {
+declare class Time extends Dispatcher {
 	/**
 	 *
 	 */
@@ -944,11 +719,6 @@ declare class Time {
 	 *
 	 */
 	ticks: string
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
 
 	/**
 	 * Returns the value of the Time passed, as a string, formatted in the specified display format.
@@ -964,22 +734,12 @@ declare class Time {
 	 * @returns Boolean; true if successful.
 	 */
 	setSecondsAsFraction(numerator: number, denominator: number): boolean
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
  *
  */
-declare class Project {
+declare class Project extends Dispatcher {
 	/**
 	 * The currently active Sequence object, within the project.
 	 */
@@ -1024,11 +784,6 @@ declare class Project {
 	 * Adds a new field of the specified type to Premiere Pro’s private project metadata schema.
 	 */
 	addPropertyToProjectMetadataSchema(name: string, label: string, type: ProjectPropertyType): true | undefined
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
 
 	/**
 	 * Closes this project.
@@ -1241,22 +996,12 @@ declare class Project {
 	 * @param newGWL  
 	 */
 	setGraphicsWhiteLuminance(newGWL: WhiteLuminance): boolean
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
  *
  */
-declare class Track {
+declare class Track extends Dispatcher {
 	/**
 	 *
 	 */
@@ -1285,11 +1030,6 @@ declare class Track {
 	/**
 	 *
 	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
 	insertClip(clipProjectItem: ProjectItem, time: number): void
 
 	/**
@@ -1310,28 +1050,18 @@ declare class Track {
 	/**
 	 *
 	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
 	isTargeted(): Boolean
 
 	/**
 	 *
 	 */
 	setTargeted(isTargeted: Boolean, shouldBroadcast: Boolean): Boolean
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
  *
  */
-declare class TrackItem {
+declare class TrackItem extends Dispatcher {
 	/**
 	 *
 	 */
@@ -1389,11 +1119,6 @@ declare class TrackItem {
 	/**
 	 *
 	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
 	getLinkedItems(): TrackItemCollection
 
 	/**
@@ -1435,16 +1160,6 @@ declare class TrackItem {
 	 * 
 	 */
 	getColorSpace(): ColorSpace
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 
 	/**
 	 * Added in v15.4
@@ -1634,7 +1349,7 @@ declare class ComponentParam {
 /**
  *
  */
-declare class ProjectItem {
+declare class ProjectItem extends Dispatcher {
 	/**
 	 *
 	 */
@@ -1674,11 +1389,6 @@ declare class ProjectItem {
 	 * 
 	 */
 	detachProxy(): boolean
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
 
 	/**
 	 *
@@ -1831,11 +1541,6 @@ declare class ProjectItem {
 	setStartTime(time: string): ResultCode
 
 	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
 	 * Sets the XMP metadata associated with the project item.
 	 * 
 	 * @param newXMP A new, serialized XMP metadata.
@@ -1907,11 +1612,6 @@ declare class ProjectItem {
 	 * @returns boolean indicating whether setting the audio channel mapping was successful.
 	 */
 	setAudioChannelMapping(mapping: AudioChannelMapping): boolean
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
-
 
 	/**
 	 * New method ?
@@ -1927,21 +1627,6 @@ declare class ProjectCollection extends Collection<Project> {
 	 *
 	 */
 	readonly numProjects: number
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
@@ -1952,21 +1637,6 @@ declare class ComponentCollection extends Collection<Component> {
 	 *
 	 */
 	readonly numItems: number
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
@@ -1977,21 +1647,6 @@ declare class ProjectItemCollection extends Collection<ProjectItem> {
 	 *
 	 */
 	readonly numItems: number
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
@@ -2002,21 +1657,6 @@ declare class TrackCollection extends Collection<Track> {
 	 *
 	 */
 	readonly numTracks: number
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
@@ -2028,21 +1668,6 @@ declare class TrackItemCollection extends Collection<TrackItem> {
 	 * 
 	 */
 	readonly numItems: number
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
@@ -2083,50 +1708,20 @@ declare class ScratchDiskType {
 	 *
 	 */
 	static readonly FirstVideoPreviewFolder: string
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
  *
  */
-declare class Csxs {
+declare class Csxs extends Dispatcher {
 	/**
 	 *
 	 */
 	readonly resourceCentral: CsxsResourceCentral
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 
-declare class Collection<T> {
+declare class Collection<T> extends Dispatcher {
 	/**
 	 * The number of objects in the collection.
 	 */
@@ -2141,32 +1736,17 @@ declare class Collection<T> {
 /**
  *
  */
-declare class RemoteProductionCollection {
+declare class RemoteProductionCollection extends Collection<RemoteProduction> {
 	/**
 	 *
 	 */
 	readonly numProductions: number
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
  *
  */
-declare class RemoteProduction {
+declare class RemoteProduction extends Dispatcher {
 	/**
 	 *
 	 */
@@ -2181,27 +1761,12 @@ declare class RemoteProduction {
 	 *
 	 */
 	readonly url: string
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
  *
  */
-declare class Encoder {
+declare class Encoder extends Dispatcher {
 	/**
 	 *
 	 */
@@ -2216,11 +1781,6 @@ declare class Encoder {
 	 *
 	 */
 	readonly ENCODE_WORKAREA: number
-
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
 
 	/**
 	 *
@@ -2280,32 +1840,18 @@ declare class Encoder {
 	/**
 	 *
 	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
 	startBatch(): boolean
 
 	/**
 	 * 
 	 */
 	lastExportMediaFolder(): String
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
  *
  */
-declare class Properties {
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
+declare class Properties extends Dispatcher {
 
 	/**
 	 * @param propertyKey Indicates which property to clear.
@@ -2331,16 +1877,6 @@ declare class Properties {
 	 *
 	 */
 	setProperty(propertyKey: string, propertyValue: any, permanenceValue: number, allowCreateNewProperty: boolean): void
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 /**
  * 
@@ -2380,7 +1916,7 @@ declare class PrProduction {
 /**
  *
  */
-declare class Application {
+declare class Application extends Dispatcher {
 	/**
 	 *
 	 */
@@ -2465,11 +2001,6 @@ declare class Application {
 	/**
 	 *
 	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
 	broadcastPrefsChanged(preferencesThatChanged: string): boolean
 
 	/**
@@ -2522,19 +2053,20 @@ declare class Application {
 	setExtensionPersistent(extensionID: string, state?: number): void
 
 	/**
-	 *
+	 * Writes a string to Premiere Pro’s Events panel.
+	 * 
+	 * @param message A message to display.
+	 * @param decorator A message to display.
+	 * 
+	 * @returns Returns ‘true’ if successful.
+	 * 
 	 */
-	setSDKEventMessage(value: string, eventType: string): boolean
+	setSDKEventMessage(message: string, decorator: EventMessageDecorator): boolean
 
 	/**
 	 *
 	 */
 	setScratchDiskPath(value: string, type: string): boolean
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
 
 	/**
 	 * Returns the view IDs of currently-open views, associated with any project.
@@ -2595,14 +2127,10 @@ declare class Application {
 	addEventListener(eventName: string, function_: any): void
 
 	/**
+	 * Writes a string to Premiere Pro’s debug console.
 	 * @returns Returns true if trace was added.
 	 */
 	trace(message: string): boolean
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 
 	/**
 	 * Enables Premiere Pro’s QE DOM.
@@ -2640,11 +2168,6 @@ declare class MarkerCollection extends Collection<Marker> {
 	/**
 	 *
 	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
 	createMarker(time: number): Marker
 
 	/**
@@ -2671,22 +2194,12 @@ declare class MarkerCollection extends Collection<Marker> {
 	 *
 	 */
 	getPrevMarker(marker: Marker): Marker
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
  *
  */
-declare class Marker {
+declare class Marker extends Dispatcher {
 	/**
 	 *
 	 */
@@ -2720,22 +2233,12 @@ declare class Marker {
 	/**
 	 *
 	 */
-	bind(eventName: string, function_: any): void
-
-	/**
-	 *
-	 */
 	getWebLinkFrameTarget(): string
 
 	/**
 	 *
 	 */
 	getWebLinkURL(): string
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
 
 	/**
 	 *
@@ -2766,22 +2269,12 @@ declare class Marker {
 	 * Added in v13.x
 	 */
 	setColorByIndex(index: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**
  *
  */
-declare class Document {
-	/**
-	 *
-	 */
-	bind(eventName: string, function_: any): void
-
+declare class Document extends Dispatcher {
 	/**
 	 *
 	 */
@@ -2791,16 +2284,6 @@ declare class Document {
 	 *
 	 */
 	importFiles(arg1: any): boolean
-
-	/**
-	 *
-	 */
-	setTimeout(eventName: string, function_: any, milliseconds: number): void
-
-	/**
-	 *
-	 */
-	unbind(eventName: string): void
 }
 
 /**

@@ -1,6 +1,9 @@
 
 namespace JSX {
-    export function evalFile(path: File): void {
+    export function evalFile(path: File | string): void {
+		if(typeof(path) == "string"){
+			path = new File(path)
+		}
 		try {
 			$.evalFile(path);
 		} catch (e) {alert("Exception:" + e);}

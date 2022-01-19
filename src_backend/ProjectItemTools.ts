@@ -14,16 +14,18 @@ namespace ProjectItemTools {
         }
     }
 
-    export function doForSelected(f: (p: ProjectItem) => void) {
+    export function doForSelected<T>(f: (p: ProjectItem) => T): T | undefined {
         var items = getSelected();
         if (!items || !items.length) {
-            alert("No selected items found");
+            console.warn("No selected items found");
             return;
         }
 
+        var ret:T | undefined;
         for (var i = 0; i < items.length; i++) {
-            f(items[i]);
+            ret = f(items[i]);
         }
+        return ret;
     }
 
     export function getFramerate(item: ProjectItem) {
@@ -31,15 +33,14 @@ namespace ProjectItemTools {
         return interp ? interp.frameRate : null;
     }
 
-    export function reimport(item?: ProjectItem) {
+    export function reimport(item?: ProjectItem): boolean {
         if (!item) {
-            doForSelected((item) => reimport(item))
-            return;
+            return !!doForSelected((item) => reimport(item))
         }
 
         if (item.type == ProjectItemType.BIN) {
-            alert("Can't re-import folder");
-            return;
+            console.warn("Can't re-import folder");
+            return false;
         }
 
         var frameRate = getFramerate(item) || 30;
@@ -61,7 +62,9 @@ namespace ProjectItemTools {
 
         var actualFps = getFramerate(item);
         if (actualFps != 30) {
-            alert("Frame rate set to " + actualFps + ".\n\nSet default rate rate in:\nPreferences > Media > Indeterminate Media Timebase.");
+            console.warn("Frame rate set to " + actualFps + ".\n\nSet default rate rate in:\nPreferences > Media > Indeterminate Media Timebase.");
         }
+
+        return true;
     }
 }

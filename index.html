@@ -27,20 +27,44 @@
 	<link id="ppstyle" href="css/style.css" rel="stylesheet" type="text/css">
 	<script type="text/javascript">
 		
-		loadJsx = function(){
+		loadBackend = function(){
+			console.log("loadBackend");
 			jsx.file('./dist/backend.jsx', function(res){
-				console.log("JSX loaded");
+				console.log("loadBackend: ", res);
 			});
 		}
 
-		loadJsx();
+		reimport = function(){
+			console.log('reimport');
+			evalScript('ProjectItemTools.reimport()', function(res){
+				console.log("reimport: ", res);
+			})
+		}
+
+		getCreatedByTooling = function(){
+			console.log('getCreatedByTooling');
+			evalScript('SequenceTools.getCreatedByTooling()', function(res){
+				console.log("getCreatedByTooling: ", res);
+			})
+		}
+
+		setCreatedByTooling = function(value){
+			console.log('setCreatedByTooling: ', value);
+			evalScript('SequenceTools.setCreatedByTooling(' + value + ')', function(res){
+				console.log("setCreatedByTooling: ", res);
+			})
+		}
+
 	</script>
 </head>
 
 <body onLoad="onLoaded()">
-	<a href="javascript:location.reload()">Reload</a>
-
-	<button class="controlBg textStyle" onclick="evalScript('ProjectItemTools.reimport()');">Refresh Media</button>
+	<button class="controlBg textStyle" onclick="location.reload()">Reload Frontend</button>
+	<button class="controlBg textStyle" onclick="loadBackend()">Reload Backend</button>
+	<button class="controlBg textStyle" onclick="reimport()">Refresh Media</button>
+	<button class="controlBg textStyle" onclick="getCreatedByTooling()">Check tooling created</button>
+	<button class="controlBg textStyle" onclick="setCreatedByTooling(true)">Set tooling created: true</button>
+	<button class="controlBg textStyle" onclick="setCreatedByTooling(false)">Set tooling created: false</button>
 </body>
 <script>
 	document.body.onbeforeunload = function () {
