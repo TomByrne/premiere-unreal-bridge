@@ -5,7 +5,7 @@
             "type": "extendscript-debug",
             "request": "launch",
             "name": "Debug in PPro",
-            "program": "${workspaceFolder}/dist/backend.js",
+            "program": "${workspaceFolder}/dist/backend.jsx",
             "stopOnEntry": false,
             "trace": true,
             "logFile" : "/Users/bbb/Desktop/PProPanel_Log.txt",
