@@ -53,6 +53,20 @@ declare class Dispatcher {
 	 */
 	unbind(eventName: string): void
 }
+
+declare class XMPSubject extends Dispatcher {
+	
+	/**
+	 * Sets the XMP metadata associated with the project item.
+	 * 
+	 * @param newXMP A new, serialized XMP metadata.
+	 * 
+	 * @returns Returns 0 if update was successful.
+	 */
+	setXMPMetadata(newXMP: String): boolean
+	getXMPMetadata(): string
+}
+
 /**
  *
  */
@@ -1349,7 +1363,7 @@ declare class ComponentParam {
 /**
  *
  */
-declare class ProjectItem extends Dispatcher {
+declare class ProjectItem extends XMPSubject {
 	/**
 	 *
 	 */
@@ -1474,11 +1488,6 @@ declare class ProjectItem extends Dispatcher {
 	/**
 	 *
 	 */
-	getXMPMetadata(): string
-
-	/**
-	 *
-	 */
 	hasProxy(): boolean
 
 	/**
@@ -1539,15 +1548,6 @@ declare class ProjectItem extends Dispatcher {
 	 * @returns Returns 0 if successful.
 	 */
 	setStartTime(time: string): ResultCode
-
-	/**
-	 * Sets the XMP metadata associated with the project item.
-	 * 
-	 * @param newXMP A new, serialized XMP metadata.
-	 * 
-	 * @returns Returns 0 if update was successful.
-	 */
-	setXMPMetadata(newXMP: String): boolean
 
 	/**
 	 * Returns a Time object, representing start time.

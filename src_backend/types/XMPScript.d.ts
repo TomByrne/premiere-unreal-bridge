@@ -36,10 +36,10 @@ declare interface XMPProperty {
 interface XMPMetaInstance {
 	doesPropertyExist(namespace:String, property:String): boolean
 	getProperty(namespace:String, property:String): XMPProperty
-	setProperty(namespace:String, property:String, value:XMPValue): boolean
+	setProperty(namespace:String, property:String, value:XMPValue): void
 	countArrayItems(namespace:String, property:String): Number
 	getArrayItem(namespace:String, property:String, itemIndex:Number): XMPProperty
-	deleteProperty(namespace:String, property:String): boolean
+	deleteProperty(namespace:String, property:String): void
 	appendArrayItem(namespace:String, property:String, arrayOptions:String, valueToAppend:XMPValue, valueOptions:String): boolean
 	dumpObject():String
 	serialize(): String
