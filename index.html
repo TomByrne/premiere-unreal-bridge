@@ -1,0 +1,64 @@
+<!doctype html>
+<!--
+/*************************************************************************
+* ADOBE CONFIDENTIAL
+* ___________________
+*
+* Copyright 2020 Adobe
+* All Rights Reserved.
+*
+* NOTICE: Adobe permits you to use, modify, and distribute this file in
+* accordance with the terms of the Adobe license agreement accompanying
+* it. If you have received this file from a source other than Adobe,
+* then your use, modification, or distribution of it requires the prior
+* written permission of Adobe. 
+**************************************************************************/
+-->
+<html>
+<title>PProPanel</title>
+<head>
+	<meta charset="utf-8">
+	<script src="./lib/ext.js"></script>
+	<script src="./lib/CSInterface.js"></script>
+	<script src="./lib/jquery-1.9.1.js"></script>
+	<script src="./lib/Vulcan.js"></script>
+	<script src="./lib/jsx.js"></script>
+
+	<link id="ppstyle" href="css/style.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript">
+		
+		loadJsx = function(){
+			jsx.file('./dist/backend.js', function(res){
+				console.log("JSX loaded");
+			});
+		}
+
+		loadJsx();
+	</script>
+</head>
+
+<body onLoad="onLoaded()">
+	<a href="javascript:location.reload()">Reload</a>
+
+	<button class="controlBg textStyle" onclick="evalScript('ProjectItemTools.reimport()');">Refresh Media</button>
+</body>
+<script>
+	document.body.onbeforeunload = function () {
+		var csInterface 	= new CSInterface();
+		var OSVersion 		= csInterface.getOSInformation();
+		var appVersion 		= csInterface.hostEnvironment.appVersion;
+		var versionAsFloat	= parseFloat(appVersion);
+		
+		csInterface.evalScript('$._PPP_.closeLog()');
+
+		if (versionAsFloat < 10.3) {
+			var path = "file:///Library/Application Support/Adobe/CEP/extensions/PProPanel/payloads/onbeforeunload.html";
+
+			if (OSVersion.indexOf("Windows") >= 0) {
+				path = "file:///C:/Program%20Files%20(x86)/Common%20Files/Adobe/CEP/extensions/PProPanel/payloads/onbeforeunload.html"
+			}
+			csInterface.openURLInDefaultBrowser(path);
+		}
+	};
+</script>
+</html>
