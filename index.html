@@ -64,12 +64,12 @@
 				}else{
 					$("#active-jobs").text("Active jobs: " + jobsStatus.activeJobs);
 				}
-				setTimeout(() => {
-					updateActiveJobs()
-				}, 300)
+				// setTimeout(() => {
+				// 	updateActiveJobs()
+				// }, 300)
 			})
 		}
-		updateActiveJobs();
+		// updateActiveJobs();
 		
 
 		writeJob = function(){
@@ -83,6 +83,14 @@
 				console.log("writeJob: ", res);
 			})
 		}
+		
+
+		listScenes = function(){
+			console.log('listScenes');
+			evalScript('JSON.stringify(UnrealSceneTools.listScenes())', function(res){
+				console.log("listScenes: ", JSON.parse(res));
+			})
+		}
 
 	</script>
 </head>
@@ -90,6 +98,7 @@
 <body onLoad="onLoaded()" class="default">
 	<div id="active-jobs">Active jobs: ?</div>
 
+	<button class="controlBg textStyle" onclick="updateActiveJobs()">Update Active</button>
 	<button class="controlBg textStyle" onclick="location.reload()">Reload Frontend</button>
 	<button class="controlBg textStyle" onclick="loadBackend()">Reload Backend</button>
 	<button class="controlBg textStyle" onclick="reimport()">Refresh Media</button>
@@ -97,5 +106,6 @@
 	<button class="controlBg textStyle" onclick="setCreatedByTooling(true)">Set tooling created: true</button>
 	<button class="controlBg textStyle" onclick="setCreatedByTooling(false)">Set tooling created: false</button>
 	<button class="controlBg textStyle" onclick="writeJob()">Write job file</button>
+	<button class="controlBg textStyle" onclick="listScenes()">Load Unreal Scenes</button>
 </body>
 </html>
