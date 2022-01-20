@@ -3,7 +3,7 @@
         "outDir": "dist/backend",
         "outFile": "dist/backend.jsx",
         "baseUrl": "src_backend/",
-        "sourceMap": true,
+        "sourceMap": false,
         "lib": [],                   // Specifying "lib" overwrites defaults (stops import of HTML DOM stuff).
         "strict": true,             // Shorthand for the following four options:
         // "noImplicitAny": true,

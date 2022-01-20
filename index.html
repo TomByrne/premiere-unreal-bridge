@@ -15,7 +15,7 @@
 **************************************************************************/
 -->
 <html>
-<title>PProPanel</title>
+<title>AWS Unreal Render</title>
 <head>
 	<meta charset="utf-8">
 	<script src="./lib/ext.js"></script>
@@ -57,7 +57,9 @@
 
 		updateActiveJobs = function() {
 			evalScript('JSON.stringify(PipelineJobs.getJobsStatus())', function(res){
-				var jobsStatus = JSON.parse(res);
+				try{
+					var jobsStatus = JSON.parse(res);
+				}catch(e){}
 				console.debug("updateActiveJobs: ", jobsStatus);
 				if(!jobsStatus){
 					$("#active-jobs").text("Failed: ")
@@ -92,6 +94,14 @@
 			})
 		}
 
+		getSceneDetail = function(){
+			console.log('getSceneDetail');
+			var dir = "X:\\\\AWS_ReInvent_2021\\\\4_MotionDesign\\\\3D\\\\Unreal_Projects\\\\Climate_Pledge"
+			evalScript('JSON.stringify(UnrealSceneTools.getSceneDetails("' + dir + '"))', function(res){
+				console.log("getSceneDetail: ", JSON.parse(res));
+			})
+		}
+
 	</script>
 </head>
 
@@ -107,5 +117,6 @@
 	<button class="controlBg textStyle" onclick="setCreatedByTooling(false)">Set tooling created: false</button>
 	<button class="controlBg textStyle" onclick="writeJob()">Write job file</button>
 	<button class="controlBg textStyle" onclick="listScenes()">Load Unreal Scenes</button>
+	<button class="controlBg textStyle" onclick="getSceneDetail()">Get Scene Details</button>
 </body>
 </html>

@@ -4,6 +4,9 @@ namespace UnrealSceneTools {
     export interface UnrealScene {
         dir: string
         projectFile: string
+    }
+
+    export interface UnrealSceneDetail extends UnrealScene {
         scenes: string[]
         sequences: string[]
     }
@@ -16,34 +19,46 @@ namespace UnrealSceneTools {
     export function findProjectFileIn(folder: Folder): File | undefined {
         let files = folder.getFiles("*.uproject");
         let file = files[0];
-        if(file instanceof File) return file;
+        if (file instanceof File) return file;
         else return undefined;
     }
 
-    export function findSceneFilesIn(folder: Folder): string[] {
+    function dirFilter(f:Folder): boolean {
+        if(f.name == "Brushify" || f.name == "Megascans") return false;
+        return true;
+    }
+
+    function findSceneFilesIn(folder: Folder): string[] {
         let ret: string[] = [];
         let content = new Folder(`${folder.fsName}\\Content`);
-        recurseSearch(content, content, ".umap", ret);
+        recurseSearch(content, content, ".umap", ret, 0, undefined, dirFilter);
         return ret;
     }
 
-    export function findSequenceFilesIn(folder: Folder): string[] {
+    function findSequenceFilesIn(folder: Folder): string[] {
         let ret: string[] = [];
         let content = new Folder(`${folder.fsName}\\Content`);
-        recurseSearch(content, content, ".uasset", ret);
+        recurseSearch(content, content, ".uasset", ret, 0, (f: File) => f.path.toLowerCase().indexOf("sequence") != -1, dirFilter);
         return ret;
     }
 
-    function recurseSearch(root: Folder, folder: Folder, ext: string, addTo:string[]): void {
+    function recurseSearch(root: Folder, folder: Folder, ext: string, addTo: string[], depth = 0, fileFilter?: (f: File) => boolean, dirFilter?: (f: Folder) => boolean): void {
+        if (depth > 10) {
+            console.log("Aborting recursive search at: " + folder.fsName);
+            return;
+        }
         let all = folder.getFiles();
-        for(let file of all){
-            if(file instanceof File) {
-                if(file.name.lastIndexOf(ext) == file.name.length - ext.length){
-                    let asset = "/" + file.getRelativeURI(root.absoluteURI).substr(0, file.name.length - ext.length);
+        for (let file of all) {
+            if (file instanceof File) {
+                if (file.name.lastIndexOf(ext) == file.name.length - ext.length &&
+                    (!fileFilter || fileFilter(file))) {
+
+                    let path = file.getRelativeURI(root.absoluteURI);
+                    let asset = "/" + path.substring(0, path.length - ext.length);
                     addTo.push(asset);
-               }
-            }else{
-                recurseSearch(root, file, ext, addTo)
+                }
+            } else if(!dirFilter || dirFilter(file)){
+                recurseSearch(root, file, ext, addTo, depth + 1, fileFilter, dirFilter)
             }
         }
     }
@@ -51,7 +66,7 @@ namespace UnrealSceneTools {
     export function listScenes(): UnrealScene[] {
         let jobFolder = new Folder(getScenesFolder());
         let files = jobFolder.getFiles();
-        let ret:UnrealScene[] = [];
+        let ret: UnrealScene[] = [];
         for (let file of files) {
             if (file instanceof File) continue;
 
@@ -61,10 +76,23 @@ namespace UnrealSceneTools {
             ret.push({
                 dir: file.fsName,
                 projectFile: projectFile.fsName,
-                scenes: findSceneFilesIn(file),
-                sequences: findSequenceFilesIn(file),
             })
         }
         return ret;
+    }
+
+    export function getSceneDetails(dir: string): UnrealSceneDetail | undefined {
+        let folder = new Folder(dir);
+        if (!folder.exists) return undefined;
+
+        let projectFile = findProjectFileIn(folder);
+        if (!projectFile) return undefined;
+
+        return {
+            dir: folder.fsName,
+            projectFile: projectFile.fsName,
+            scenes: findSceneFilesIn(folder),
+            sequences: findSequenceFilesIn(folder),
+        }
     }
 }
