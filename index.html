@@ -55,34 +55,47 @@
 			})
 		}
 
+		updateActiveJobs = function() {
+			evalScript('JSON.stringify(PipelineJobs.getJobsStatus())', function(res){
+				var jobsStatus = JSON.parse(res);
+				console.debug("updateActiveJobs: ", jobsStatus);
+				if(!jobsStatus){
+					$("#active-jobs").text("Failed: ")
+				}else{
+					$("#active-jobs").text("Active jobs: " + jobsStatus.activeJobs);
+				}
+				setTimeout(() => {
+					updateActiveJobs()
+				}, 300)
+			})
+		}
+		updateActiveJobs();
+		
+
+		writeJob = function(){
+			var name = "test_job";
+			var job = JSON.stringify({
+				"test": true
+			});
+			var overwrite = true;
+			console.log('writeJob: ', job);
+			evalScript('PipelineJobs.addJobStr("' + name + '",' + job + "," + overwrite + ')', function(res){
+				console.log("writeJob: ", res);
+			})
+		}
+
 	</script>
 </head>
 
-<body onLoad="onLoaded()">
+<body onLoad="onLoaded()" class="default">
+	<div id="active-jobs">Active jobs: ?</div>
+
 	<button class="controlBg textStyle" onclick="location.reload()">Reload Frontend</button>
 	<button class="controlBg textStyle" onclick="loadBackend()">Reload Backend</button>
 	<button class="controlBg textStyle" onclick="reimport()">Refresh Media</button>
 	<button class="controlBg textStyle" onclick="getCreatedByTooling()">Check tooling created</button>
 	<button class="controlBg textStyle" onclick="setCreatedByTooling(true)">Set tooling created: true</button>
 	<button class="controlBg textStyle" onclick="setCreatedByTooling(false)">Set tooling created: false</button>
+	<button class="controlBg textStyle" onclick="writeJob()">Write job file</button>
 </body>
-<script>
-	document.body.onbeforeunload = function () {
-		var csInterface 	= new CSInterface();
-		var OSVersion 		= csInterface.getOSInformation();
-		var appVersion 		= csInterface.hostEnvironment.appVersion;
-		var versionAsFloat	= parseFloat(appVersion);
-		
-		csInterface.evalScript('$._PPP_.closeLog()');
-
-		if (versionAsFloat < 10.3) {
-			var path = "file:///Library/Application Support/Adobe/CEP/extensions/PProPanel/payloads/onbeforeunload.html";
-
-			if (OSVersion.indexOf("Windows") >= 0) {
-				path = "file:///C:/Program%20Files%20(x86)/Common%20Files/Adobe/CEP/extensions/PProPanel/payloads/onbeforeunload.html"
-			}
-			csInterface.openURLInDefaultBrowser(path);
-		}
-	};
-</script>
 </html>
