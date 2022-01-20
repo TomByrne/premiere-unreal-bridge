@@ -1,4 +1,7 @@
 {
+    "include": [
+        "src_backend/"
+    ],
     "compilerOptions": {
         "outDir": "dist/backend",
         "outFile": "dist/backend.jsx",
