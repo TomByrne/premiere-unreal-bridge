@@ -1,7 +1,7 @@
 <template>
   <div class="panel">
     <h1>Sequence</h1>
-    <button @click="test">Clickyu</button>
+    <button @click="test">ProjectItemTools.reimport()</button>
   </div>
 </template>
 

@@ -12,3 +12,5 @@ getDevMode()
   });
 
 createApp(App).mount("#app");
+
+onLoaded();
