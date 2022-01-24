@@ -1,6 +1,6 @@
 {
     "include": [
-        "src_backend/"
+        "src_backend/**/*.ts",
     ],
     "compilerOptions": {
         "outDir": "dist/backend",
@@ -13,6 +13,6 @@
         // "noImplicitThis": true,
         // "alwaysStrict": true,
         // "strictNullChecks": true,
-        "target": "es3"             // In case TypeScript is used, this will compile to ECMAScript 3 (ExtendScript!) compatible code.
+        "target": "es3",             // In case TypeScript is used, this will compile to ECMAScript 3 (ExtendScript!) compatible code.
     }
 }

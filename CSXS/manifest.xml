@@ -21,7 +21,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		<Extension Id="imagsyd.aws.unreal">
 			<DispatchInfo >
 				<Resources>
-					<MainPath>./dist/index.html</MainPath>
+					<MainPath>./dist/frontend/index.html</MainPath>
 					<ScriptPath>./dist/backend.jsx</ScriptPath>
 					<CEFCommandLine>
 						<Parameter>--allow-file-access</Parameter>

@@ -340,7 +340,7 @@ var jsx;
      *                            {message: 'I was born in the year', val: 1234}
      *                            [Optional DEFAULT no replacements]
      *
-     * @param  {Bolean} forceEval
+     * @param  {Boolean} forceEval
      *                             If the script should be wrapped in an eval and try catch
      *                             This will 1) provide useful error feedback if heaven forbid it is needed
      *                             2) The result will be a string which is required for callback results in InDesign

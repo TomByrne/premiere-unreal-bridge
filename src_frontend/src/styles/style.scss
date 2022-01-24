@@ -49,3 +49,15 @@ input[type=text]
 #content ul li {
 	margin:3px 0px 3px 0px;
 }
+
+.panel {
+	text-align: left;
+	border: 1px solid black;
+	padding: 5px;
+	margin: 10px;
+
+	h1 {
+		font-size: 1.2em;
+		margin: 5px 0;
+	}
+}

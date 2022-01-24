@@ -1,21 +1,31 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
+  <div>
+    <DevLink v-if="model.plugin.devMode" />
+    <SequenceTools />
+  </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-import HelloWorld from "./components/HelloWorld.vue";
+import SequenceTools from "./components/SequenceTools.vue";
+import DevLink from "./components/DevLink.vue";
+import model from "./model";
 
 @Options({
   components: {
-    HelloWorld,
+    SequenceTools,
+    DevLink,
   },
 })
-export default class App extends Vue {}
+export default class App extends Vue {
+  get model(): unknown {
+    return model;
+  }
+}
 </script>
 
 <style lang="scss">
+@import "./styles/style.scss";
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

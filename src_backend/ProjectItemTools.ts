@@ -28,9 +28,13 @@ namespace ProjectItemTools {
         return ret;
     }
 
-    export function getFramerate(item: ProjectItem) {
+    export function getFramerate(item?: ProjectItem): number | undefined {
+        if (!item) {
+            return doForSelected((item) => getFramerate(item))
+        }
+
         let interp = item.getFootageInterpretation();
-        return interp ? interp.frameRate : null;
+        return interp ? interp.frameRate : undefined;
     }
 
     export function reimport(item?: ProjectItem): boolean {
