@@ -3,6 +3,7 @@
     <h1>Dev</h1>
     <a :href="getDevUrl()" v-if="!isAtDevUrl()">{{ getDevUrl() }}</a>
     <a @click="loadBackend()">Load Backend</a>
+    <input type="text" />
   </div>
 </template>
 

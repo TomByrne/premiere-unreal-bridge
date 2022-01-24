@@ -134,6 +134,10 @@ function mySetProxyFunction(data) {
   );
 }
 
+function setVar(name, val) {
+  document.documentElement.style.setProperty("--" + name, val);
+}
+
 function myVersionInfoFunction(data) {
   var v_string = document.getElementById("version_string");
   // v_string.innerHTML	= data;
@@ -149,145 +153,37 @@ function updateThemeWithAppSkinInfo(appSkinInfo) {
   var panelBackgroundColor = appSkinInfo.panelBackgroundColor.color;
   document.body.bgColor = toHex(panelBackgroundColor);
 
-  var styleId = "ppstyle";
-  var gradientBg =
-    "background-image: -webkit-linear-gradient(top, " +
-    toHex(panelBackgroundColor, 40) +
-    " , " +
-    toHex(panelBackgroundColor, 10) +
-    ");";
-  var gradientDisabledBg =
-    "background-image: -webkit-linear-gradient(top, " +
-    toHex(panelBackgroundColor, 15) +
-    " , " +
-    toHex(panelBackgroundColor, 5) +
-    ");";
-  var boxShadow =
-    "-webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);";
-  var boxActiveShadow =
-    "-webkit-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);";
+  setVar("bg", toHex(panelBackgroundColor));
+  setVar("font-size", appSkinInfo.baseFontSize + "px");
+  setVar("button-font-size", 1.2 * appSkinInfo.baseFontSize + "px");
+  setVar(
+    "font-family",
+    appSkinInfo.baseFontFamily + ', "LucidaGrande", sans-serif'
+  );
+
+  setVar("input-grad1", toHex(panelBackgroundColor, 40));
+  setVar("input-grad2", toHex(panelBackgroundColor, 10));
+
+  setVar("disabled-grad1", toHex(panelBackgroundColor, 15));
+  setVar("disabled-grad2", toHex(panelBackgroundColor, 5));
 
   var isPanelThemeLight = panelBackgroundColor.red > 50; // choose your own sweet spot
-  var fontColor,
-    disabledFontColor,
-    borderColor,
-    inputBackgroundColor,
-    gradientHighlightBg;
 
   if (isPanelThemeLight) {
-    fontColor = "#000000;";
-    disabledFontColor = "color:" + toHex(panelBackgroundColor, -70) + ";";
-    borderColor = "border-color: " + toHex(panelBackgroundColor, -90) + ";";
-    inputBackgroundColor = toHex(panelBackgroundColor, 54) + ";";
-    gradientHighlightBg =
-      "background-image: -webkit-linear-gradient(top, " +
-      toHex(panelBackgroundColor, -40) +
-      " , " +
-      toHex(panelBackgroundColor, -50) +
-      ");";
+    setVar("font", "#000000");
+    setVar("disabled", toHex(panelBackgroundColor, -70));
+    setVar("border", toHex(panelBackgroundColor, -90));
+    setVar("input-bg", toHex(panelBackgroundColor, 54));
+    setVar("highlight-grad1", toHex(panelBackgroundColor, -40));
+    setVar("highlight-grad2", toHex(panelBackgroundColor, -50));
   } else {
-    fontColor = "#ffffff;";
-    disabledFontColor = "color:" + toHex(panelBackgroundColor, 100) + ";";
-    borderColor = "border-color: " + toHex(panelBackgroundColor, -45) + ";";
-    inputBackgroundColor = toHex(panelBackgroundColor, -20) + ";";
-    gradientHighlightBg =
-      "background-image: -webkit-linear-gradient(top, " +
-      toHex(panelBackgroundColor, -20) +
-      " , " +
-      toHex(panelBackgroundColor, -30) +
-      ");";
+    setVar("font", "#ffffff");
+    setVar("disabled", toHex(panelBackgroundColor, 100));
+    setVar("border", toHex(panelBackgroundColor, -45));
+    setVar("input-bg", toHex(panelBackgroundColor, -20));
+    setVar("highlight-grad1", toHex(panelBackgroundColor, -20));
+    setVar("highlight-grad2", toHex(panelBackgroundColor, -30));
   }
-
-  //Update the default text style with pp values
-
-  addRule(
-    styleId,
-    "body",
-    "font-size:" +
-      appSkinInfo.baseFontSize +
-      "px" +
-      "; color:" +
-      fontColor +
-      "; background-color:" +
-      toHex(panelBackgroundColor) +
-      ";"
-  );
-  addRule(
-    styleId,
-    "button, select, input[type=text], input[type=button], input[type=submit]",
-    borderColor
-  );
-  // addRule(styleId, "p", "color:" + fontColor + ";");
-  // addRule(styleId, "div", "color:" + fontColor + ";");
-  // addRule(styleId, "h1", "color:" + fontColor + ";");
-  // addRule(styleId, "h2", "color:" + fontColor + ";");
-  addRule(
-    styleId,
-    "button",
-    "font-family: " + appSkinInfo.baseFontFamily + ", Arial, sans-serif;"
-  );
-  addRule(styleId, "button", "color:" + fontColor + ";");
-  addRule(
-    styleId,
-    "button",
-    "font-size:" + 1.2 * appSkinInfo.baseFontSize + "px;"
-  );
-  addRule(
-    styleId,
-    "button, select, input[type=button], input[type=submit]",
-    gradientBg
-  );
-  addRule(
-    styleId,
-    "button, select, input[type=button], input[type=submit]",
-    boxShadow
-  );
-  addRule(
-    styleId,
-    "button:enabled:active, input[type=button]:enabled:active, input[type=submit]:enabled:active",
-    gradientHighlightBg
-  );
-  addRule(
-    styleId,
-    "button:enabled:active, input[type=button]:enabled:active, input[type=submit]:enabled:active",
-    boxActiveShadow
-  );
-  addRule(styleId, "[disabled]", gradientDisabledBg);
-  addRule(styleId, "[disabled]", disabledFontColor);
-  addRule(styleId, "input[type=text]", "padding:1px 3px;");
-  addRule(
-    styleId,
-    "input[type=text]",
-    "background-color: " + inputBackgroundColor + ";"
-  );
-  addRule(styleId, "input[type=text]:focus", "background-color: #ffffff;");
-  addRule(styleId, "input[type=text]:focus", "color: #000000;");
-}
-
-function addRule(stylesheetId, selector, rule) {
-  var stylesheet = document.getElementById(stylesheetId);
-  if (stylesheet) {
-    stylesheet = stylesheet.sheet;
-    if (stylesheet.addRule) {
-      stylesheet.addRule(selector, rule);
-    } else if (stylesheet.insertRule) {
-      stylesheet.insertRule(
-        selector + " { " + rule + " }",
-        stylesheet.cssRules.length
-      );
-    }
-  }
-}
-
-function reverseColor(color, delta) {
-  return toHex(
-    {
-      red: Math.abs(255 - color.red),
-      green: Math.abs(255 - color.green),
-      blue: Math.abs(255 - color.blue),
-    },
-    delta
-  );
 }
 
 /**
