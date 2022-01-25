@@ -2,33 +2,49 @@
 
 namespace SequenceTools {
 
-    let cached:SequenceMetaBrief | undefined;
+    let cached: SequenceMetaBrief | undefined;
 
     const creatorNS = "http://ns.adobe.com/xap/1.0/";
     const creatorKey = "CreatorTool";
 
-    function findSeq(seq?: Sequence) : Sequence | undefined {
+    function findSeq(seq?: Sequence): Sequence | undefined {
         if (!seq && app.project.activeSequence) seq = app.project.activeSequence;
         if (!seq) {
             console.log("No Sequence found");
             return undefined;
-        }else {
+        } else {
             return seq;
         }
     }
 
-    function getTracksInfo(seq:Sequence, tracks:TrackCollection): {tracks: TrackInfo[], selected:string|undefined} {
-        var ret:TrackInfo[] = [];
-        let selected: string[] = [];
-        for(let i=0; i<tracks.length; i++) {
+    function selectTrackItemIn(id: string, seq: Sequence, tracks: TrackCollection): boolean {
+        let ret = false;
+        for (let i = 0; i < tracks.length; i++) {
             let track = tracks[i];
-            if(!track) continue;
-            let items:TrackItemInfo[] = [];
-            for(let j=0; j<track.clips.length; j++) {
+            if (!track) continue;
+            for (let j = 0; j < track.clips.length; j++) {
                 let clip = track.clips[j];
-                if(!clip) continue;
+                if (!clip) continue;
+                let selected = clip.nodeId == id;
+                clip.setSelected(selected, true);
+                if (selected) ret = true;
+            }
+        }
+        return ret;
+    }
 
-                if(clip.isSelected()) {
+    function getTracksInfo(seq: Sequence, tracks: TrackCollection): { tracks: TrackInfo[], selected: string | undefined } {
+        var ret: TrackInfo[] = [];
+        let selected: string[] = [];
+        for (let i = 0; i < tracks.length; i++) {
+            let track = tracks[i];
+            if (!track) continue;
+            let items: TrackItemInfo[] = [];
+            for (let j = 0; j < track.clips.length; j++) {
+                let clip = track.clips[j];
+                if (!clip) continue;
+
+                if (clip.isSelected()) {
                     selected.push(clip.nodeId);
                 }
 
@@ -52,30 +68,30 @@ namespace SequenceTools {
         };
     }
 
-    export function getMeta(create?:boolean, seq?: Sequence): SequenceMeta | undefined {
+    export function getMeta(create?: boolean, seq?: Sequence): SequenceMeta | undefined {
         seq = findSeq(seq);
-        if(!seq) return undefined;
+        if (!seq) return undefined;
 
         let metaBrief: SequenceMetaBrief | undefined;
-        if(cached) {
-            if(cached.id != seq.id) cached = undefined;
+        if (cached) {
+            if (cached.id != seq.id) cached = undefined;
             else metaBrief = cached;
         }
 
-        if(!metaBrief){
+        if (!metaBrief) {
             let metaStr = XMP.getString(seq.projectItem, creatorNS, creatorKey);
-            if(metaStr){
+            if (metaStr) {
                 try {
                     metaBrief = JSON.parse(metaStr);
-                } catch(e){
+                } catch (e) {
                     console.log("Failed to parse sequence meta");
                 }
             }
         }
 
         let saved = true;
-        if(!metaBrief) {
-            if(!create) return undefined;
+        if (!metaBrief) {
+            if (!create) return undefined;
             saved = false;
             metaBrief = {
                 id: seq.id,
@@ -97,7 +113,7 @@ namespace SequenceTools {
 
     export function setMeta(value: SequenceMeta | undefined, seq?: Sequence): boolean {
         seq = findSeq(seq);
-        if(!seq) return false;
+        if (!seq) return false;
 
 
         let xmpValue: XMPValue | undefined;
@@ -117,17 +133,17 @@ namespace SequenceTools {
 
     export function setRenderTrack(id: string | undefined, seq?: Sequence): boolean {
         let meta = getMeta(true, seq);
-        if(!meta) return false;
+        if (!meta) return false;
         meta.render_track = id;
         return setMeta(meta, seq);
     }
 
     export function addSpeakerItem(item: SpeakerItem, seq?: Sequence): boolean {
         let meta = getMeta(true, seq);
-        if(!meta) return false;
+        if (!meta) return false;
 
-        for(let speaker of meta.speaker_items) {
-            if(speaker.itemId == item.itemId) return false;
+        for (let speaker of meta.speaker_items) {
+            if (speaker.itemId == item.itemId) return false;
         }
 
         meta.speaker_items.push(item);
@@ -135,12 +151,21 @@ namespace SequenceTools {
         return true;
     }
 
+
+    export function selectTrackItem(id: string, seq?: Sequence): boolean {
+        seq = findSeq(seq);
+        if (!seq) return false;
+        let ret1 = selectTrackItemIn(id, seq, seq.videoTracks);
+        let ret2 = selectTrackItemIn(id, seq, seq.audioTracks);
+        return ret1 || ret2;
+    }
+
     export function removeSpeakerItem(id: string, seq?: Sequence): boolean {
         let meta = getMeta(true, seq);
-        if(!meta) return false;
+        if (!meta) return false;
 
-        for(let i=0; i<meta.speaker_items.length; i++) {
-            if(meta.speaker_items[i].itemId == id){
+        for (let i = 0; i < meta.speaker_items.length; i++) {
+            if (meta.speaker_items[i].itemId == id) {
                 meta.speaker_items.splice(i, 1);
                 setMeta(meta);
                 return true;
@@ -152,10 +177,10 @@ namespace SequenceTools {
 
     export function updateSpeakerItem(item: SpeakerItem, seq?: Sequence): boolean {
         let meta = getMeta(true, seq);
-        if(!meta) return false;
+        if (!meta) return false;
 
-        for(let i=0; i<meta.speaker_items.length; i++) {
-            if(meta.speaker_items[i].itemId == item.itemId){
+        for (let i = 0; i < meta.speaker_items.length; i++) {
+            if (meta.speaker_items[i].itemId == item.itemId) {
                 meta.speaker_items[i] = item;
                 setMeta(meta);
                 return true;

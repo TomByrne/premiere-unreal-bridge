@@ -29,43 +29,38 @@
             class="value"
             v-model="selectedSpeakerItem.project"
             @change="updateSpeakerInfo($event.target, 'project')"
+            :disabled="loadingProjects"
           >
             <option
-              v-for="(proj, ind) in ueProjects"
-              :key="ind"
+              v-for="proj in ueProjects"
+              :key="proj.dir"
               :value="proj.dir"
             >
               {{ proj.name }}
             </option>
           </select>
         </div>
-        <div class="labelled" v-if="ueProjectDetail">
+        <div class="labelled" v-if="selectedSpeakerItem.project">
           <div class="label">Scene:</div>
           <select
             class="value"
             v-model="selectedSpeakerItem.scene"
             @change="updateSpeakerInfo($event.target, 'scene')"
+            :disabled="loadingDetail"
           >
-            <option
-              v-for="(scene, ind) in ueProjectDetail.scenes"
-              :key="ind"
-              :value="scene"
-            >
+            <option v-for="scene in scenes()" :key="scene" :value="scene">
               {{ scene }}
             </option>
           </select>
         </div>
-        <div class="labelled" v-if="ueProjectDetail">
+        <div class="labelled" v-if="selectedSpeakerItem.project">
           <div class="label">Sequence:</div>
           <select
             class="value"
             @change="updateSpeakerInfo($event.target, 'sequence')"
+            :disabled="loadingDetail"
           >
-            <option
-              v-for="(seq, ind) in ueProjectDetail.sequences"
-              :key="ind"
-              :value="seq"
-            >
+            <option v-for="seq in sequences()" :key="seq" :value="seq">
               {{ seq }}
             </option>
           </select>
@@ -74,9 +69,9 @@
       <button @click="remove()">Clear info from item</button>
       <button @click="refresh()">Refresh Unreal Data</button>
     </div>
-    <div class="code" v-if="model.plugin.devMode">
+    <!-- <div class="code" v-if="model.plugin.devMode">
       {{ model.sequence.sequenceMeta }}
-    </div>
+    </div> -->
     <div class="error" v-if="error">{{ error }}</div>
   </div>
 </template>
@@ -96,13 +91,21 @@ import { Options, Vue } from "vue-class-component";
 export default class SequencePanel extends Vue {
   public error: string | false = false;
   public ueProjects: UnrealProject[] = [];
-  public ueProjectDir: string | undefined;
   public ueProjectDetail: UnrealProjectDetail | undefined;
+
+  public lastItemID: string | undefined;
+  public lastProjectDir: string | undefined;
+
+  public loadingProjects = false;
+  public loadingDetail = false;
 
   mounted(): void {
     watch(
       () => [this.selectedSpeakerItem],
       () => {
+        let id = this.selectedSpeakerItem?.itemId;
+        if (this.lastItemID == id) return;
+        this.lastItemID = id;
         this.loadProjects();
       },
       { immediate: true }
@@ -132,6 +135,12 @@ export default class SequencePanel extends Vue {
     if (!id) return undefined;
     return model.sequence.findSpeakerItem(id);
   }
+  get scenes(): () => string[] {
+    return () => this.ueProjectDetail?.scenes || [];
+  }
+  get sequences(): () => string[] {
+    return () => this.ueProjectDetail?.sequences || [];
+  }
   get model(): unknown {
     return model;
   }
@@ -148,29 +157,37 @@ export default class SequencePanel extends Vue {
   }
 
   loadProjects(): void {
+    this.loadingProjects = true;
     UnrealProjectTools.listProjects()
       .then((projects: UnrealProject[]) => {
+        this.loadingProjects = false;
         this.ueProjects = projects;
       })
       .catch((e) => {
+        this.loadingProjects = false;
         console.log("Failed to load Unreal projects: ", e);
       });
   }
 
-  loadProjectDetails(): void {
+  loadProjectDetails(force?: boolean): void {
     let dir = this.selectedSpeakerItem?.project;
     if (!dir) {
       this.ueProjectDetail = undefined;
-      this.ueProjectDir = undefined;
+      this.lastProjectDir = undefined;
       return;
     }
-    if (this.ueProjectDir == dir) return;
-    this.ueProjectDir = dir;
+    if (!force && this.lastProjectDir == dir) return;
+    this.lastProjectDir = dir;
+    this.loadingDetail = true;
     UnrealProjectTools.getProjectDetails(dir)
       .then((d: UnrealProjectDetail | undefined) => {
+        this.loadingDetail = false;
         this.ueProjectDetail = d;
       })
       .catch((e) => {
+        this.loadingDetail = false;
+        this.ueProjectDetail = undefined;
+        this.lastProjectDir = undefined;
         console.log("Failed to load project detail: ", e);
       });
   }
@@ -185,8 +202,9 @@ export default class SequencePanel extends Vue {
   }
 
   refresh(): void {
+    console.log("refresh");
     this.loadProjects();
-    if (this.ueProjectDetail) this.loadProjectDetails();
+    if (this.ueProjectDetail) this.loadProjectDetails(true);
   }
 
   remove(): void {

@@ -12,7 +12,10 @@
         class="labelled"
       >
         <div class="label">{{ item.track.name }}</div>
-        <div class="info">{{ item.track.start }}s to {{ item.track.end }}s</div>
+        <div class="info">
+          {{ item.track.start.toFixed(2) }}s to {{ item.track.end.toFixed(2) }}s
+        </div>
+        <button @click="select(item.track.id)">Locate in Timeline</button>
       </div>
     </div>
   </div>
@@ -22,6 +25,7 @@
 import { Vue } from "vue-class-component";
 import model from "@/model";
 import { SpeakerItem, TrackItemInfo } from "@/SequenceMeta";
+import SequenceTools from "@/logic/SequenceTools";
 
 export default class DevLink extends Vue {
   get renderable(): boolean {
@@ -44,6 +48,10 @@ export default class DevLink extends Vue {
       }
     }
     return ret;
+  }
+
+  select(id: string) {
+    SequenceTools.selectTrackItem(id);
   }
 }
 </script>

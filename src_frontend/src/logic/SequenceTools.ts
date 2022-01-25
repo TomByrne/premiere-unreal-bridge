@@ -17,6 +17,9 @@ export function removeSpeakerItem(id: string): Promise<boolean> {
 export function updateSpeakerItem(item: SpeakerItem): Promise<boolean> {
   return call("SequenceTools.updateSpeakerItem", [item]);
 }
+export function selectTrackItem(id: string): Promise<boolean> {
+  return call("SequenceTools.selectTrackItem", [id]);
+}
 
 let watching = false;
 let timerId: number | undefined;
@@ -50,4 +53,5 @@ export default {
   addSpeakerItem,
   removeSpeakerItem,
   updateSpeakerItem,
+  selectTrackItem,
 };
