@@ -32,46 +32,50 @@ body {
 	font-size: inherit;
 }
 
-button {
-	font-size: var(--button-font-size);
-}
-
 button,
 select,
 input[type=text],
+input:not([type]),
 input[type=button],
 input[type=submit] {
 	border-color: var(--border);
 	background-image: -webkit-linear-gradient(top, var(--input-grad1), var(--input-grad2));
+
+	
+	&[disabled] {
+		background-image: -webkit-linear-gradient(top, var(--disabled-grad1), var(--disabled-grad2));
+		color: var(--disabled);
+	}
 }
 
-input[type=text] {
+input[type=text],
+input:not([type]) {
 	padding:1px 3px;
 	background-color: var(--input-bg);
 	background-image: unset;
-}
-input[type=text]:focus {
-	background-color: #ffffff;
-	color: #000000;
-}
 
-button:enabled:active,
-input[type=button]:enabled:active,
-input[type=submit]:enabled:active {
-	box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+	&:focus {
+		border: none;
+		background-color: #ffffff;
+		color: #000000;
+		outline-color: var(--highlight-grad1);
+	}
 }
 
 button,
 select,
 input[type=button],
 input[type=submit] {
+	font-size: var(--button-font-size);
+	border: 1px solid;
+	min-height:20px;
 	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);
+
+	&:enabled:active {
+		box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+	}
 }
 
-[disabled] {
-	background-image: -webkit-linear-gradient(top, var(--disabled-grad1), var(--disabled-grad2));
-	color: var(--disabled);
-}
 
 button:enabled:active,
 input[type=button]:enabled:active,
@@ -85,17 +89,6 @@ p {
 
 a {
     text-decoration: underline;
-}
-
-button
-{
-	border: 1px solid;
-	min-height:20px;
-}
-
-input[type=text]
-{
-	height:12px;
 }
 
 #content {

@@ -151,7 +151,8 @@ function updateThemeWithAppSkinInfo(appSkinInfo) {
   //Update the background color of the panel
 
   var panelBackgroundColor = appSkinInfo.panelBackgroundColor.color;
-  document.body.bgColor = toHex(panelBackgroundColor);
+  var appBarBackgroundColor = appSkinInfo.appBarBackgroundColor.color;
+  var systemHighlightColor = appSkinInfo.systemHighlightColor;
 
   setVar("bg", toHex(panelBackgroundColor));
   setVar("font-size", appSkinInfo.baseFontSize + "px");
@@ -167,6 +168,9 @@ function updateThemeWithAppSkinInfo(appSkinInfo) {
   setVar("disabled-grad1", toHex(panelBackgroundColor, 15));
   setVar("disabled-grad2", toHex(panelBackgroundColor, 5));
 
+  setVar("highlight-grad1", toHex(systemHighlightColor));
+  setVar("highlight-grad2", toHex(systemHighlightColor, -10));
+
   var isPanelThemeLight = panelBackgroundColor.red > 50; // choose your own sweet spot
 
   if (isPanelThemeLight) {
@@ -174,15 +178,11 @@ function updateThemeWithAppSkinInfo(appSkinInfo) {
     setVar("disabled", toHex(panelBackgroundColor, -70));
     setVar("border", toHex(panelBackgroundColor, -90));
     setVar("input-bg", toHex(panelBackgroundColor, 54));
-    setVar("highlight-grad1", toHex(panelBackgroundColor, -40));
-    setVar("highlight-grad2", toHex(panelBackgroundColor, -50));
   } else {
-    setVar("font", "#ffffff");
+    setVar("font", "#CCC");
     setVar("disabled", toHex(panelBackgroundColor, 100));
     setVar("border", toHex(panelBackgroundColor, -45));
     setVar("input-bg", toHex(panelBackgroundColor, -20));
-    setVar("highlight-grad1", toHex(panelBackgroundColor, -20));
-    setVar("highlight-grad2", toHex(panelBackgroundColor, -30));
   }
 }
 
