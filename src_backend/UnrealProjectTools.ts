@@ -1,15 +1,6 @@
 
-namespace UnrealSceneTools {
+namespace UnrealProjectTools {
 
-    export interface UnrealScene {
-        dir: string
-        projectFile: string
-    }
-
-    export interface UnrealSceneDetail extends UnrealScene {
-        scenes: string[]
-        sequences: string[]
-    }
 
     //TODO: Make this configurable
     export function getScenesFolder(): string {
@@ -58,15 +49,15 @@ namespace UnrealSceneTools {
                     addTo.push(asset);
                 }
             } else if(!dirFilter || dirFilter(file)){
-                recurseSearch(root, file, ext, addTo, depth + 1, fileFilter, dirFilter)
+                recurseSearch(root, file, ext, addTo, depth + 1, fileFilter, dirFilter);
             }
         }
     }
 
-    export function listScenes(): UnrealScene[] {
+    export function listProjects(): UnrealProject[] {
         let jobFolder = new Folder(getScenesFolder());
         let files = jobFolder.getFiles();
-        let ret: UnrealScene[] = [];
+        let ret: UnrealProject[] = [];
         for (let file of files) {
             if (file instanceof File) continue;
 
@@ -74,6 +65,7 @@ namespace UnrealSceneTools {
             if (!projectFile) continue;
 
             ret.push({
+                name: file.name,
                 dir: file.fsName,
                 projectFile: projectFile.fsName,
             })
@@ -81,7 +73,7 @@ namespace UnrealSceneTools {
         return ret;
     }
 
-    export function getSceneDetails(dir: string): UnrealSceneDetail | undefined {
+    export function getProjectDetails(dir: string): UnrealProjectDetail | undefined {
         let folder = new Folder(dir);
         if (!folder.exists) return undefined;
 
@@ -89,6 +81,7 @@ namespace UnrealSceneTools {
         if (!projectFile) return undefined;
 
         return {
+            name: folder.name,
             dir: folder.fsName,
             projectFile: projectFile.fsName,
             scenes: findSceneFilesIn(folder),

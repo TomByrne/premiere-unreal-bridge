@@ -20,7 +20,6 @@ export function call<R>(method: string, args?: unknown[]): Promise<R> {
           reject(retStr);
           return;
         }
-        console.log("ret: ", ret);
 
         if (ret.succeed) resolve(ret.value as unknown as R);
         else reject(ret.value);

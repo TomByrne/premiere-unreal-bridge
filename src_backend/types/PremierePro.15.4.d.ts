@@ -1019,7 +1019,7 @@ declare class Track extends Dispatcher {
 	/**
 	 *
 	 */
-	name: String
+	name: string
 
 	/**
 	 *
@@ -1085,6 +1085,9 @@ declare class TrackItem extends Dispatcher {
 	 *
 	 */
 	readonly duration: Time
+
+	
+	readonly nodeId: string
 
 	/**
 	 *
