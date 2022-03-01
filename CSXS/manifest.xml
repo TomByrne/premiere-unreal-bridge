@@ -34,7 +34,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				</Lifecycle>
 				<UI>
 					<Type>Panel</Type>
-					<Menu>RenderDrop</Menu>
+					<Menu>Unreal Bridge</Menu>
 					<Geometry>
 						<Size>
 							<Height>300</Height>

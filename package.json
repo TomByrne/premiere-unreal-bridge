@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "link-premiere": "node .scripts/link-premiere.js",
+    "serve": "node .scripts/serve.js",
+    "postinstall": "cd src_frontend && yarn install"
+  },
+  "dependencies": {
+    "typescript": "^4.6.2",
+    "windows-elevate": "^1.0.1"
+  }
+}

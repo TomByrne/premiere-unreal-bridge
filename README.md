@@ -3,6 +3,43 @@
 This is a work in progress for a Premiere Pro plugin that integrates with the existing [Unreal render pipeline](https://bitbucket.org/imagination/aws-unreal-renderpipeline).
 
 
+## Dev Setup
+> Due to Adobe's CEP system, it's not possible to set this project up for development on a network drive.
+
+### Prerequisites:
+- [Node.js](https://nodejs.org/en/download/)
+- Yarn `npm install --global yarn`
+
+### Point Adobe Premiere to your local checkout:
+
+- Open an Powershell / Terminal window
+- Navigate to this project folder
+- Run `yarn link-premiere` (or `node .scripts/link-premiere.js`)
+- Confirm the Admin dialog when it asks (Windows only)
+
+If this folder already exists, this script will fail, delete the folder and rerun the script.
+
+- Win: `C:\Users\<USERNAME>\AppData\Roaming\Adobe\CEP\extensions\imagsyd.aws.unreal`
+- Mac: `~/Library/Application Support/Adobe/CEP/extensions/imagsyd.aws.unreal`
+
+This will set up a symlink from the Adobe extensions folder into this repo, allowing you to work from the same directory that Premiere is watching.
+You will need to restart Premiere if it was already running, to detect the new extension.
+
+### Start development servers
+
+Before opening the panel in Premiere you'll need to start the development servers.
+
+Run `yarn serve` to start both the backend and frontend development servers.
+
+If either server is killed, the other will also exit.
+
+### Open Plugin
+
+It should now be possible to open the plugin in Premiere.
+
+- In the Premiere menu bar, go to Window > Extensions > AWS Unreal
+- Initially, the pre-built version of the frontend will load, click the localhost:8080 link to navigate to the hot-reload version.
+
 ## Goals:
 
 1. Cleanup existing sequence
