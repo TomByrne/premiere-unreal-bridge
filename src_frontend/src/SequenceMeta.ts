@@ -8,16 +8,18 @@ export interface SequenceMetaBrief {
 // What gets decorated dynamically
 export interface SequenceMeta extends SequenceMetaBrief {
   saved: boolean;
-  videoTracks: TrackInfo[];
+  // videoTracks: TrackInfo[];
   selectedItem: string | undefined;
+
+  items: Record<string, TrackItemInfo>,
 }
 
-export interface TrackInfo {
-  id: number;
-  name: string;
+// export interface TrackInfo {
+//   id: number;
+//   name: string;
 
-  items: TrackItemInfo[];
-}
+//   items: TrackItemInfo[];
+// }
 
 export interface TrackItemInfo {
   id: string;
@@ -27,7 +29,7 @@ export interface TrackItemInfo {
 }
 
 export interface SpeakerItem {
-  itemId: string;
+  id: string;
 
   project?: string | undefined;
   scene?: string | undefined;

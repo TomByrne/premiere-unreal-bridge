@@ -1,5 +1,3 @@
-
-
 namespace SequenceTools {
 
     let cached: SequenceMetaBrief | undefined;
@@ -33,13 +31,54 @@ namespace SequenceTools {
         return ret;
     }
 
-    function getTracksInfo(seq: Sequence, tracks: TrackCollection): { tracks: TrackInfo[], selected: string | undefined } {
-        var ret: TrackInfo[] = [];
+    // function getTracksInfo(seq: Sequence, tracks: TrackCollection): { tracks: TrackInfo[], selected: string | undefined } {
+    //     var ret: TrackInfo[] = [];
+    //     let selected: string[] = [];
+    //     for (let i = 0; i < tracks.length; i++) {
+    //         let track = tracks[i];
+    //         if (!track) continue;
+    //         let items: TrackItemInfo[] = [];
+    //         for (let j = 0; j < track.clips.length; j++) {
+    //             let clip = track.clips[j];
+    //             if (!clip) continue;
+
+    //             if (clip.isSelected()) {
+    //                 selected.push(clip.nodeId);
+    //             }
+
+    //             items.push({
+    //                 id: clip.nodeId,
+    //                 name: clip.name,
+    //                 start: clip.start.seconds,
+    //                 end: clip.end.seconds,
+    //             });
+    //         }
+
+    //         ret.push({
+    //             id: track.id,
+    //             name: track.name,
+    //             items: items
+    //         })
+    //     }
+    //     return {
+    //         tracks: ret,
+    //         selected: (selected.length == 1 ? selected[0] : undefined),
+    //     };
+    // }
+
+    function hasById<T>(items: { id: T }[], id: T): boolean {
+        for (let item of items) {
+            if (item.id == id) return true;
+        }
+        return false;
+    }
+
+    function getTrackItems(tracks: TrackCollection, speaker_items: SpeakerItem[]): { items: Record<string, TrackItemInfo>, selected: string | undefined } {
+        var ret: Record<string, TrackItemInfo> = {};
         let selected: string[] = [];
         for (let i = 0; i < tracks.length; i++) {
             let track = tracks[i];
             if (!track) continue;
-            let items: TrackItemInfo[] = [];
             for (let j = 0; j < track.clips.length; j++) {
                 let clip = track.clips[j];
                 if (!clip) continue;
@@ -48,22 +87,18 @@ namespace SequenceTools {
                     selected.push(clip.nodeId);
                 }
 
-                items.push({
+                if (!hasById(speaker_items, clip.nodeId)) continue;
+
+                ret[clip.nodeId] = {
                     id: clip.nodeId,
                     name: clip.name,
                     start: clip.start.seconds,
                     end: clip.end.seconds,
-                });
+                };
             }
-
-            ret.push({
-                id: track.id,
-                name: track.name,
-                items: items
-            })
         }
         return {
-            tracks: ret,
+            items: ret,
             selected: (selected.length == 1 ? selected[0] : undefined),
         };
     }
@@ -101,13 +136,16 @@ namespace SequenceTools {
             cached = metaBrief;
         }
 
-        let videoTrackInfo = getTracksInfo(seq, seq.videoTracks);
+        // let videoTrackInfo = getTracksInfo(seq, seq.videoTracks);
+        let trackItems = getTrackItems(seq.videoTracks, metaBrief.speaker_items);
 
         return {
             ...metaBrief,
             saved,
-            selectedItem: videoTrackInfo.selected,
-            videoTracks: videoTrackInfo.tracks,
+            // selectedItem: videoTrackInfo.selected,
+            // videoTracks: videoTrackInfo.tracks,
+            selectedItem: trackItems.selected,
+            items: trackItems.items,
         };
     }
 
@@ -143,7 +181,7 @@ namespace SequenceTools {
         if (!meta) return false;
 
         for (let speaker of meta.speaker_items) {
-            if (speaker.itemId == item.itemId) return false;
+            if (speaker.id == item.id) return false;
         }
 
         meta.speaker_items.push(item);
@@ -165,7 +203,7 @@ namespace SequenceTools {
         if (!meta) return false;
 
         for (let i = 0; i < meta.speaker_items.length; i++) {
-            if (meta.speaker_items[i].itemId == id) {
+            if (meta.speaker_items[i].id == id) {
                 meta.speaker_items.splice(i, 1);
                 setMeta(meta);
                 return true;
@@ -180,7 +218,7 @@ namespace SequenceTools {
         if (!meta) return false;
 
         for (let i = 0; i < meta.speaker_items.length; i++) {
-            if (meta.speaker_items[i].itemId == item.itemId) {
+            if (meta.speaker_items[i].id == item.id) {
                 meta.speaker_items[i] = item;
                 setMeta(meta);
                 return true;

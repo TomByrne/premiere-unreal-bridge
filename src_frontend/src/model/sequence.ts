@@ -3,26 +3,27 @@ import { ref, Ref } from "vue";
 
 export const sequenceMeta: Ref<SequenceMeta | undefined> = ref(undefined);
 
+export function getSelectedItem(): string | undefined {
+  const meta = sequenceMeta.value;
+  return meta?.selectedItem || undefined;
+}
+
 export function findTrackItem(id: string): TrackItemInfo | undefined {
   const meta = sequenceMeta.value;
-  if (!meta) return undefined;
-  for (const track of meta.videoTracks) {
-    for (const item of track.items) {
-      if (item.id == id) return item;
-    }
-  }
+  return meta?.items[id] || undefined;
 }
 
 export function findSpeakerItem(id: string): SpeakerItem | undefined {
   const meta = sequenceMeta.value;
   if (!meta) return undefined;
   for (const item of meta.speaker_items) {
-    if (item.itemId == id) return item;
+    if (item.id == id) return item;
   }
 }
 
 export default {
   sequenceMeta,
+  getSelectedItem,
   findTrackItem,
   findSpeakerItem,
 };

@@ -103,7 +103,7 @@ export default class SequencePanel extends Vue {
     watch(
       () => [this.selectedSpeakerItem],
       () => {
-        let id = this.selectedSpeakerItem?.itemId;
+        let id = this.selectedSpeakerItem?.id;
         if (this.lastItemID == id) return;
         this.lastItemID = id;
         this.loadProjects();
@@ -147,7 +147,7 @@ export default class SequencePanel extends Vue {
   enableSpeakerMode(): void {
     let id = model.sequence.sequenceMeta.value?.selectedItem;
     if (!id) return;
-    SequenceTools.addSpeakerItem({ itemId: id })
+    SequenceTools.addSpeakerItem({ id })
       .then((res: boolean) => {
         console.log("Speaker mode enabled: ", res);
       })

@@ -8,16 +8,18 @@ declare interface SequenceMetaBrief {
 // What gets decorated dynamically
 declare interface SequenceMeta extends SequenceMetaBrief {
     saved: boolean,
-    videoTracks: TrackInfo[],
+    // videoTracks: TrackInfo[],
     selectedItem: string | undefined,
+
+    items: Record<string, TrackItemInfo>,
 }
 
-declare interface TrackInfo {
-    id: number,
-    name: string,
+// export interface TrackInfo {
+//     id: number,
+//     name: string,
 
-    items:TrackItemInfo[]
-}
+//     items: TrackItemInfo[]
+// }
 
 declare interface TrackItemInfo {
     id: string,
@@ -27,7 +29,7 @@ declare interface TrackItemInfo {
 }
 
 declare interface SpeakerItem {
-    itemId: string,
+    id: string,
 
     project?: string | undefined,
     scene?: string | undefined,

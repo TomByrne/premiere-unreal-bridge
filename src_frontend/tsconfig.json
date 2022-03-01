@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
+    "target": "es2020",
+    "module": "es2020",
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
@@ -16,11 +16,15 @@
       "webpack-env"
     ],
     "rootDirs": [
-      "src"
+      "src",
+      "../src_shared"
     ],
     "paths": {
       "@/*": [
         "src/*"
+      ],
+      "shared@/*": [
+        "../src_shared/*"
       ]
     },
     "lib": [
