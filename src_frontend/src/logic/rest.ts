@@ -1,14 +1,8 @@
 export function call<R>(method: string, args?: unknown[]): Promise<R> {
   return new Promise<R>((resolve, reject) => {
-    const argStrs: string[] = [];
+    const argsSer = JSON.stringify(args || []);
 
-    if (args) {
-      for (const arg of args) argStrs.push(JSON.stringify(arg));
-    }
-
-    const argsSer = argStrs.join(",");
-
-    const script = `rest.callReturn(function(){return ${method}(${argsSer})})`;
+    const script = `rest.evalCall('${method}', ${argsSer})`;
     jsx.evalScript(
       script,
       (retStr: string) => {
