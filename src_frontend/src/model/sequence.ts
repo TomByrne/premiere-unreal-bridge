@@ -3,7 +3,7 @@ import { ref, Ref } from "vue";
 
 export const sequenceMeta: Ref<SequenceMeta | undefined> = ref(undefined);
 
-export function getSelectedItem(): string | undefined {
+export function getSelectedItem(): TrackItemInfo | undefined {
   const meta = sequenceMeta.value;
   return meta?.selectedItem || undefined;
 }

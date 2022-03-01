@@ -126,14 +126,12 @@ export default class SequencePanel extends Vue {
     return !!model.sequence.sequenceMeta.value?.saved;
   }
   get selectedTrackItem(): TrackItemInfo | undefined {
-    let id = model.sequence.sequenceMeta.value?.selectedItem;
-    if (!id) return undefined;
-    return model.sequence.findTrackItem(id);
+    let id = model.sequence.sequenceMeta.value?.selectedItem?.id;
+    return id ? model.sequence.findTrackItem(id) : undefined;
   }
   get selectedSpeakerItem(): SpeakerItem | undefined {
-    let id = model.sequence.sequenceMeta.value?.selectedItem;
-    if (!id) return undefined;
-    return model.sequence.findSpeakerItem(id);
+    let id = model.sequence.sequenceMeta.value?.selectedItem?.id;
+    return id ? model.sequence.findSpeakerItem(id) : undefined;
   }
   get scenes(): () => string[] {
     return () => this.ueProjectDetail?.scenes || [];
@@ -145,7 +143,7 @@ export default class SequencePanel extends Vue {
     return model;
   }
   enableSpeakerMode(): void {
-    let id = model.sequence.sequenceMeta.value?.selectedItem;
+    let id = model.sequence.sequenceMeta.value?.selectedItem?.id;
     if (!id) return;
     SequenceTools.addSpeakerItem({ id })
       .then((res: boolean) => {
@@ -208,9 +206,8 @@ export default class SequencePanel extends Vue {
   }
 
   remove(): void {
-    let id = model.sequence.sequenceMeta.value?.selectedItem;
-    if (!id) return;
-    SequenceTools.removeSpeakerItem(id);
+    let id = model.sequence.sequenceMeta.value?.selectedItem?.id;
+    if (id) SequenceTools.removeSpeakerItem(id);
   }
 }
 </script>

@@ -146,6 +146,10 @@ a {
 	margin: 2px;
 	align-items: center;
 
+	&.selected {
+		background: rgba($color: #fff, $alpha: 0.25);
+	}
+
 	.label,
 	.info {
 		width: 30px;

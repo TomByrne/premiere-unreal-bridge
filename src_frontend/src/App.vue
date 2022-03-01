@@ -2,7 +2,7 @@
   <div id="content">
     <DevLink v-if="model.plugin.devMode" />
     <UnrealMappingPanel />
-    <RenderPanel />
+    <ItemsList />
   </div>
 </template>
 
@@ -10,14 +10,14 @@
 import { Options, Vue } from "vue-class-component";
 import UnrealMappingPanel from "./components/UnrealMappingPanel.vue";
 import DevLink from "./components/DevLink.vue";
-import RenderPanel from "./components/RenderPanel.vue";
+import ItemsList from "./components/ItemsList.vue";
 import model from "./model";
 import SequenceTools from "./logic/SequenceTools";
 
 @Options({
   components: {
     UnrealMappingPanel,
-    RenderPanel,
+    ItemsList,
     DevLink,
   },
 })

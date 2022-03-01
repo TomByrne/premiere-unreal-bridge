@@ -73,9 +73,9 @@ namespace SequenceTools {
         return false;
     }
 
-    function getTrackItems(tracks: TrackCollection, speaker_items: SpeakerItem[]): { items: Record<string, TrackItemInfo>, selected: string | undefined } {
+    function getTrackItems(tracks: TrackCollection, speaker_items: SpeakerItem[]): { items: Record<string, TrackItemInfo>, selected: TrackItemInfo | undefined } {
         var ret: Record<string, TrackItemInfo> = {};
-        let selected: string[] = [];
+        let selected = [];
         for (let i = 0; i < tracks.length; i++) {
             let track = tracks[i];
             if (!track) continue;
@@ -83,18 +83,20 @@ namespace SequenceTools {
                 let clip = track.clips[j];
                 if (!clip) continue;
 
-                if (clip.isSelected()) {
-                    selected.push(clip.nodeId);
-                }
-
-                if (!hasById(speaker_items, clip.nodeId)) continue;
-
-                ret[clip.nodeId] = {
+                const trackItem = {
                     id: clip.nodeId,
                     name: clip.name,
                     start: clip.start.seconds,
                     end: clip.end.seconds,
                 };
+
+                if (clip.isSelected()) {
+                    selected.push(trackItem);
+                }
+
+                if (!hasById(speaker_items, clip.nodeId)) continue;
+
+                ret[clip.nodeId] = trackItem;
             }
         }
         return {

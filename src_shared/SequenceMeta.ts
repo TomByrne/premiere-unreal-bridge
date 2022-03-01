@@ -9,7 +9,7 @@ declare interface SequenceMetaBrief {
 declare interface SequenceMeta extends SequenceMetaBrief {
     saved: boolean,
     // videoTracks: TrackInfo[],
-    selectedItem: string | undefined,
+    selectedItem: TrackItemInfo | undefined,
 
     items: Record<string, TrackItemInfo>,
 }
