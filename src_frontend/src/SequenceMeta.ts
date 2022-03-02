@@ -11,7 +11,7 @@ export interface SequenceMeta extends SequenceMetaBrief {
   // videoTracks: TrackInfo[];
   selectedItem: TrackItemInfo | undefined;
 
-  items: Record<string, TrackItemInfo>,
+  items: Record<string, TrackItemInfo>;
 }
 
 // export interface TrackInfo {

@@ -1,6 +1,6 @@
 <template>
-  <div class="panel">
-    <h1>Unreal Project / Scene / Sequence</h1>
+  <div class="panel" v-if="selectedSpeakerItem && selectedTrackItem">
+    <h1>{{ selectedTrackItem.name }}</h1>
     <div class="sub" v-if="!hasSequence">
       Open a sequence to enable Unreal export.
     </div>
@@ -13,14 +13,14 @@
       Create a render track to enable Unreal.
       <button @click="createRenderTrack">Create a track</button>
     </div> -->
-    <div class="sub" v-else-if="!selectedTrackItem">
+    <!-- <div class="sub" v-else-if="!selectedTrackItem">
       Select a timeline video item to begin adding Unreal shot info.
     </div>
     <div class="sub" v-else-if="!selectedSpeakerItem">
       Selected item is not yet speaker enabled.
       <button @click="enableSpeakerMode">Enable now</button>
-    </div>
-    <div class="sub" v-else>
+    </div> -->
+    <div class="sub">
       Select Unreal shot info for selected timeline item.
       <div class="labelled-list">
         <div class="labelled">
@@ -67,7 +67,7 @@
         </div>
       </div>
       <button @click="remove()">Clear info from item</button>
-      <button @click="refresh()">Refresh Unreal Data</button>
+      <button @click="refresh()" :disabled="model.unreal.loadingProjectDetails.value">{{model.unreal.loadingProjectDetails.value ? "Loading Unreal Data" : "Refresh Unreal Data"}}</button>
     </div>
     <!-- <div class="code" v-if="model.plugin.devMode">
       {{ model.sequence.sequenceMeta }}
@@ -113,6 +113,7 @@ export default class SequencePanel extends Vue {
     watch(
       () => [this.selectedSpeakerItem?.project],
       () => {
+        console.log("Project changed");
         this.loadProjectDetails();
       },
       { immediate: true }
@@ -120,17 +121,17 @@ export default class SequencePanel extends Vue {
   }
 
   get hasSequence(): boolean {
-    return !!model.sequence.sequenceMeta.value;
+    return !!model.sequence.sequenceMeta;
   }
   get isSetup(): boolean {
-    return !!model.sequence.sequenceMeta.value?.saved;
+    return !!model.sequence.sequenceMeta?.saved;
   }
   get selectedTrackItem(): TrackItemInfo | undefined {
-    let id = model.sequence.sequenceMeta.value?.selectedItem?.id;
+    let id = model.sequence.sequenceMeta?.selectedItem?.id;
     return id ? model.sequence.findTrackItem(id) : undefined;
   }
   get selectedSpeakerItem(): SpeakerItem | undefined {
-    let id = model.sequence.sequenceMeta.value?.selectedItem?.id;
+    let id = model.sequence.sequenceMeta?.selectedItem?.id;
     return id ? model.sequence.findSpeakerItem(id) : undefined;
   }
   get scenes(): () => string[] {
@@ -143,7 +144,7 @@ export default class SequencePanel extends Vue {
     return model;
   }
   enableSpeakerMode(): void {
-    let id = model.sequence.sequenceMeta.value?.selectedItem?.id;
+    let id = model.sequence.sequenceMeta?.selectedItem?.id;
     if (!id) return;
     SequenceTools.addSpeakerItem({ id })
       .then((res: boolean) => {
@@ -206,7 +207,7 @@ export default class SequencePanel extends Vue {
   }
 
   remove(): void {
-    let id = model.sequence.sequenceMeta.value?.selectedItem?.id;
+    let id = model.sequence.sequenceMeta?.selectedItem?.id;
     if (id) SequenceTools.removeSpeakerItem(id);
   }
 }

@@ -43,7 +43,7 @@ export default class ItemsList extends Vue {
     selected: boolean;
   }[] {
     let ret = [];
-    let meta = model.sequence.sequenceMeta.value;
+    let meta = model.sequence.sequenceMeta;
     let selected = this.selectedTrackItem;
     let selectedId = selected ? selected.id : undefined;
     if (meta) {

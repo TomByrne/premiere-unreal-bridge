@@ -14,26 +14,21 @@ namespace UnrealProjectTools {
         else return undefined;
     }
 
-    function dirFilter(f:Folder): boolean {
-        if(f.name == "Brushify" || f.name == "Megascans") return false;
-        return true;
-    }
-
-    function findSceneFilesIn(folder: Folder): string[] {
+    function findSceneFilesIn(folder: Folder, folders?:string[]): string[] {
         let ret: string[] = [];
         let content = new Folder(`${folder.fsName}\\Content`);
-        recurseSearch(content, content, ".umap", ret, 0, undefined, dirFilter);
+        recurseSearch(content, content, ".umap", ret, 0, undefined, folders);
         return ret;
     }
 
-    function findSequenceFilesIn(folder: Folder): string[] {
+    function findSequenceFilesIn(folder: Folder, folders?:string[]): string[] {
         let ret: string[] = [];
         let content = new Folder(`${folder.fsName}\\Content`);
-        recurseSearch(content, content, ".uasset", ret, 0, (f: File) => f.path.toLowerCase().indexOf("sequence") != -1, dirFilter);
+        recurseSearch(content, content, ".uasset", ret, 0, (f: File) => f.path.toLowerCase().indexOf("sequence") != -1, folders);
         return ret;
     }
 
-    function recurseSearch(root: Folder, folder: Folder, ext: string, addTo: string[], depth = 0, fileFilter?: (f: File) => boolean, dirFilter?: (f: Folder) => boolean): void {
+    function recurseSearch(root: Folder, folder: Folder, ext: string, addTo: string[], depth = 0, fileFilter?: (f: File) => boolean, folders?:Array<string>): void {
         if (depth > 10) {
             console.log("Aborting recursive search at: " + folder.fsName);
             return;
@@ -48,8 +43,8 @@ namespace UnrealProjectTools {
                     let asset = "/" + path.substring(0, path.length - ext.length);
                     addTo.push(asset);
                 }
-            } else if(!dirFilter || dirFilter(file)){
-                recurseSearch(root, file, ext, addTo, depth + 1, fileFilter, dirFilter);
+            } else if (!folders || folders.indexOf(file) != -1) {
+                recurseSearch(root, file, ext, addTo, depth + 1, fileFilter, undefined);
             }
         }
     }
@@ -73,7 +68,7 @@ namespace UnrealProjectTools {
         return ret;
     }
 
-    export function getProjectDetails(dir: string): UnrealProjectDetail | undefined {
+    export function getProjectDetails(dir: string, folders?:string[]): UnrealProjectDetail | undefined {
         let folder = new Folder(dir);
         if (!folder.exists) return undefined;
 
@@ -84,8 +79,8 @@ namespace UnrealProjectTools {
             name: folder.name,
             dir: folder.fsName,
             projectFile: projectFile.fsName,
-            scenes: findSceneFilesIn(folder),
-            sequences: findSequenceFilesIn(folder),
+            scenes: findSceneFilesIn(folder, folders),
+            sequences: findSequenceFilesIn(folder, folders),
         }
     }
 }

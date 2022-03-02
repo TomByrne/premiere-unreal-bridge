@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "serve",
+			"options": {
+				"cwd": "./src_frontend"
+			},
+			"label": "npm: serve",
+			"problemMatcher": [
+				"$eslint-stylish",
+				"$tsc-watch"
+			]
+		}
+	]
+}

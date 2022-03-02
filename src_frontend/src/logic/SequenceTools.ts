@@ -1,10 +1,10 @@
-import { call } from "./rest";
+import { call, call2 } from "./rest";
 import model from "../model";
 import { SequenceMeta, SpeakerItem } from "@/SequenceMeta";
 
-export function getMeta(create?: boolean): Promise<SequenceMeta> {
-  return call("SequenceTools.getMeta", [create]);
-}
+// export function getMeta(create?: boolean): Promise<SequenceMeta> {
+//   return call("SequenceTools.getMeta", [create]);
+// }
 export function setRenderTrack(id: string): Promise<boolean> {
   return call("SequenceTools.setRenderTrack", [id]);
 }
@@ -28,10 +28,14 @@ export function startWatchingMeta(): void {
   watching = true;
   loadMeta();
 }
+let lastRes: string | undefined;
 function loadMeta() {
-  getMeta(true)
-    .then((meta: SequenceMeta | undefined) => {
-      model.sequence.sequenceMeta.value = meta;
+  call2<SequenceMeta>("SequenceTools.getMeta", [true])
+    .then((resp) => {
+      if(lastRes != resp.str) {
+        lastRes = resp.str;
+        model.sequence.sequenceMeta = resp.parsed;
+      }
       timerId = setTimeout(() => loadMeta(), 250);
     })
     .catch((e) => {
@@ -46,7 +50,6 @@ export function stopWatchingMeta(): void {
 }
 
 export default {
-  getMeta,
   setRenderTrack,
   startWatchingMeta,
   stopWatchingMeta,
