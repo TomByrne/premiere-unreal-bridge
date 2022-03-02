@@ -28,7 +28,7 @@
 <script lang="ts">
 import { Vue } from "vue-class-component";
 import model from "@/model";
-import { SpeakerItem, TrackItemInfo } from "@/SequenceMeta";
+import { TrackItemInfo, SpeakerItem } from "@/model/sequence";
 import SequenceTools from "@/logic/SequenceTools";
 
 export default class ItemsList extends Vue {

@@ -17,7 +17,7 @@ export function writeJob(file: string, job: Job | string): Promise<null> {
     console.log("writeJob: ", file, job);
     return new Promise((resolve, reject) => {
         if(typeof(job) != "string"){
-            const jobStr = JSON.stringify(job);
+            const jobStr = JSON.stringify(job, null, " ");
             if(!jobStr){
                 reject("Couldn't serialize job");
                 return;

@@ -1,4 +1,3 @@
-import { SequenceMeta, SpeakerItem, TrackItemInfo } from "@/SequenceMeta";
 import { reactive } from "vue";
 
 export class SequenceModel {
@@ -23,31 +22,44 @@ export class SequenceModel {
 }
 
 export default reactive(new SequenceModel());
+// What gets stored
+export interface SequenceMetaBrief {
+  id: number;
+  render_track: string | undefined;
+  speaker_items: SpeakerItem[];
+}
 
+// What gets decorated dynamically
+export interface SequenceMeta extends SequenceMetaBrief {
+  saved: boolean;
+  // videoTracks: TrackInfo[];
+  selectedItem: TrackItemInfo | undefined;
 
-// export const sequenceMeta: Ref<SequenceMeta | undefined> = ref(undefined);
+  items: Record<string, TrackItemInfo>;
+}
 
-// export function getSelectedItem(): TrackItemInfo | undefined {
-//   const meta = sequenceMeta.value;
-//   return meta?.selectedItem || undefined;
+// export interface TrackInfo {
+//   id: number;
+//   name: string;
+
+//   items: TrackItemInfo[];
 // }
 
-// export function findTrackItem(id: string): TrackItemInfo | undefined {
-//   const meta = sequenceMeta.value;
-//   return meta?.items[id] || undefined;
-// }
+export interface TrackItemInfo {
+  id: string;
+  name: string;
+  start: number;
+  end: number;
+}
 
-// export function findSpeakerItem(id: string): SpeakerItem | undefined {
-//   const meta = sequenceMeta.value;
-//   if (!meta) return undefined;
-//   for (const item of meta.speaker_items) {
-//     if (item.id == id) return item;
-//   }
-// }
+export interface SpeakerItem {
+  id: string;
 
-// export default {
-//   sequenceMeta,
-//   getSelectedItem,
-//   findTrackItem,
-//   findSpeakerItem,
-// };
+  project?: string | undefined;
+  scene?: string | undefined;
+  sequence?: string | undefined;
+
+  // render_clip: string,
+  // render_imgseq_low: string,
+  // render_imgseq_high: string
+}

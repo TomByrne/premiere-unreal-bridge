@@ -1,6 +1,6 @@
 import { call, call2 } from "./rest";
 import model from "../model";
-import { SequenceMeta, SpeakerItem } from "@/SequenceMeta";
+import { SequenceMeta, SpeakerItem } from "@/model/sequence";
 
 // export function getMeta(create?: boolean): Promise<SequenceMeta> {
 //   return call("SequenceTools.getMeta", [create]);
@@ -23,7 +23,7 @@ export function selectTrackItem(id: string): Promise<boolean> {
 
 let watching = false;
 let timerId: NodeJS.Timeout | undefined;
-export function startWatchingMeta(): void {
+export function setup(): void {
   if (watching) return;
   watching = true;
   loadMeta();
@@ -34,7 +34,7 @@ function loadMeta() {
     .then((resp) => {
       if(lastRes != resp.str) {
         lastRes = resp.str;
-        console.log("Project Metadata: ", resp.parsed);
+        console.log("Sequence Metadata: ", resp.parsed);
         model.sequence.sequenceMeta = resp.parsed;
       }
       timerId = setTimeout(() => loadMeta(), 250);
@@ -55,8 +55,8 @@ export function stopWatchingMeta(): void {
 }
 
 export default {
+  setup,
   setRenderTrack,
-  startWatchingMeta,
   stopWatchingMeta,
   addSpeakerItem,
   removeSpeakerItem,

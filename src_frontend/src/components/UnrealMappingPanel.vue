@@ -64,7 +64,7 @@
 import SequenceTools from "@/logic/SequenceTools";
 import UnrealProjectTools from "@/logic/UnrealProjectTools";
 import model from "@/model";
-import { SpeakerItem, TrackItemInfo } from "@/SequenceMeta";
+import { SpeakerItem, TrackItemInfo } from "@/model/sequence";
 import { UnrealProject, UnrealProjectDetail } from "@/UnrealProject";
 import { watch } from "@vue/runtime-core";
 import { Options, Vue } from "vue-class-component";
