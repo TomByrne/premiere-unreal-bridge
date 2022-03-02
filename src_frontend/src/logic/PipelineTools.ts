@@ -35,6 +35,10 @@ export function writeJob(file: string, job: Job | string): Promise<null> {
 export function deleteJob(file: string): Promise<null> {
     console.log("deleteJob: ", file);
     return new Promise((resolve, reject) => {
+        if(!fs.existsSync(file)){
+            resolve(null);
+            return;
+        }
         fs.rm(file, (err: NodeJS.ErrnoException | null) => {
             if(err) reject(err);
             else resolve(null);

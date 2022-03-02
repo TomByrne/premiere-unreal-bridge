@@ -12,7 +12,7 @@
           <select
             class="value"
             v-model="selectedSpeakerItem.project"
-            @change="updateSpeakerInfo($event.target, 'project')"
+            @change="updateSpeakerInfo($event.target, 'project', ['scene', 'sequence'])"
             :disabled="model.unreal.loadingProjects"
           >
             <option
@@ -179,12 +179,17 @@ export default class SequencePanel extends Vue {
       });
   }*/
 
-  updateSpeakerInfo(element: HTMLSelectElement, prop: string): void {
+  updateSpeakerInfo(element: HTMLSelectElement, prop: string, clear?:string[]): void {
     let selection = element.options[element.selectedIndex].value;
     console.log(`Select ${prop}: `, selection);
     let speakerItem = this.selectedSpeakerItem;
     if (!speakerItem) return;
     Reflect.set(speakerItem, prop, selection);
+    if(clear) {
+      for(const clearProp of clear) {
+        Reflect.set(speakerItem, prop, undefined);
+      }
+    }
     SequenceTools.updateSpeakerItem(speakerItem);
   }
 
