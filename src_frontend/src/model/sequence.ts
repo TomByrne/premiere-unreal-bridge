@@ -1,5 +1,5 @@
 import { SequenceMeta, SpeakerItem, TrackItemInfo } from "@/SequenceMeta";
-import { reactive, ref, Ref } from "vue";
+import { reactive } from "vue";
 
 export class SequenceModel {
   sequenceMeta: SequenceMeta | undefined;

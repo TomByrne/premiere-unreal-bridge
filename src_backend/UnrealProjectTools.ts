@@ -4,7 +4,7 @@ namespace UnrealProjectTools {
 
     //TODO: Make this configurable
     export function getScenesFolder(): string {
-        return "W:\\2660_AWS_ReINVENT\\4 Motion Design\\3D\\Unreal_Projects";
+        return "\\\\sydvid02\\AWS_1\\2660_AWS_ReINVENT\\4 Motion Design\\3D\\Unreal_Projects";
     }
 
     export function findProjectFileIn(folder: Folder): File | undefined {

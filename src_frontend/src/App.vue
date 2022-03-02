@@ -13,6 +13,8 @@ import DevLink from "./components/DevLink.vue";
 import ItemsList from "./components/ItemsList.vue";
 import model from "./model";
 import SequenceTools from "./logic/SequenceTools";
+import PipelineJobUpdater from "./logic/PipelineJobUpdater";
+import UnrealProjectTools from "./logic/UnrealProjectTools";
 
 @Options({
   components: {
@@ -28,6 +30,8 @@ export default class App extends Vue {
 
   mounted(): void {
     SequenceTools.startWatchingMeta();
+    PipelineJobUpdater.setup();
+    UnrealProjectTools.setup();
   }
 
   unmounted(): void {

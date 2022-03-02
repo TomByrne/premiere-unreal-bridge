@@ -4,22 +4,6 @@
     <div class="sub" v-if="!hasSequence">
       Open a sequence to enable Unreal export.
     </div>
-    <!-- <div class="sub" v-else-if="!isSetup">
-      Sequence not set up for Unreal export.
-      <button>Setup this sequence</button>
-      <button>Setup a copy</button>
-    </div> -->
-    <!-- <div class="sub" v-else-if="!renderTrack">
-      Create a render track to enable Unreal.
-      <button @click="createRenderTrack">Create a track</button>
-    </div> -->
-    <!-- <div class="sub" v-else-if="!selectedTrackItem">
-      Select a timeline video item to begin adding Unreal shot info.
-    </div>
-    <div class="sub" v-else-if="!selectedSpeakerItem">
-      Selected item is not yet speaker enabled.
-      <button @click="enableSpeakerMode">Enable now</button>
-    </div> -->
     <div class="sub">
       Select Unreal shot info for selected timeline item.
       <div class="labelled-list">
@@ -29,10 +13,10 @@
             class="value"
             v-model="selectedSpeakerItem.project"
             @change="updateSpeakerInfo($event.target, 'project')"
-            :disabled="loadingProjects"
+            :disabled="model.unreal.loadingProjects"
           >
             <option
-              v-for="proj in ueProjects"
+              v-for="proj in model.unreal.allProjects"
               :key="proj.dir"
               :value="proj.dir"
             >
@@ -46,7 +30,7 @@
             class="value"
             v-model="selectedSpeakerItem.scene"
             @change="updateSpeakerInfo($event.target, 'scene')"
-            :disabled="loadingDetail"
+            :disabled="model.unreal.loadingProjectDetails"
           >
             <option v-for="scene in scenes()" :key="scene" :value="scene">
               {{ scene }}
@@ -58,7 +42,7 @@
           <select
             class="value"
             @change="updateSpeakerInfo($event.target, 'sequence')"
-            :disabled="loadingDetail"
+            :disabled="model.unreal.loadingProjectDetails"
           >
             <option v-for="seq in sequences()" :key="seq" :value="seq">
               {{ seq }}
@@ -90,14 +74,14 @@ import { Options, Vue } from "vue-class-component";
 })
 export default class SequencePanel extends Vue {
   public error: string | false = false;
-  public ueProjects: UnrealProject[] = [];
-  public ueProjectDetail: UnrealProjectDetail | undefined;
+  // public ueProjects: UnrealProject[] = [];
+  // public ueProjectDetail: UnrealProjectDetail | undefined;
 
   public lastItemID: string | undefined;
-  public lastProjectDir: string | undefined;
+  // public lastProjectDir: string | undefined;
 
-  public loadingProjects = false;
-  public loadingDetail = false;
+  // public loadingProjects = false;
+  // public loadingDetail = false;
 
   mounted(): void {
     watch(
@@ -106,20 +90,25 @@ export default class SequencePanel extends Vue {
         let id = this.selectedSpeakerItem?.id;
         if (this.lastItemID == id) return;
         this.lastItemID = id;
-        this.loadProjects();
+        UnrealProjectTools.loadProjects();
       },
       { immediate: true }
     );
-    watch(
+    /*watch(
       () => [this.selectedSpeakerItem?.project],
       () => {
         console.log("Project changed");
-        this.loadProjectDetails();
+        const project = this.selectedSpeakerItem?.project;
+        if(project) UnrealProjectTools.loadingProjectDetails(project)
       },
       { immediate: true }
-    );
+    );*/
   }
 
+  get ueProjectDetail(): UnrealProjectDetail | undefined {
+    const dir = this.selectedSpeakerItem?.project;
+    return dir ? model.unreal.findProjectDetails(dir) : undefined;
+  }
   get hasSequence(): boolean {
     return !!model.sequence.sequenceMeta;
   }
@@ -155,41 +144,40 @@ export default class SequencePanel extends Vue {
       });
   }
 
-  loadProjects(): void {
-    this.loadingProjects = true;
-    UnrealProjectTools.listProjects()
-      .then((projects: UnrealProject[]) => {
-        this.loadingProjects = false;
-        this.ueProjects = projects;
-      })
-      .catch((e) => {
-        this.loadingProjects = false;
-        console.log("Failed to load Unreal projects: ", e);
-      });
-  }
+  // loadProjects(): void {
+  //   this.loadingProjects = true;
+  //   UnrealProjectTools.listProjects()
+  //     .then((projects: UnrealProject[]) => {
+  //       this.loadingProjects = false;
+  //       this.ueProjects = projects;
+  //     })
+  //     .catch((e) => {
+  //       this.loadingProjects = false;
+  //       console.log("Failed to load Unreal projects: ", e);
+  //     });
+  // }
 
-  loadProjectDetails(force?: boolean): void {
+  /*loadProjectDetails(force?: boolean): void {
     let dir = this.selectedSpeakerItem?.project;
     if (!dir) {
-      this.ueProjectDetail = undefined;
       this.lastProjectDir = undefined;
       return;
     }
     if (!force && this.lastProjectDir == dir) return;
     this.lastProjectDir = dir;
-    this.loadingDetail = true;
+    // this.loadingDetail = true;
     UnrealProjectTools.getProjectDetails(dir)
       .then((d: UnrealProjectDetail | undefined) => {
-        this.loadingDetail = false;
-        this.ueProjectDetail = d;
+        // this.loadingDetail = false;
+        // this.ueProjectDetail = d;
       })
-      .catch((e) => {
-        this.loadingDetail = false;
-        this.ueProjectDetail = undefined;
+      .catch(() => {
+        // this.loadingDetail = false;
+        // this.ueProjectDetail = undefined;
         this.lastProjectDir = undefined;
         console.log("Failed to load project detail: ", e);
       });
-  }
+  }*/
 
   updateSpeakerInfo(element: HTMLSelectElement, prop: string): void {
     let selection = element.options[element.selectedIndex].value;
@@ -202,8 +190,8 @@ export default class SequencePanel extends Vue {
 
   refresh(): void {
     console.log("refresh");
-    this.loadProjects();
-    if (this.ueProjectDetail) this.loadProjectDetails(true);
+    UnrealProjectTools.loadProjects();
+    if (this.ueProjectDetail) UnrealProjectTools.loadProjectDetails(this.ueProjectDetail.dir);
   }
 
   remove(): void {

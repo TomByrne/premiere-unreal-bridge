@@ -27,6 +27,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 						<Parameter>--allow-file-access</Parameter>
 						<Parameter>--allow-file-access-from-files</Parameter>
 						<Parameter>--allow-running-insecure-content</Parameter>
+						<Parameter>--enable-nodejs</Parameter>
+						<Parameter>--mixed-context</Parameter>
 					</CEFCommandLine>
 				</Resources>
 				<Lifecycle>

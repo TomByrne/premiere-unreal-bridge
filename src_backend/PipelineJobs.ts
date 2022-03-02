@@ -22,20 +22,20 @@ namespace PipelineJobs {
 
     //TODO: Make configurable
     export function getJobFolder(): string {
-        return "X:\\UnrealEngine\\aws-unreal-renderpipeline\\1_todo";
+        return "W:\\UnrealTools\\jobs";
     }
 
 
-    export function getJobsStatus(): JobsStatus {
-        let jobFolder = new Folder(getJobFolder());
-        let files = jobFolder.getFiles("*.json");
+    // export function getJobsStatus(): JobsStatus {
+    //     let jobFolder = new Folder(getJobFolder());
+    //     let files = jobFolder.getFiles("*.json");
 
-        let ret: JobsStatus = {
-            activeJobs: files.length
-        }
+    //     let ret: JobsStatus = {
+    //         activeJobs: files.length
+    //     }
 
-        return ret;
-    }
+    //     return ret;
+    // }
 
 
     export function addJobStr(name: string, job: Job | string, overwrite?: boolean): boolean {

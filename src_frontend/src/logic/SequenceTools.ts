@@ -22,7 +22,7 @@ export function selectTrackItem(id: string): Promise<boolean> {
 }
 
 let watching = false;
-let timerId: number | undefined;
+let timerId: NodeJS.Timeout | undefined;
 export function startWatchingMeta(): void {
   if (watching) return;
   watching = true;
@@ -34,6 +34,7 @@ function loadMeta() {
     .then((resp) => {
       if(lastRes != resp.str) {
         lastRes = resp.str;
+        console.log("Project Metadata: ", resp.parsed);
         model.sequence.sequenceMeta = resp.parsed;
       }
       timerId = setTimeout(() => loadMeta(), 250);
@@ -46,7 +47,11 @@ function loadMeta() {
 export function stopWatchingMeta(): void {
   if (!watching) return;
   watching = false;
-  clearInterval(timerId);
+  if(timerId){
+    clearInterval(timerId);
+    timerId = undefined;
+  } 
+
 }
 
 export default {
