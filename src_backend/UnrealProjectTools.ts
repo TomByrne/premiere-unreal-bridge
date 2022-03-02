@@ -43,7 +43,7 @@ namespace UnrealProjectTools {
                     let asset = "/" + path.substring(0, path.length - ext.length);
                     addTo.push(asset);
                 }
-            } else if (!folders || folders.indexOf(file) != -1) {
+            } else if (!folders || folders.indexOf(file.name) != -1) {
                 recurseSearch(root, file, ext, addTo, depth + 1, fileFilter, undefined);
             }
         }
