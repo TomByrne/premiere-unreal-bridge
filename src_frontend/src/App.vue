@@ -14,6 +14,7 @@ import ItemsList from "./components/ItemsList.vue";
 import model from "./model";
 import SequenceTools from "./logic/SequenceTools";
 import PipelineJobUpdater from "./logic/PipelineJobUpdater";
+import PipelineJobWatcher from "./logic/PipelineJobWatcher";
 import UnrealProjectTools from "./logic/UnrealProjectTools";
 
 @Options({
@@ -31,6 +32,7 @@ export default class App extends Vue {
   mounted(): void {
     SequenceTools.startWatchingMeta();
     PipelineJobUpdater.setup();
+    PipelineJobWatcher.setup();
     UnrealProjectTools.setup();
   }
 

@@ -3,16 +3,21 @@
     <div
       v-for="item in renderableItems"
       :key="item.id"
-      class="labelled"
+      class="item"
       :class="{ selected: item.selected }"
       @click="select(item.id)"
     >
-      <div class="label">{{ item.track.name }}</div>
-      <div class="info">
-        {{ item.track.start.toFixed(2) }}s to {{ item.track.end.toFixed(2) }}s
+      <div class="labelled">
+        <div class="label">{{ item.track.name }}</div>
+        <div class="info">
+          {{ item.track.start.toFixed(2) }}s to {{ item.track.end.toFixed(2) }}s
+        </div>
+        <button v-if="!item.speaker" @click="link(item.id)">Enable</button>
+        <button v-else @click="unlink(item.id)">Clear</button>
       </div>
-      <button v-if="!item.speaker" @click="link(item.id)">Enable</button>
-      <button v-else @click="unlink(item.id)">Clear</button>
+      <div class="job labelled" v-if="item.job" :class="item.job.state">
+        <div class="label">JOB INFO: {{ item.job.state }}</div>
+      </div>
     </div>
     <div class="sub" v-if="!selectedTrackItem && !renderableItems.length">
       Select a timeline video item to begin adding Unreal shot info.
@@ -49,12 +54,14 @@ export default class ItemsList extends Vue {
     if (meta) {
       for (let item of meta.speaker_items) {
         let trackItem = model.sequence.findTrackItem(item.id);
+        let job = model.pipeline.jobs[item.id];
         if (!trackItem) continue;
         ret.push({
           id: item.id,
           speaker: item,
           track: trackItem,
           selected: item.id == selectedId,
+          job
         });
       }
     }
@@ -83,4 +90,11 @@ export default class ItemsList extends Vue {
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.item {
+  margin: 2px;
+  > * {
+    margin: 0;
+  }
+}
+</style>

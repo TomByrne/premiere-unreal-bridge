@@ -1,7 +1,7 @@
 import { watch } from "vue";
 import model from "@/model";
 import PipelineTools from "@/logic/PipelineTools";
-import { Job } from "@/model/pipeline";
+import { Job, JobInfoState } from "@/model/pipeline";
 
 /**
  * This class CRUDs pipeline jobs based on the configured data
@@ -81,13 +81,22 @@ function checkJobs(){
                 continue;
             }
             job.job = newJob;
+            job.state = JobInfoState.pending;
+            model.pipeline.jobs = {
+                ...model.pipeline.jobs, // force updates
+            }
             PipelineTools.writeJob(job.path, newJob);
         } else{
             // New job
             const path = PipelineTools.resolveJobPath(`${speaker.id}_${projDetails.name}_${lastPart(speaker.scene)}_${lastPart(speaker.sequence)}`);
-            model.pipeline.jobs[speaker.id] = job = {
+            job = {
+                state: JobInfoState.pending,
                 job: newJob,
                 path: path
+            }
+            model.pipeline.jobs = {
+                ...model.pipeline.jobs,
+                [speaker.id]: job
             }
             PipelineTools.writeJob(path, newJob);
         }
