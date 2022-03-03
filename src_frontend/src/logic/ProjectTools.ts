@@ -1,9 +1,15 @@
-import { call2 } from "./rest";
+import { call2, call } from "./rest";
 import model from "../model";
 import { ProjectMeta } from "@/model/project";
 
 export function setup(): void {
   loadMeta();
+
+  call("ReflectTools.describeEval", ["app.project.activeSequence.videoTracks[0]", 2]).then((description) => {
+    console.log("description: ", description);
+  }).catch(() => {
+    console.error("Describe failed");
+  });
 }
 let lastRes: string | undefined;
 function loadMeta() {

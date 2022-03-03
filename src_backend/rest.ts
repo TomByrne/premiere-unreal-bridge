@@ -3,14 +3,22 @@ namespace rest {
     // Gets called from frontend
     export function evalCall(f:string, args:Array<unknown>): string {
 
-        const func = eval(f);
-        if(!func) return JSON.stringify({
+        let func: Function | undefined;
+        try {
+            func = eval(f);
+        } catch(e:any){
+            // ignore
+        }
+         
+        if(!func)return JSON.stringify({
             succeed: false,
             value: "Unable to resolve function: " + f,
         }) as string;
 
+        const dfunc:Function = func;
+
         return callReturn(() => {
-            return func.apply(null, args);
+            return dfunc.apply(null, args);
         })
     }
     export function callReturn(f:()=>unknown): string {

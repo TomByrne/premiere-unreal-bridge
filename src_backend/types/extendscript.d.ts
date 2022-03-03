@@ -913,7 +913,7 @@ interface Function {
    * @param thisObj The object to be used as this.
    * @param args An array of arguments.
    */
-  apply(thisObj: object, args: any): any
+  apply(thisObj: object | null, args: any): any
 
   /**
    * Apply a this object and arguments to a function.
