@@ -52,6 +52,7 @@
       </div>
       <button @click="remove()">Clear info from item</button>
       <button @click="refresh()" :disabled="model.unreal.loadingProjectDetails.value">{{model.unreal.loadingProjectDetails.value ? "Loading Unreal Data" : "Refresh Unreal Data"}}</button>
+      <button @click="importItem()" v-if="canImport">Import image seq</button>
     </div>
     <!-- <div class="code" v-if="model.plugin.devMode">
       {{ model.sequence.sequenceMeta }}
@@ -133,6 +134,10 @@ export default class SequencePanel extends Vue {
   get model(): unknown {
     return model;
   }
+  get canImport(): boolean  {
+    const speaker = this.selectedSpeakerItem;
+    return !!(speaker && !speaker.render_proj_item && speaker.render_path);
+  }
   enableSpeakerMode(): void {
     let id = model.sequence.sequenceMeta?.selectedItem?.id;
     if (!id) return;
@@ -207,6 +212,11 @@ export default class SequencePanel extends Vue {
   remove(): void {
     let id = model.sequence.sequenceMeta?.selectedItem?.id;
     if (id) SequenceTools.removeSpeakerItem(id);
+  }
+
+  importItem(): void {
+    let id = model.sequence.sequenceMeta?.selectedItem?.id;
+    if (id) SequenceTools.importSpeakerRender(id);
   }
 }
 </script>

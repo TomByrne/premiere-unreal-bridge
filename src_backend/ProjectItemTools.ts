@@ -59,13 +59,17 @@ namespace ProjectItemTools {
         return interp ? interp.frameRate : undefined;
     }
     
-    export function importImageSequence(path: string): ProjectItem | undefined {
+    export function importImageSequence(path: string | File): ProjectItem | undefined {
         const renderBin = getRenderBin();
-        const oldChildren = renderBin.children.concat([]);
-        app.project.importFiles([path], true, renderBin, true);
+        const oldIds = [];
+        for(const child of renderBin.children) oldIds.push(child.nodeId);
+
+        if(path instanceof File) path = path.absoluteURI;
+
+        app.project.importFiles([path], false, renderBin, true);
 
         for(const child of renderBin.children) {
-            if(oldChildren.indexOf(child) == -1) return child;
+            if(oldIds.indexOf(child.nodeId) == -1) return child;
         }
     }
 

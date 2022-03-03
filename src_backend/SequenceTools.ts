@@ -119,6 +119,12 @@ namespace SequenceTools {
         };
     }
 
+    function sortFiles(f1:File | Folder, f2:File | Folder): number {
+        const n1 = f1.name;
+        const n2 = f2.name;
+        return (n1 < n2 ? -1 : (n2 < n1 ? 1 : 0));
+    }
+
     function checkSpeakerRenderItems(seq:Sequence, meta:SequenceMetaBrief): boolean {
         const renderTrack = meta.render_track == undefined ? undefined : findTrack(seq.videoTracks, meta.render_track);
         let ret = false;
@@ -137,18 +143,19 @@ namespace SequenceTools {
                 item = undefined;
             }
 
-            if(!speaker.render_proj_item && speaker.render_path) {
-                const dir = new Folder(speaker.render_path);
-                const files = dir.getFiles();
-                if(files.length) {
-                    // Renders are available, create a project item
-                    const projItem = ProjectItemTools.importImageSequence(files[0].path);
-                    if(projItem) {
-                        speaker.render_proj_item = projItem.nodeId;
-                        ret = true;
-                    }
-                }
-            }
+            // if(!speaker.render_proj_item && speaker.render_path) {
+            //     const dir = new Folder(speaker.render_path);
+            //     let files = dir.getFiles();
+            //     if(files.length) {
+            //         // Renders are available, create a project item
+            //         files = files.sort(sortFiles);
+            //         const projItem = ProjectItemTools.importImageSequence(files[0].path);
+            //         if(projItem) {
+            //             speaker.render_proj_item = projItem.nodeId;
+            //             ret = true;
+            //         }
+            //     }
+            // }
 
             if(!item && renderTrack && speaker.render_proj_item) {
                 const projItem = ProjectItemTools.find(speaker.render_proj_item);
@@ -305,6 +312,39 @@ namespace SequenceTools {
             }
         }
 
+        return false;
+    }
+
+    function findSpeakerItem(id: string): SpeakerItem | undefined {
+        let meta = getMeta(true);
+        if (!meta) return;
+
+        for(const item of meta.speaker_items) {
+            if(item.id == id) return item;
+        }
+    }
+
+    export function importSpeakerRender(id:string): boolean {
+        const speaker = findSpeakerItem(id);
+        if(speaker && !speaker.render_proj_item && speaker.render_path) {
+            const dir = new Folder(speaker.render_path);
+            let files = dir.getFiles();
+            if(files.length) {
+                // Renders are available, create a project item
+                files = files.sort(sortFiles);
+                const projItem = ProjectItemTools.importImageSequence(files[0]);
+                if(projItem) {
+                    speaker.render_proj_item = projItem.nodeId;
+                    return true;
+                } else{
+                    console.log("Import failed: ", speaker.render_path);
+                }
+            } else{
+                console.log("No files to import: ", speaker.render_path);
+            }
+        } else{
+            console.log("Not ready to import: ", id);
+        }
         return false;
     }
 }

@@ -5,11 +5,11 @@ import { ProjectMeta } from "@/model/project";
 export function setup(): void {
   loadMeta();
 
-  call("ReflectTools.reflectEval", ["app.project.activeSequence", 2]).then((description) => {
-    console.log("description: ", description);
-  }).catch(() => {
-    console.error("Describe failed");
-  });
+  // call("ReflectTools.reflectEval", ["app.project.activeSequence.videoTracks[0]", 2]).then((description) => {
+  //   console.log("description: ", description);
+  // }).catch(() => {
+  //   console.error("Describe failed");
+  // });
 }
 let lastRes: string | undefined;
 function loadMeta() {

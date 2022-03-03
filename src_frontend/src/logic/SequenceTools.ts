@@ -31,6 +31,9 @@ export function updateSpeakerItem(item: SpeakerItem): Promise<boolean> {
 export function selectTrackItem(id: string): Promise<boolean> {
   return call("SequenceTools.selectTrackItem", [id]);
 }
+export function importSpeakerRender(id: string): Promise<boolean> {
+  return call("SequenceTools.importSpeakerRender", [id]);
+}
 
 let watching = false;
 let timerId: NodeJS.Timeout | undefined;
@@ -72,4 +75,5 @@ export default {
   removeSpeakerItem,
   updateSpeakerItem,
   selectTrackItem,
+  importSpeakerRender,
 };

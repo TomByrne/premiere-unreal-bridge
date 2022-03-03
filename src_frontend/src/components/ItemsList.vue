@@ -34,6 +34,7 @@ import model from "@/model";
 import { TrackItemInfo, SpeakerItem } from "@/model/sequence";
 import SequenceTools from "@/logic/SequenceTools";
 import PipelineJobUpdater from "@/logic/PipelineJobUpdater";
+import { call } from "../logic/rest";
 
 export default class ItemsList extends Vue {
   get selectedTrackItem(): TrackItemInfo | undefined {
@@ -100,6 +101,11 @@ export default class ItemsList extends Vue {
   {
     if(!item.track || !item.speaker) return false;
     return !!(item.speaker.project && item.speaker.sequence && item.speaker.scene);
+  }
+
+  openOutput(item:ItemBundle): void {
+    if(item.speaker?.render_path)
+      call("FileSystemTools.openFolder", [item.speaker.render_path]);
   }
 }
 
