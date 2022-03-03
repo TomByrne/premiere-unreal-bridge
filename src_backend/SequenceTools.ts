@@ -66,6 +66,20 @@ namespace SequenceTools {
     //     };
     // }
 
+    function findTrack(tracks: TrackCollection, id:number): Track | undefined {
+        for(const track of tracks) if(track.id == id) return track;
+    }
+    function findEmptyTrack(tracks: TrackCollection): Track | undefined {
+        for(const track of tracks) if(track.clips.length == 0) return track;
+    }
+    function findTrackItem(tracks: Array<Track>, itemId:string): TrackItem | undefined {
+        for(const track of tracks){
+            for(const item of track.clips){
+                if(item.nodeId == itemId) return item;
+            }
+        }
+    }
+
     function hasById<T>(items: { id: T }[], id: T): boolean {
         for (let item of items) {
             if (item.id == id) return true;
@@ -105,6 +119,43 @@ namespace SequenceTools {
         };
     }
 
+    function checkSpeakerRenderItems(seq:Sequence, meta:SequenceMetaBrief): boolean {
+        const renderTrack = meta.render_track == undefined ? undefined : findTrack(seq.videoTracks, meta.render_track);
+        let ret = false;
+        for(const speaker of meta.speaker_items){
+            let item:TrackItem | undefined;
+            if(speaker.render_track_item) {
+                if(renderTrack) item = findTrackItem([renderTrack], speaker.render_track_item);
+                if(!item) item = findTrackItem(seq.videoTracks, speaker.render_track_item);
+            }
+
+            // Remove Track item if invalid
+            if(item && (!renderTrack || renderTrack.clips.indexOf(item) == -1)){
+                item.remove(false, false);
+                speaker.render_track_item = undefined;
+                ret = true;
+                item = undefined;
+            }
+
+            if(!item && renderTrack && speaker.render_proj_item) {
+                const projItem = ProjectItemTools.find(speaker.render_proj_item);
+                const origTrackItem = findTrackItem(seq.videoTracks, speaker.id);
+                if(!origTrackItem) {
+                    // TODO: Orig item removed, should remove spearker item
+                    continue;
+                }
+                if(!projItem) {
+                    // Proj item has been deleted
+                    speaker.render_proj_item = undefined;
+                    ret = true;
+                }else{
+                    item = renderTrack.insertClip(projItem, origTrackItem.start);
+                }
+            }
+        }
+        return ret;
+    }
+
     export function getMeta(create?: boolean, seq?: Sequence): SequenceMeta | undefined {
         seq = findSeq(seq);
         if (!seq) return undefined;
@@ -127,6 +178,7 @@ namespace SequenceTools {
         }
 
         let saved = true;
+        let resave = false;
         if (!metaBrief) {
             if (!create) return undefined;
             saved = false;
@@ -138,6 +190,21 @@ namespace SequenceTools {
             }
             cached = metaBrief;
         }
+
+        // Validate render track
+        if(metaBrief.render_track == undefined || !findTrack(seq.videoTracks, metaBrief.render_track)) {
+            const track = findEmptyTrack(seq.videoTracks);
+            metaBrief.render_track = track?.id;
+            resave = true;
+        }
+        
+        // Validate render items
+        if(checkSpeakerRenderItems(seq, metaBrief)){
+            resave = true;
+        }
+
+        
+        if(resave && saved) saveMeta(seq, metaBrief);
 
         // let videoTrackInfo = getTracksInfo(seq, seq.videoTracks);
         let trackItems = getTrackItems(seq.videoTracks, metaBrief.speaker_items);
@@ -156,28 +223,24 @@ namespace SequenceTools {
         seq = findSeq(seq);
         if (!seq) return false;
 
-
-        let xmpValue: XMPValue | undefined;
+        let metaBrief: SequenceMetaBrief | undefined;
         if (value) {
             value.saved = true;
-            let metaBrief: SequenceMetaBrief = {
+            metaBrief = {
                 id: seq.id,
                 name: seq.name,
                 render_track: value.render_track,
                 speaker_items: value.speaker_items,
             }
             cached = metaBrief;
-            xmpValue = JSON.stringify(metaBrief);
         }
 
-        return XMP.setValue(seq.projectItem, creatorNS, creatorKey, xmpValue);
+        return saveMeta(seq, metaBrief);
     }
 
-    export function setRenderTrack(id: string | undefined, seq?: Sequence): boolean {
-        let meta = getMeta(true, seq);
-        if (!meta) return false;
-        meta.render_track = id;
-        return setMeta(meta, seq);
+    function saveMeta(seq:Sequence, meta:SequenceMetaBrief | undefined): boolean {
+        const xmpValue = meta ? JSON.stringify(meta) : undefined;
+        return XMP.setValue(seq.projectItem, creatorNS, creatorKey, xmpValue);
     }
 
     export function addSpeakerItem(item: SpeakerItem, seq?: Sequence): boolean {

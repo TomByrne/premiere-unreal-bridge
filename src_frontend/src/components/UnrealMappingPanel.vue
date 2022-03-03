@@ -57,6 +57,7 @@
       {{ model.sequence.sequenceMeta }}
     </div> -->
     <div class="error" v-if="error">{{ error }}</div>
+    <div v-if="needsRenderTrack()" class="render-track-warning warning">Create an empty video track to enable rendering.</div>
   </div>
 </template>
 
@@ -142,6 +143,10 @@ export default class SequencePanel extends Vue {
       .catch((e: unknown) => {
         this.error = "Failed to enable speaker mode: " + e;
       });
+  }
+
+  needsRenderTrack(): boolean { 
+    return !!(model.sequence.sequenceMeta && !model.sequence.sequenceMeta.render_track);
   }
 
   // loadProjects(): void {

@@ -1044,7 +1044,12 @@ declare class Track extends Dispatcher {
 	/**
 	 *
 	 */
-	insertClip(clipProjectItem: ProjectItem, time: number): void
+	insertClip(clipProjectItem: ProjectItem, time: Time): TrackItem
+
+	/**
+	 *
+	 */
+	isLocked(): boolean
 
 	/**
 	 *
@@ -1055,6 +1060,11 @@ declare class Track extends Dispatcher {
 	 *
 	 */
 	overwriteClip(clipProjectItem: ProjectItem, time: number): void
+
+	/**
+	 *
+	 */
+	setLocked(arg1?: number): void
 
 	/**
 	 *
@@ -1724,16 +1734,23 @@ declare class Csxs extends Dispatcher {
 }
 
 
-declare class Collection<T> extends Dispatcher {
-	/**
-	 * The number of objects in the collection.
-	 */
-	readonly length: number
+declare class Collection<T> extends Array<T> implements Dispatcher {
 
+	
 	/**
-	 * Retrieves an object in the collection by its index number. The first object is at index 0.
+	 *
 	 */
-	[index: number]: T | undefined
+	 bind(eventName: string, function_: any): void
+
+	 /**
+	  *
+	  */
+	 setTimeout(eventName: string, function_: any, milliseconds: number): void
+ 
+	 /**
+	  *
+	  */
+	 unbind(eventName: string): void
 }
 
 /**

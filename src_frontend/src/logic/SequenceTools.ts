@@ -4,12 +4,6 @@ import { SequenceMeta, SpeakerItem } from "@/model/sequence";
 import path from "path";
 import md5 from "md5";
 
-// export function getMeta(create?: boolean): Promise<SequenceMeta> {
-//   return call("SequenceTools.getMeta", [create]);
-// }
-export function setRenderTrack(id: string): Promise<boolean> {
-  return call("SequenceTools.setRenderTrack", [id]);
-}
 export function addSpeakerItem(id: string): Promise<boolean> {
   return new Promise((resolve, reject) => {
     const dir = model.project.getProjectDir();
@@ -73,7 +67,6 @@ export function stopWatchingMeta(): void {
 
 export default {
   setup,
-  setRenderTrack,
   stopWatchingMeta,
   addSpeakerItem,
   removeSpeakerItem,

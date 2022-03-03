@@ -1,5 +1,18 @@
 
 namespace ProjectItemTools {
+    export function find(id: string): ProjectItem | undefined {
+       return _find(app.project.rootItem, id);
+    }
+    function _find(within:ProjectItem, id: string): ProjectItem | undefined {
+        for(const item of within.children) {
+            if(item.nodeId == id) return item;
+            else if(item.type == ProjectItemType.BIN){
+                const found = _find(item, id);
+                if(found) return item;
+            }
+        }
+    }
+
     export function getSelected() {
         let viewIDs = app.getProjectViewIDs();
         if (viewIDs) {

@@ -61,6 +61,8 @@ export interface SpeakerItem {
   sequence?: string | undefined;
 
   render_path: string,
+  render_track_item?: string;
+  render_proj_item?: string;
 
   // render_clip: string,
   // render_imgseq_low: string,

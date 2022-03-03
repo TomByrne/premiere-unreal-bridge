@@ -1,5 +1,31 @@
 
 namespace ReflectTools {
+    export function reflectEval(expr:string): ObjDescription | undefined
+    {
+        return reflect(eval(expr));
+    }
+
+    //TODO: complete
+    export function reflect(obj:any): ObjDescription | undefined
+    {
+        const reflect:Reflection = obj.reflect;
+        if(!reflect) return;
+
+        var ret:ObjDescription = {
+            type: reflect.name
+        };
+
+        ret.props = {};
+
+        for(const methodInfo of reflect.methods){
+            ret.props[methodInfo.name] = {
+                type: "function"
+            }
+        }
+
+        return ret;
+    }
+
     export function describeEval(expr:string, depth:number = 1): ObjDescription
     {
         return describe(eval(expr), depth);

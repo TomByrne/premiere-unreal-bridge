@@ -2,7 +2,7 @@
 declare interface SequenceMetaBrief {
     id: number,
     name: string,
-    render_track: string | undefined;
+    render_track?: number;
     speaker_items: SpeakerItem[]
 }
 
@@ -37,6 +37,8 @@ declare interface SpeakerItem {
     sequence?: string | undefined,
 
     render_path: string,
+    render_track_item?: string;
+    render_proj_item?: string;
 
     // render_clip: string,
     // render_imgseq_low: string,
