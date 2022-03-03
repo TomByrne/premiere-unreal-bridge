@@ -137,6 +137,19 @@ namespace SequenceTools {
                 item = undefined;
             }
 
+            if(!speaker.render_proj_item && speaker.render_path) {
+                const dir = new Folder(speaker.render_path);
+                const files = dir.getFiles();
+                if(files.length) {
+                    // Renders are available, create a project item
+                    const projItem = ProjectItemTools.importImageSequence(files[0].path);
+                    if(projItem) {
+                        speaker.render_proj_item = projItem.nodeId;
+                        ret = true;
+                    }
+                }
+            }
+
             if(!item && renderTrack && speaker.render_proj_item) {
                 const projItem = ProjectItemTools.find(speaker.render_proj_item);
                 const origTrackItem = findTrackItem(seq.videoTracks, speaker.id);

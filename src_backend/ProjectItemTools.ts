@@ -1,16 +1,25 @@
 
 namespace ProjectItemTools {
+    export const RenderBinName = "ue_renders";
+
     export function find(id: string): ProjectItem | undefined {
-       return _find(app.project.rootItem, id);
+       return findWithin(app.project.rootItem, id);
     }
-    function _find(within:ProjectItem, id: string): ProjectItem | undefined {
+    export function findWithin(within:ProjectItem, id: string): ProjectItem | undefined {
         for(const item of within.children) {
             if(item.nodeId == id) return item;
             else if(item.type == ProjectItemType.BIN){
-                const found = _find(item, id);
+                const found = findWithin(item, id);
                 if(found) return item;
             }
         }
+    }
+
+    export function getRenderBin(): ProjectItem {
+        for(const item of app.project.rootItem.children) {
+            if(item.name == RenderBinName) return item;
+        }
+        return app.project.rootItem.createBin(RenderBinName);
     }
 
     export function getSelected() {
@@ -48,6 +57,16 @@ namespace ProjectItemTools {
 
         let interp = item.getFootageInterpretation();
         return interp ? interp.frameRate : undefined;
+    }
+    
+    export function importImageSequence(path: string): ProjectItem | undefined {
+        const renderBin = getRenderBin();
+        const oldChildren = renderBin.children.concat([]);
+        app.project.importFiles([path], true, renderBin, true);
+
+        for(const child of renderBin.children) {
+            if(oldChildren.indexOf(child) == -1) return child;
+        }
     }
 
     export function reimport(item?: ProjectItem): boolean {
