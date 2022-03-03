@@ -1044,7 +1044,7 @@ declare class Track extends Dispatcher {
 	/**
 	 *
 	 */
-	insertClip(clipProjectItem: ProjectItem, time: number): TrackItem
+	insertClip(clipProjectItem: ProjectItem, time: number): boolean
 
 	/**
 	 *

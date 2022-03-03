@@ -126,6 +126,14 @@ namespace SequenceTools {
         return (n1 < n2 ? -1 : (n2 < n1 ? 1 : 0));
     }
 
+    function findNodeIdIndex(collection:Collection<{nodeId:string}>, id:string): number {
+        for(let i=0; i<collection.length; i++){
+            const item = collection[i];
+            if(item.nodeId == id) return i;
+        }
+        return -1;
+    }
+
     function checkSpeakerRenderItems(seq:Sequence, meta:SequenceMetaBrief): boolean {
         const renderTrack = meta.render_track == undefined ? undefined : findTrack(seq.videoTracks, meta.render_track);
         let ret = false;
@@ -137,7 +145,8 @@ namespace SequenceTools {
             }
 
             // Remove Track item if invalid
-            if(item && (!renderTrack || renderTrack.clips.indexOf(item) == -1)){
+            if(item && (!renderTrack || findNodeIdIndex(renderTrack.clips, item.nodeId) == -1)){
+                console.log("Remove item: "+speaker.render_track_item);
                 item.remove(false, false);
                 speaker.render_track_item = undefined;
                 ret = true;
@@ -169,10 +178,14 @@ namespace SequenceTools {
                     ret = true;
                 }else{
                     try{
-                        item = renderTrack.insertClip(projItem, origTrackItem.start.seconds);
-                        item.end = origTrackItem.end;
-                        speaker.render_track_item = item.nodeId;
-                        ret = true;
+                        console.log("insert item: "+speaker.render_track_item);
+                        item = insertClip(renderTrack, projItem, origTrackItem.start.seconds);
+                        if(item){
+                            console.log("item: "+item);
+                            item.end = origTrackItem.end;
+                            speaker.render_track_item = item.nodeId || "null";
+                            ret = true;
+                        }
                     }catch(e){
                         console.warn("Failed to insert clip", e);
                     }
@@ -180,6 +193,17 @@ namespace SequenceTools {
             }
         }
         return ret;
+    }
+
+    function insertClip(track: Track, projItem: ProjectItem, startSecs: number): TrackItem | undefined {
+        const itemIds = [];
+        for(const item of track.clips) itemIds.push(item.nodeId);
+
+        if(!track.insertClip(projItem, startSecs)) return;
+
+        for(const item of track.clips){
+            if(itemIds.indexOf(item.nodeId) == -1) return item;
+        }
     }
     
     export function getMetaBrief(create?: boolean, seq?: Sequence): SequenceMetaBrief | undefined {
