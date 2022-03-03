@@ -332,7 +332,7 @@ namespace SequenceTools {
             if(files.length) {
                 // Renders are available, create a project item
                 files = files.sort(sortFiles);
-                const projItem = ProjectItemTools.importImageSequence(files[0]);
+                const projItem = ProjectItemTools.importImageSequence(files[0] as File);
                 if(projItem) {
                     speaker.render_proj_item = projItem.nodeId;
                     return true;
