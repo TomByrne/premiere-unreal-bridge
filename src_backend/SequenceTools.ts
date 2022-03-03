@@ -132,6 +132,7 @@ namespace SequenceTools {
             saved = false;
             metaBrief = {
                 id: seq.id,
+                name: seq.name,
                 render_track: undefined,
                 speaker_items: [],
             }
@@ -161,6 +162,7 @@ namespace SequenceTools {
             value.saved = true;
             let metaBrief: SequenceMetaBrief = {
                 id: seq.id,
+                name: seq.name,
                 render_track: value.render_track,
                 speaker_items: value.speaker_items,
             }

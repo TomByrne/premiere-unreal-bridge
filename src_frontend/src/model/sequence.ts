@@ -25,6 +25,7 @@ export default reactive(new SequenceModel());
 // What gets stored
 export interface SequenceMetaBrief {
   id: number;
+  name: string,
   render_track: string | undefined;
   speaker_items: SpeakerItem[];
 }
@@ -58,6 +59,8 @@ export interface SpeakerItem {
   project?: string | undefined;
   scene?: string | undefined;
   sequence?: string | undefined;
+
+  render_path: string,
 
   // render_clip: string,
   // render_imgseq_low: string,

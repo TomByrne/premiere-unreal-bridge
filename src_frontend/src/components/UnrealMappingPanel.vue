@@ -65,7 +65,7 @@ import SequenceTools from "@/logic/SequenceTools";
 import UnrealProjectTools from "@/logic/UnrealProjectTools";
 import model from "@/model";
 import { SpeakerItem, TrackItemInfo } from "@/model/sequence";
-import { UnrealProject, UnrealProjectDetail } from "@/UnrealProject";
+import { UnrealProjectDetail } from "@/UnrealProject";
 import { watch } from "@vue/runtime-core";
 import { Options, Vue } from "vue-class-component";
 
@@ -135,7 +135,7 @@ export default class SequencePanel extends Vue {
   enableSpeakerMode(): void {
     let id = model.sequence.sequenceMeta?.selectedItem?.id;
     if (!id) return;
-    SequenceTools.addSpeakerItem({ id })
+    SequenceTools.addSpeakerItem(id)
       .then((res: boolean) => {
         console.log("Speaker mode enabled: ", res);
       })
@@ -187,7 +187,7 @@ export default class SequencePanel extends Vue {
     Reflect.set(speakerItem, prop, selection);
     if(clear) {
       for(const clearProp of clear) {
-        Reflect.set(speakerItem, prop, undefined);
+        Reflect.set(speakerItem, clearProp, undefined);
       }
     }
     SequenceTools.updateSpeakerItem(speakerItem);

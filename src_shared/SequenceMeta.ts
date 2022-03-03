@@ -1,6 +1,7 @@
 // What gets stored
 declare interface SequenceMetaBrief {
     id: number,
+    name: string,
     render_track: string | undefined;
     speaker_items: SpeakerItem[]
 }
@@ -34,6 +35,8 @@ declare interface SpeakerItem {
     project?: string | undefined,
     scene?: string | undefined,
     sequence?: string | undefined,
+
+    render_path: string,
 
     // render_clip: string,
     // render_imgseq_low: string,

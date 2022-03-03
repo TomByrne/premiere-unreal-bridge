@@ -12,11 +12,14 @@
         <div class="info">
           {{ item.track.start.toFixed(2) }}s to {{ item.track.end.toFixed(2) }}s
         </div>
+        <button v-if="isRenderable(item)" @click="doJob(item.id)">Render</button>
         <button v-if="!item.speaker" @click="link(item.id)">Enable</button>
-        <button v-else @click="unlink(item.id)">Clear</button>
+        <button v-else @click="unlink(item.id)">X</button>
+
       </div>
       <div class="job labelled" v-if="item.job" :class="item.job.state">
         <div class="label">JOB INFO: {{ item.job.state }}</div>
+        <a @click="openOutput(item)">output dir</a>
       </div>
     </div>
     <div class="sub" v-if="!selectedTrackItem && !renderableItems.length">
@@ -30,6 +33,7 @@ import { Vue } from "vue-class-component";
 import model from "@/model";
 import { TrackItemInfo, SpeakerItem } from "@/model/sequence";
 import SequenceTools from "@/logic/SequenceTools";
+import PipelineJobUpdater from "@/logic/PipelineJobUpdater";
 
 export default class ItemsList extends Vue {
   get selectedTrackItem(): TrackItemInfo | undefined {
@@ -85,8 +89,25 @@ export default class ItemsList extends Vue {
   }
 
   link(id: string): void {
-    SequenceTools.addSpeakerItem({ id });
+    SequenceTools.addSpeakerItem(id);
   }
+
+  doJob(id: string): void {
+    PipelineJobUpdater.checkItem(id);
+  }
+
+  isRenderable(item:ItemBundle): boolean
+  {
+    if(!item.track || !item.speaker) return false;
+    return !!(item.speaker.project && item.speaker.sequence && item.speaker.scene);
+  }
+}
+
+interface ItemBundle {
+  id: string,
+  speaker: SpeakerItem | undefined,
+  track: TrackItemInfo | undefined,
+  selected: boolean,
 }
 </script>
 
@@ -95,6 +116,14 @@ export default class ItemsList extends Vue {
   margin: 2px;
   > * {
     margin: 0;
+    flex-shrink: 0;
   }
+
+  .label {
+    flex-shrink: 3;
+    overflow: hidden;
+    min-width: 50px;
+  }
+
 }
 </style>

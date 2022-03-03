@@ -1,6 +1,8 @@
 import { call, call2 } from "./rest";
 import model from "../model";
 import { SequenceMeta, SpeakerItem } from "@/model/sequence";
+import path from "path";
+import md5 from "md5";
 
 // export function getMeta(create?: boolean): Promise<SequenceMeta> {
 //   return call("SequenceTools.getMeta", [create]);
@@ -8,8 +10,23 @@ import { SequenceMeta, SpeakerItem } from "@/model/sequence";
 export function setRenderTrack(id: string): Promise<boolean> {
   return call("SequenceTools.setRenderTrack", [id]);
 }
-export function addSpeakerItem(item: SpeakerItem): Promise<boolean> {
-  return call("SequenceTools.addSpeakerItem", [item]);
+export function addSpeakerItem(id: string): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    const dir = model.project.getProjectDir();
+    if(!dir || !model.project.meta || !model.sequence.sequenceMeta){
+      reject("Project or sequence not found");
+      return;
+    }
+    const itemHash = md5(model.project.meta.id+"_"+model.sequence.sequenceMeta.id+"_"+id).substring(0, 8);
+    const render_path = path.join(dir, `ue_renders/item_${itemHash}`);
+    const item:SpeakerItem = {
+      id,
+      render_path
+    }
+    const prom = call<boolean>("SequenceTools.addSpeakerItem", [item]);
+    prom.catch(reject);
+    prom.then(resolve);
+  });
 }
 export function removeSpeakerItem(id: string): Promise<boolean> {
   return call("SequenceTools.removeSpeakerItem", [id]);

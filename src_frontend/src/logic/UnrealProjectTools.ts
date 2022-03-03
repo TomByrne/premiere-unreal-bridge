@@ -5,7 +5,7 @@ import { watch } from "vue";
 
 const type = "UnrealProjectTools";
 
-export function setup(){
+export function setup(): void{
   loadProjects();
 
   watch(
@@ -18,7 +18,7 @@ export function setup(){
     );
 }
 
-function checkJobs(){
+function checkJobs(): void{
   const meta = model.sequence.sequenceMeta;
   if(!meta) {
       //TODO: clear all
