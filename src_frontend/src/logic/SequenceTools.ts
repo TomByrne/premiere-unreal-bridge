@@ -51,7 +51,7 @@ function loadMeta() {
         console.log("Sequence Metadata: ", resp.parsed);
         model.sequence.sequenceMeta = resp.parsed;
       }
-      timerId = setTimeout(() => loadMeta(), 250);
+      timerId = setTimeout(() => loadMeta(), 500);
     })
     .catch((e) => {
       console.warn("Failed to load sequence meta: ", e);

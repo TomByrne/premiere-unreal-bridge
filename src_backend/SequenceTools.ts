@@ -1,6 +1,7 @@
-namespace SequenceTools {
 
-    let cached: SequenceMetaBrief | undefined;
+
+namespace SequenceTools {
+    var CachedSeqMeta: SequenceMetaBrief | undefined;
 
     const creatorNS = "http://ns.adobe.com/xap/1.0/";
     const creatorKey = "CreatorTool";
@@ -143,18 +144,8 @@ namespace SequenceTools {
                 item = undefined;
             }
 
-            // if(!speaker.render_proj_item && speaker.render_path) {
-            //     const dir = new Folder(speaker.render_path);
-            //     let files = dir.getFiles();
-            //     if(files.length) {
-            //         // Renders are available, create a project item
-            //         files = files.sort(sortFiles);
-            //         const projItem = ProjectItemTools.importImageSequence(files[0].path);
-            //         if(projItem) {
-            //             speaker.render_proj_item = projItem.nodeId;
-            //             ret = true;
-            //         }
-            //     }
+            // if(importSpeakerRender(speaker.id)){
+            //     ret = true;
             // }
 
             if(!item && renderTrack && speaker.render_proj_item) {
@@ -164,29 +155,50 @@ namespace SequenceTools {
                     // TODO: Orig item removed, should remove spearker item
                     continue;
                 }
+                const renderTrackItem = speaker.render_track_item ? findTrackItem(seq.videoTracks, speaker.render_track_item)  :undefined;
                 if(!projItem) {
+                    console.log("Project item was not found");
                     // Proj item has been deleted
+                    //TODO: clear track item
                     speaker.render_proj_item = undefined;
+                    if(renderTrackItem){
+                        renderTrackItem.remove(false, false);
+                        speaker.render_track_item = undefined;
+                        ret = true;
+                    }
                     ret = true;
                 }else{
-                    item = renderTrack.insertClip(projItem, origTrackItem.start);
+                    try{
+                        item = renderTrack.insertClip(projItem, origTrackItem.start.seconds);
+                        item.end = origTrackItem.end;
+                        speaker.render_track_item = item.nodeId;
+                        ret = true;
+                    }catch(e){
+                        console.warn("Failed to insert clip", e);
+                    }
                 }
             }
         }
         return ret;
     }
+    
+    export function getMetaBrief(create?: boolean, seq?: Sequence): SequenceMetaBrief | undefined {
 
-    export function getMeta(create?: boolean, seq?: Sequence): SequenceMeta | undefined {
         seq = findSeq(seq);
         if (!seq) return undefined;
 
         let metaBrief: SequenceMetaBrief | undefined;
-        if (cached) {
-            if (cached.id != seq.id) cached = undefined;
-            else metaBrief = cached;
+        // if(CachedSeqMeta) console.log("getMeta: "+ CachedSeqMeta?.speaker_items[0].render_proj_item);
+        if (CachedSeqMeta) {
+            if (CachedSeqMeta.id != seq.id) {
+                CachedSeqMeta = undefined;
+                // console.log("Clear CachedSeqMeta");
+            }
+            else metaBrief = CachedSeqMeta;
         }
 
         if (!metaBrief) {
+            // console.log("Parse meta");
             let metaStr = XMP.getString(seq.projectItem, creatorNS, creatorKey);
             if (metaStr) {
                 try {
@@ -197,19 +209,29 @@ namespace SequenceTools {
             }
         }
 
-        let saved = true;
-        let resave = false;
         if (!metaBrief) {
             if (!create) return undefined;
-            saved = false;
             metaBrief = {
                 id: seq.id,
                 name: seq.name,
                 render_track: undefined,
                 speaker_items: [],
             }
-            cached = metaBrief;
         }
+        CachedSeqMeta = metaBrief;
+
+        return metaBrief;
+    }
+
+    //Only call from FE, expensive
+    export function getMeta(create?: boolean): SequenceMeta | undefined {
+        const seq = findSeq();
+        if (!seq) return undefined;
+
+        const metaBrief = getMetaBrief(create, seq);
+        if(!metaBrief) return undefined;
+        
+        let resave = false;
 
         // Validate render track
         if(metaBrief.render_track == undefined || !findTrack(seq.videoTracks, metaBrief.render_track)) {
@@ -222,16 +244,15 @@ namespace SequenceTools {
         if(checkSpeakerRenderItems(seq, metaBrief)){
             resave = true;
         }
-
         
-        if(resave && saved) saveMeta(seq, metaBrief);
+        if(resave) saveMeta(metaBrief, seq);
 
         // let videoTrackInfo = getTracksInfo(seq, seq.videoTracks);
         let trackItems = getTrackItems(seq.videoTracks, metaBrief.speaker_items);
 
         return {
             ...metaBrief,
-            saved,
+            saved: !!XMP.getString(seq.projectItem, creatorNS, creatorKey),
             // selectedItem: videoTrackInfo.selected,
             // videoTracks: videoTrackInfo.tracks,
             selectedItem: trackItems.selected,
@@ -252,19 +273,25 @@ namespace SequenceTools {
                 render_track: value.render_track,
                 speaker_items: value.speaker_items,
             }
-            cached = metaBrief;
         }
 
-        return saveMeta(seq, metaBrief);
+        return saveMeta(metaBrief, seq);
     }
 
-    function saveMeta(seq:Sequence, meta:SequenceMetaBrief | undefined): boolean {
+    function saveMeta(meta:SequenceMetaBrief | undefined, seq?:Sequence): boolean {
+        if(!seq) seq = findSeq(seq);
+        if(!seq) return false;
+        if(!meta) meta = CachedSeqMeta;
+        if(!meta) return false;
+        
+        if(meta) CachedSeqMeta = meta;
+
         const xmpValue = meta ? JSON.stringify(meta) : undefined;
         return XMP.setValue(seq.projectItem, creatorNS, creatorKey, xmpValue);
     }
 
     export function addSpeakerItem(item: SpeakerItem, seq?: Sequence): boolean {
-        let meta = getMeta(true, seq);
+        let meta = getMetaBrief(true, seq);
         if (!meta) return false;
 
         for (let speaker of meta.speaker_items) {
@@ -272,7 +299,7 @@ namespace SequenceTools {
         }
 
         meta.speaker_items.push(item);
-        setMeta(meta);
+        saveMeta(meta);
         return true;
     }
 
@@ -286,13 +313,13 @@ namespace SequenceTools {
     }
 
     export function removeSpeakerItem(id: string, seq?: Sequence): boolean {
-        let meta = getMeta(true, seq);
+        let meta = getMetaBrief(true, seq);
         if (!meta) return false;
 
         for (let i = 0; i < meta.speaker_items.length; i++) {
             if (meta.speaker_items[i].id == id) {
                 meta.speaker_items.splice(i, 1);
-                setMeta(meta);
+                saveMeta(meta);
                 return true;
             }
         }
@@ -301,13 +328,14 @@ namespace SequenceTools {
     }
 
     export function updateSpeakerItem(item: SpeakerItem, seq?: Sequence): boolean {
-        let meta = getMeta(true, seq);
+        console.log("updateSpeakerItem: " + item.id + " " + item.render_proj_item);
+        let meta = getMetaBrief(true, seq);
         if (!meta) return false;
 
         for (let i = 0; i < meta.speaker_items.length; i++) {
             if (meta.speaker_items[i].id == item.id) {
                 meta.speaker_items[i] = item;
-                setMeta(meta);
+                saveMeta(meta);
                 return true;
             }
         }
@@ -315,8 +343,8 @@ namespace SequenceTools {
         return false;
     }
 
-    function findSpeakerItem(id: string): SpeakerItem | undefined {
-        let meta = getMeta(true);
+    function findSpeakerItem(id: string, meta?:SequenceMetaBrief): SpeakerItem | undefined {
+        if (!meta) meta = getMetaBrief(true);
         if (!meta) return;
 
         for(const item of meta.speaker_items) {
@@ -325,7 +353,10 @@ namespace SequenceTools {
     }
 
     export function importSpeakerRender(id:string): boolean {
-        const speaker = findSpeakerItem(id);
+        let meta = getMetaBrief(true);
+        if (!meta) return false;
+
+        let speaker = findSpeakerItem(id, meta);
         if(speaker && !speaker.render_proj_item && speaker.render_path) {
             const dir = new Folder(speaker.render_path);
             let files = dir.getFiles();
@@ -335,15 +366,23 @@ namespace SequenceTools {
                 const projItem = ProjectItemTools.importImageSequence(files[0] as File);
                 if(projItem) {
                     speaker.render_proj_item = projItem.nodeId;
+                    let meta2 = getMetaBrief(true);
+                    if(meta2){
+                        console.log("hmm: "+(meta2 == meta));
+                        console.log("hmm2: "+meta2.speaker_items[0].render_proj_item);
+                        console.log("hmm3: "+(meta2.speaker_items[0] == speaker));
+                        console.log("hmm4: "+CachedSeqMeta?.speaker_items[0].render_proj_item);
+                    }
+                    saveMeta(meta);
                     return true;
                 } else{
-                    console.log("Import failed: ", speaker.render_path);
+                    console.warn("Import failed: ", speaker.render_path);
                 }
             } else{
-                console.log("No files to import: ", speaker.render_path);
+                console.warn("No files to import: ", speaker.render_path);
             }
         } else{
-            console.log("Not ready to import: ", id);
+            console.warn("Not ready to import: ", id);
         }
         return false;
     }

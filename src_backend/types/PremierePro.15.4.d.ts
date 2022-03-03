@@ -1044,7 +1044,7 @@ declare class Track extends Dispatcher {
 	/**
 	 *
 	 */
-	insertClip(clipProjectItem: ProjectItem, time: Time): TrackItem
+	insertClip(clipProjectItem: ProjectItem, time: number): TrackItem
 
 	/**
 	 *
@@ -1059,7 +1059,7 @@ declare class Track extends Dispatcher {
 	/**
 	 *
 	 */
-	overwriteClip(clipProjectItem: ProjectItem, time: number): void
+	overwriteClip(clipProjectItem: ProjectItem, time: number): TrackItem
 
 	/**
 	 *

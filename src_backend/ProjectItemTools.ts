@@ -10,7 +10,7 @@ namespace ProjectItemTools {
             if(item.nodeId == id) return item;
             else if(item.type == ProjectItemType.BIN){
                 const found = findWithin(item, id);
-                if(found) return item;
+                if(found) return found;
             }
         }
     }
