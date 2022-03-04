@@ -2,6 +2,7 @@
   "scripts": {
     "link-premiere": "node .scripts/link-premiere.js",
     "serve": "node .scripts/serve.js",
+    "build": "tsc && cd src_frontend && yarn build",
     "postinstall": "cd src_frontend && yarn install"
   },
   "dependencies": {

@@ -125,11 +125,19 @@ export default class SequencePanel extends Vue {
     let id = model.sequence.sequenceMeta?.selectedItem?.id;
     return id ? model.sequence.findSpeakerItem(id) : undefined;
   }
-  get scenes(): () => string[] {
-    return () => this.ueProjectDetail?.scenes || [];
+  get scenes(): () => (string | undefined)[] {
+    return () => {
+      if(!this.ueProjectDetail?.scenes) return [];
+      const empty:(string | undefined)[] = [undefined];
+      return empty.concat(this.ueProjectDetail.scenes);
+    }
   }
-  get sequences(): () => string[] {
-    return () => this.ueProjectDetail?.sequences || [];
+  get sequences(): () => (string | undefined)[] {
+    return () => {
+      if(!this.ueProjectDetail?.sequences) return [];
+      const empty:(string | undefined)[] = [undefined];
+      return empty.concat(this.ueProjectDetail.sequences);
+    }
   }
   get model(): unknown {
     return model;

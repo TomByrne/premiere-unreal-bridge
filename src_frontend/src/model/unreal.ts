@@ -2,7 +2,11 @@ import { UnrealProject, UnrealProjectDetail } from "@/UnrealProject";
 import { reactive } from "vue";
 
 export class UnrealModel {
-  searchProjFolders = ["AWS"];
+  // searchProjFolders = ["AWS"];
+  globProject = "/*.uproject"
+  globScene = "/AWS/Maps/*.umap"
+  globSeqeuence = "/AWS/Sequences/*.uasset"
+  projectRoot = "W:\\2660_AWS_ReINVENT\\4 Motion Design\\3D\\Unreal_Projects";
 
   loadingProjects = false;
   loadingProjectDetails = false;
@@ -15,6 +19,10 @@ export class UnrealModel {
   }
   findProjectDetails(dir: string): UnrealProjectDetail | undefined {
     return this.projectDetails[dir];
+  }
+  setProjectDetails(dir: string, details: UnrealProjectDetail | undefined): void {
+    if(details) this.projectDetails[dir] = details;
+    else delete this.projectDetails[dir];
   }
 }
 

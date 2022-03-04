@@ -25,7 +25,7 @@ if(platform == "win32"){
     }
 } else {
     // untested
-    execSync(`defaults write ~/Library/Preferences/com.adobe.${csxs}.plist ${val} 1`)
+    execSync(`defaults write ~/Library/Preferences/com.adobe.${csxs}.plist ${val} 1`);
 }
 
 const extId = "imagsyd.aws.unreal";
@@ -56,4 +56,11 @@ if(fs.existsSync(destPath)) {
             console.log('Success!!!');
         }
     });
+}
+
+// Check initial build
+const distPath = path.join(selfPath, "dist");
+if(!fs.existsSync(distPath)) {
+    console.log("Doing initial build...");
+    execSync(`yarn build`);
 }

@@ -1,7 +1,8 @@
 import { UnrealProject, UnrealProjectDetail } from "@/UnrealProject";
-import { call } from "./rest";
+// import { call } from "./rest";
 import model from "../model";
 import { watch } from "vue";
+import UnrealProjectScraper from "./UnrealProjectScraper";
 
 const type = "UnrealProjectTools";
 
@@ -37,7 +38,11 @@ function checkJobs(): void{
 
 export function loadProjects(): void {
   model.unreal.loadingProjects = true;
-  call<UnrealProject[]>(`${type}.listProjects`)
+  const projects = UnrealProjectScraper.listProjects();
+  model.unreal.loadingProjects = false;
+  model.unreal.allProjects = projects;
+
+  /*call<UnrealProject[]>(`${type}.listProjects`)
     .then((projects: UnrealProject[]) => {
       model.unreal.loadingProjects = false;
       model.unreal.allProjects = projects;
@@ -45,7 +50,7 @@ export function loadProjects(): void {
     .catch((e) => {
       model.unreal.loadingProjects = false;
       console.log("Failed to load Unreal projects: ", e);
-    });
+    });*/
 }
 
 export function loadProjectDetails(
@@ -59,7 +64,22 @@ export function loadProjectDetails(
     console.debug(`Loading project details`, dir);
     model.unreal.loadingProjectDetails = true;
     const start = Date.now();
-    const prom: Promise<UnrealProjectDetail> = call(
+
+    const projDetails = UnrealProjectScraper.getProjectDetails(dir);
+    
+    const dur = (Date.now() - start) / 1000;
+    if(dur > 2) console.warn(`Loading project details took ${dur.toFixed(1)}s`, dir);
+    else console.log(`Loading project details took ${dur.toFixed(1)}s`, dir);
+    model.unreal.loadingProjectDetails = false;
+
+    model.unreal.setProjectDetails(dir, projDetails);
+    if(projDetails){
+      resolve(projDetails);
+    } else {
+      reject();
+    }
+
+    /*const prom: Promise<UnrealProjectDetail> = call(
       `${type}.getProjectDetails`,
       [dir, model.unreal.searchProjFolders]
     );
@@ -78,7 +98,7 @@ export function loadProjectDetails(
       resolve(details);
     })
 
-    prom.catch(reject);
+    prom.catch(reject);*/
   })
 }
 
