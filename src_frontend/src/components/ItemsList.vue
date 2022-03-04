@@ -3,7 +3,7 @@
     <div
       v-for="item in renderableItems"
       :key="item.id"
-      class="item"
+      class="item labelled"
       :class="{ selected: item.selected }"
       @click="select(item.id)"
     >
@@ -18,8 +18,12 @@
 
       </div>
       <div class="job labelled" v-if="item.job" :class="item.job.state">
-        <div class="label">JOB INFO: {{ item.job.state }}</div>
-        <a @click="openOutput(item)">output dir</a>
+        <div class="label" v-if="item.job.state == 'pending'">Waiting for renderer</div>
+        <div class="label" v-else-if="item.job.state == 'doing'">Rendering</div>
+        <div class="label" v-else-if="item.job.state == 'done'">Render Complete</div>
+        <div class="label" v-else-if="item.job.state == 'failed'">Render Failed</div>
+        <div class="label" v-else-if="item.job.state == 'cancelled'">Render Cancelled</div>
+        <!-- <a @click="openOutput(item)">output dir</a> -->
       </div>
     </div>
     <div class="sub" v-if="!selectedTrackItem && !renderableItems.length">
@@ -120,9 +124,17 @@ interface ItemBundle {
 <style scoped lang="scss">
 .item {
   margin: 2px;
+  padding: 6px;
+  flex-direction: column;
+  box-sizing: border-box;
   > * {
     margin: 0;
     flex-shrink: 0;
+    box-sizing: border-box;
+  }
+
+  > .labelled {
+    background: unset;
   }
 
   .label {
@@ -130,6 +142,25 @@ interface ItemBundle {
     overflow: hidden;
     min-width: 50px;
   }
+  .job {
+    border-radius: 6px;
+    margin: 6px;
+    text-transform: uppercase;
+    text-align: center;
 
+    &.doing {
+      background: #007700;
+    }
+    &.done {
+      background: #000055;
+    }
+    &.failed {
+      background: #990000;
+    }
+    &.cancelled {
+      background: #333;
+      color: #DDD;
+    }
+  }
 }
 </style>
