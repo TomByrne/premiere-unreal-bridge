@@ -55,6 +55,12 @@ export function checkJobs():void {
     }
 }
 
+function fileToAsset(file: string): string {
+    const ext = path.extname(file);
+    file = file.substring(0, file.length - ext.length);
+    return "/" + file.replaceAll("\\", "/")
+}
+
 export function checkItem(id:string): boolean {
     const speaker = model.sequence.findSpeakerItem(id);
     if(!speaker) return false;
@@ -79,14 +85,14 @@ export function checkItem(id:string): boolean {
     const newJob:Job = {
         cmd: "cmd_4.27",
         project: speaker.project,
-        scene: speaker.scene,
-        sequence: speaker.sequence,
+        scene: fileToAsset(speaker.scene),
+        sequence: fileToAsset(speaker.sequence),
         render_settings: "4.27_RenderQueueSettings_rushes_quick_v3",
         output: speaker.render_path,
         output_format: "frame_{frame_number}"
     }
 
-    let path;
+    let jobPath;
     if(job){
         // Job already started, see if needs updating
         if(job.state != JobInfoState.failed && objEqual(job.job, newJob)) {
@@ -98,21 +104,21 @@ export function checkItem(id:string): boolean {
         model.pipeline.jobs = {
             ...model.pipeline.jobs, // force updates
         }
-        path = job.path;
+        jobPath = job.path;
     } else{
         // New job
-        path = PipelineTools.resolveJobPath(`${speaker.id}_${projDetails.name}_${lastPart(speaker.scene)}_${lastPart(speaker.sequence)}`);
+        jobPath = PipelineTools.resolveJobPath(`${speaker.id}_${projDetails.name}_${lastPart(speaker.scene)}_${lastPart(speaker.sequence)}`);
         job = {
             state: JobInfoState.pending,
             job: newJob,
-            path: path
+            path: jobPath
         }
         model.pipeline.jobs = {
             ...model.pipeline.jobs,
             [speaker.id]: job
         }
     }
-    PipelineTools.writeJob(path, newJob);
+    PipelineTools.writeJob(jobPath, newJob);
 
     return true;
 }
