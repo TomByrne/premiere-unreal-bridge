@@ -41,6 +41,7 @@
           <div class="label">Sequence:</div>
           <select
             class="value"
+            v-model="selectedSpeakerItem.sequence"
             @change="updateSpeakerInfo($event.target, 'sequence')"
             :disabled="model.unreal.loadingProjectDetails"
           >
@@ -54,9 +55,6 @@
       <button @click="refresh()" :disabled="model.unreal.loadingProjectDetails.value">{{model.unreal.loadingProjectDetails.value ? "Loading Unreal Data" : "Refresh Unreal Data"}}</button>
       <button @click="importItem()" v-if="canImport">Import image seq</button>
     </div>
-    <!-- <div class="code" v-if="model.plugin.devMode">
-      {{ model.sequence.sequenceMeta }}
-    </div> -->
     <div class="error" v-if="error">{{ error }}</div>
     <div v-if="needsRenderTrack()" class="render-track-warning warning">Create an empty video track to enable rendering.</div>
   </div>
@@ -76,14 +74,7 @@ import { Options, Vue } from "vue-class-component";
 })
 export default class SequencePanel extends Vue {
   public error: string | false = false;
-  // public ueProjects: UnrealProject[] = [];
-  // public ueProjectDetail: UnrealProjectDetail | undefined;
-
   public lastItemID: string | undefined;
-  // public lastProjectDir: string | undefined;
-
-  // public loadingProjects = false;
-  // public loadingDetail = false;
 
   mounted(): void {
     watch(
@@ -96,15 +87,6 @@ export default class SequencePanel extends Vue {
       },
       { immediate: true }
     );
-    /*watch(
-      () => [this.selectedSpeakerItem?.project],
-      () => {
-        console.log("Project changed");
-        const project = this.selectedSpeakerItem?.project;
-        if(project) UnrealProjectTools.loadingProjectDetails(project)
-      },
-      { immediate: true }
-    );*/
   }
 
   get ueProjectDetail(): UnrealProjectDetail | undefined {
@@ -161,41 +143,6 @@ export default class SequencePanel extends Vue {
   needsRenderTrack(): boolean { 
     return !!(model.sequence.sequenceMeta && !model.sequence.sequenceMeta.render_track);
   }
-
-  // loadProjects(): void {
-  //   this.loadingProjects = true;
-  //   UnrealProjectTools.listProjects()
-  //     .then((projects: UnrealProject[]) => {
-  //       this.loadingProjects = false;
-  //       this.ueProjects = projects;
-  //     })
-  //     .catch((e) => {
-  //       this.loadingProjects = false;
-  //       console.log("Failed to load Unreal projects: ", e);
-  //     });
-  // }
-
-  /*loadProjectDetails(force?: boolean): void {
-    let dir = this.selectedSpeakerItem?.project;
-    if (!dir) {
-      this.lastProjectDir = undefined;
-      return;
-    }
-    if (!force && this.lastProjectDir == dir) return;
-    this.lastProjectDir = dir;
-    // this.loadingDetail = true;
-    UnrealProjectTools.getProjectDetails(dir)
-      .then((d: UnrealProjectDetail | undefined) => {
-        // this.loadingDetail = false;
-        // this.ueProjectDetail = d;
-      })
-      .catch(() => {
-        // this.loadingDetail = false;
-        // this.ueProjectDetail = undefined;
-        this.lastProjectDir = undefined;
-        console.log("Failed to load project detail: ", e);
-      });
-  }*/
 
   updateSpeakerInfo(element: HTMLSelectElement, prop: string, clear?:string[]): void {
     let selection = element.options[element.selectedIndex].value;
