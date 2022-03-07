@@ -17,8 +17,8 @@
         <!-- <button v-else @click="unlink(item.id)">X</button> -->
 
       </div>
-      <div class="job labelled">
-        <span v-if="!isRenderable(item)">Unconfigured:</span>
+      <div class="job labelled" :class="(item.job && item.job.state) || 'unconfiged'">
+        <span class="label-sup" v-if="!isRenderable(item)">Needs Config:</span>
 
         <div class="label" v-if="!item.speaker.project">Select an Unreal Project</div>
         <div class="label" v-else-if="!item.speaker.scene">Select an Unreal Scene</div>
@@ -31,8 +31,10 @@
         <div class="label" v-else-if="item.job.state == 'failed'">Render Failed</div>
         <div class="label" v-else-if="item.job.state == 'cancelled'">Render Cancelled</div>
 
-        <button class="small" v-if="isRenderable(item)" @click="doJob(item.id)" :disabled="item.job.saved">Queue Render</button>
-        <button @click="importItem(item.speaker)" v-if="canImport(item.speaker)">Import Render</button>
+        <span class="buttons">
+          <button class="small" v-if="isRenderable(item)" @click="doJob(item.id)" :disabled="item.job.saved">Queue Render</button>
+          <button class="small" @click="importItem(item.speaker)" v-if="canImport(item.speaker)">Import Render</button>
+        </span>
       </div>
       <!-- <a @click="openOutput(item)">output dir</a> -->
     </div>
@@ -176,26 +178,45 @@ interface ItemBundle {
   .job {
     border-radius: 6px;
     margin: 0;
-    text-transform: uppercase;
-    text-align: center;
     overflow: hidden;
+    text-transform: uppercase;
 
     height: 30px;
     transition: height 0.2s;
     
     background: #222;
     padding: 4px 5px;
+
+    .label-sup {
+      margin-right: 10px;
+    }
+
+    .label {
+      font-weight: 800;
+    }
     
     > * {
       transition: opacity 0.2s;
     }
 
-    button {
-      border-radius: 4px;
+    .buttons {
+      button {
+        margin-left: -1px;
+        &:first-child {
+          border-radius: 4px 0 0 4px;
+        }
+        &:last-child {
+          border-radius: 0 4px 4px 0;
+        }
+      }
     }
 
+    &.unconfiged {
+      background:#caac00;
+      color: #000;
+    }
     &.doing {
-      background: #007700;
+      background: #006600;
     }
     &.done {
       background: #000055;
