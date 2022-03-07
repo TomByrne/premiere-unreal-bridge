@@ -17,7 +17,7 @@
         <!-- <button v-else @click="unlink(item.id)">X</button> -->
 
       </div>
-      <div class="job labelled" :class="(item.job && item.job.state) || 'unconfiged'">
+      <div class="job labelled" :class="(item.job && item.job.state) || (!isRenderable(item) ? 'unconfiged' : null)">
         <span class="label-sup" v-if="!isRenderable(item)">Needs Config:</span>
 
         <div class="label" v-if="!item.speaker.project">Select an Unreal Project</div>
@@ -99,10 +99,6 @@ export default class ItemsList extends Vue {
   }
 
   
-  canImport(item:SpeakerItem): boolean  {
-    const hasFiles = item.render_path ? fs.existsSync(item.render_path) && fs.readdirSync(item.render_path).length > 0 : false;
-    return !!(item && !item.render_proj_item && hasFiles);
-  }
 
   select(id: string): void {
     SequenceTools.selectTrackItem(id);
@@ -131,6 +127,12 @@ export default class ItemsList extends Vue {
       call("FileSystemTools.openFolder", [item.speaker.render_path]);
   }
 
+  canImport(item:SpeakerItem): boolean  {
+    let meta = model.sequence.sequenceMeta;
+    if(!meta || !meta.render_track) return false;
+    const hasFiles = item.render_path ? fs.existsSync(item.render_path) && fs.readdirSync(item.render_path).length > 0 : false;
+    return !!(item && !item.render_proj_item && hasFiles);
+  }
   importItem(item: SpeakerItem): void {
     SequenceTools.importSpeakerRender(item.id);
   }
