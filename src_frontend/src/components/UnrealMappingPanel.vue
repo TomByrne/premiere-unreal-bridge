@@ -1,10 +1,16 @@
 <template>
-  <div class="panel" v-if="selectedSpeakerItem && selectedTrackItem">
-    <h1>{{ selectedTrackItem.name }}</h1>
+  <div class="panel">
+    <h1>{{ selectedTrackItem ? selectedTrackItem.name : "" }}</h1>
     <div class="sub" v-if="!hasSequence">
       Open a sequence to enable Unreal export.
     </div>
-    <div class="sub">
+    <div class="sub" v-else-if="!selectedTrackItem">
+    </div>
+    <div class="sub" v-else-if="!selectedSpeakerItem">
+      Press 'Enable' to make this timeline item renderable.
+      <button @click="enableSpeakerMode()">Enable</button>
+    </div>
+    <div class="sub" v-else>
       Select Unreal shot info for selected timeline item.
       <div class="labelled-list">
         <div class="labelled">
@@ -53,7 +59,7 @@
       </div>
       <button @click="remove()">Remove</button>
       <button @click="refresh()" :disabled="model.unreal.loadingProjectDetails.value">{{model.unreal.loadingProjectDetails.value ? "Loading Unreal Data" : "Refresh Unreal Data"}}</button>
-      <button @click="importItem()" v-if="canImport">Import image seq</button>
+      <!-- <button @click="importItem()" v-if="canImport">Import image seq</button> -->
     </div>
     <div class="error" v-if="error">{{ error }}</div>
     <div v-if="needsRenderTrack()" class="render-track-warning warning">Create an empty video track to enable rendering.</div>
@@ -100,8 +106,7 @@ export default class SequencePanel extends Vue {
     return !!model.sequence.sequenceMeta?.saved;
   }
   get selectedTrackItem(): TrackItemInfo | undefined {
-    let id = model.sequence.sequenceMeta?.selectedItem?.id;
-    return id ? model.sequence.findTrackItem(id) : undefined;
+    return model.sequence.sequenceMeta?.selectedItem;
   }
   get selectedSpeakerItem(): SpeakerItem | undefined {
     let id = model.sequence.sequenceMeta?.selectedItem?.id;
@@ -124,10 +129,10 @@ export default class SequencePanel extends Vue {
   get model(): unknown {
     return model;
   }
-  get canImport(): boolean  {
+  /*get canImport(): boolean  {
     const speaker = this.selectedSpeakerItem;
     return !!(speaker && !speaker.render_proj_item && speaker.render_path);
-  }
+  }*/
   enableSpeakerMode(): void {
     let id = model.sequence.sequenceMeta?.selectedItem?.id;
     if (!id) return;
@@ -169,10 +174,10 @@ export default class SequencePanel extends Vue {
     if (id) SequenceTools.removeSpeakerItem(id);
   }
 
-  importItem(): void {
-    let id = model.sequence.sequenceMeta?.selectedItem?.id;
-    if (id) SequenceTools.importSpeakerRender(id);
-  }
+  // importItem(): void {
+  //   let id = model.sequence.sequenceMeta?.selectedItem?.id;
+  //   if (id) SequenceTools.importSpeakerRender(id);
+  // }
 }
 </script>
 

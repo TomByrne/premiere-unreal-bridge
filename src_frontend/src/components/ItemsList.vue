@@ -17,22 +17,22 @@
         <!-- <button v-else @click="unlink(item.id)">X</button> -->
 
       </div>
-      <div class="job labelled" v-if="!item.job">
+      <div class="job labelled">
         <span v-if="!isRenderable(item)">Unconfigured:</span>
+
         <div class="label" v-if="!item.speaker.project">Select an Unreal Project</div>
         <div class="label" v-else-if="!item.speaker.scene">Select an Unreal Scene</div>
         <div class="label" v-else-if="!item.speaker.sequence">Select an Unreal Sequence</div>
-        <div class="label" v-else>Ready to begin render</div>
-        <button class="small" v-if="isRenderable(item)" @click="doJob(item.id)">Queue Render</button>
-      </div>
-      <div class="job labelled" v-else  :class="item.job.state">
-        <div class="label" v-if="!item.job.state">Press Render to start</div>
+        <div class="label" v-else-if="!item.job">Waiting for job...</div>
+        <div class="label" v-else-if="!item.job.state">No render queued</div>
         <div class="label" v-else-if="item.job.state == 'pending'">Waiting for renderer</div>
         <div class="label" v-else-if="item.job.state == 'doing'">Rendering</div>
         <div class="label" v-else-if="item.job.state == 'done'">Render Complete</div>
         <div class="label" v-else-if="item.job.state == 'failed'">Render Failed</div>
         <div class="label" v-else-if="item.job.state == 'cancelled'">Render Cancelled</div>
+
         <button class="small" v-if="isRenderable(item)" @click="doJob(item.id)" :disabled="item.job.saved">Queue Render</button>
+        <button @click="importItem(item.speaker)" v-if="canImport(item.speaker)">Import Render</button>
       </div>
       <!-- <a @click="openOutput(item)">output dir</a> -->
     </div>
@@ -49,6 +49,7 @@ import { TrackItemInfo, SpeakerItem } from "@/model/sequence";
 import SequenceTools from "@/logic/SequenceTools";
 import PipelineJobUpdater from "@/logic/PipelineJobUpdater";
 import { call } from "../logic/rest";
+import fs from "fs";
 
 export default class ItemsList extends Vue {
   get selectedTrackItem(): TrackItemInfo | undefined {
@@ -62,7 +63,7 @@ export default class ItemsList extends Vue {
 
   get renderableItems(): {
     id: string;
-    speaker: SpeakerItem | undefined;
+    speaker: SpeakerItem;
     track: TrackItemInfo;
     selected: boolean;
   }[] {
@@ -84,15 +85,21 @@ export default class ItemsList extends Vue {
         });
       }
     }
-    if (selected && !this.selectedSpeakerItem) {
-      ret.push({
-        id: selected.id,
-        speaker: undefined,
-        track: selected,
-        selected: true,
-      });
-    }
+    // if (selected && !this.selectedSpeakerItem) {
+    //   ret.push({
+    //     id: selected.id,
+    //     speaker: undefined,
+    //     track: selected,
+    //     selected: true,
+    //   });
+    // }
     return ret;
+  }
+
+  
+  canImport(item:SpeakerItem): boolean  {
+    const hasFiles = item.render_path ? fs.existsSync(item.render_path) && fs.readdirSync(item.render_path).length > 0 : false;
+    return !!(item && !item.render_proj_item && hasFiles);
   }
 
   select(id: string): void {
@@ -120,6 +127,10 @@ export default class ItemsList extends Vue {
   openOutput(item:ItemBundle): void {
     if(item.speaker?.render_path)
       call("FileSystemTools.openFolder", [item.speaker.render_path]);
+  }
+
+  importItem(item: SpeakerItem): void {
+    SequenceTools.importSpeakerRender(item.id);
   }
 }
 
