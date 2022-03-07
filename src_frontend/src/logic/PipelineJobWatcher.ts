@@ -9,21 +9,15 @@ import { JobInfo, JobInfoState } from "@/model/pipeline";
  * progress info.
  */
 export function setup(): void {
-    watch(
-        () => [model.pipeline.jobs],
-        () => {
-          checkJobs();
-        },
-        { immediate: true }
-      );
+    setInterval(() => checkJobs(), 500);
 }
 
-function updateJob(job:JobInfo, state:JobInfoState) {
+function updateJob(job:JobInfo, state:JobInfoState | undefined, saved: boolean | undefined = false) {
     job.state = state;
+    if(saved != undefined) job.saved = saved;
 }
 
 function checkJobs(){
-    let hasDoing = false;
     for(const id in model.pipeline.jobs) {
         const job = model.pipeline.jobs[id];
         const exists = fs.existsSync(job.path);
@@ -43,17 +37,16 @@ function checkJobs(){
             } else if(fs.existsSync(path.join(model.pipeline.jobFolder_cancelled, name))){
                 updateJob(job, JobInfoState.cancelled);
                 
-            } else{
+            } else if(job.saved) {
                 // Lost job file!
-                updateJob(job, JobInfoState.failed);
+                updateJob(job, undefined);
             }
         } else {
-            updateJob(job, JobInfoState.doing);
-            hasDoing = true;
+            //TODO: check for alive file here
+            updateJob(job, JobInfoState.doing, undefined);
         }
     }
 
-    if(hasDoing) setTimeout(() => checkJobs(), 500);
 }
 
 export default {

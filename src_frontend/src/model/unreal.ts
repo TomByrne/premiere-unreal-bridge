@@ -21,8 +21,12 @@ export class UnrealModel {
     return this.projectDetails[dir];
   }
   setProjectDetails(dir: string, details: UnrealProjectDetail | undefined): void {
-    if(details) this.projectDetails[dir] = details;
-    else delete this.projectDetails[dir];
+    if(details) {
+      this.projectDetails = {
+        ...this.projectDetails,
+        [dir]: details
+      }
+    } else delete this.projectDetails[dir];
   }
 }
 

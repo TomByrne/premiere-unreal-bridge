@@ -14,8 +14,9 @@ export class PipelineModel {
 export default reactive(new PipelineModel());
 
 export interface JobInfo {
-  state: JobInfoState;
+  state: JobInfoState | undefined;
   path: string;
+  saved: boolean; // Does 'job' have changes that haven't been written to the queue
   job: Job;
 }
 

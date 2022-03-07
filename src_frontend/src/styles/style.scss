@@ -72,6 +72,14 @@ input[type="submit"] {
 	&:enabled:active {
 		box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
 	}
+
+	&.small {
+		padding: 0 5px;
+		text-transform: uppercase;
+		font-size: calc(var(--button-font-size) * 0.75);
+		font-weight: 800;
+		letter-spacing: 0.5px;
+	}
 }
 
 button:enabled:active,
@@ -107,7 +115,7 @@ a {
 	text-align: left;
 	border: 1px solid #333;
 	margin-bottom: -1px;
-	padding: 6px 10px 0;
+	padding: 16px 10px 10px;
 
 	h1 {
 		font-size: 1em;
@@ -143,7 +151,7 @@ a {
 	text-align: left;
 	width: 100%;
 	background: rgba($color: #fff, $alpha: 0.1);
-	margin: 2px;
+	margin: 1px 0;
 	align-items: center;
 
 	&.selected {
@@ -153,7 +161,7 @@ a {
 	.label,
 	.info {
 		width: 30px;
-		margin: 4px;
+		margin: 4px 0;
 		min-width: fit-content;
 	}
 	.value {

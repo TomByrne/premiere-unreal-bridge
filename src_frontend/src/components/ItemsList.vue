@@ -4,7 +4,7 @@
       v-for="item in renderableItems"
       :key="item.id"
       class="item labelled"
-      :class="{ selected: item.selected }"
+      :class="{ selected: item.selected, unselected: !item.selected }"
       @click="select(item.id)"
     >
       <div class="labelled">
@@ -12,19 +12,29 @@
         <div class="info">
           {{ item.track.start.toFixed(2) }}s to {{ item.track.end.toFixed(2) }}s
         </div>
-        <button v-if="isRenderable(item)" @click="doJob(item.id)">Render</button>
-        <button v-if="!item.speaker" @click="link(item.id)">Enable</button>
-        <button v-else @click="unlink(item.id)">X</button>
+        <!-- <button v-if="isRenderable(item)" @click="doJob(item.id)">Render</button>
+        <button v-if="!item.speaker" @click="link(item.id)">Enable</button> -->
+        <!-- <button v-else @click="unlink(item.id)">X</button> -->
 
       </div>
-      <div class="job labelled" v-if="item.job" :class="item.job.state">
-        <div class="label" v-if="item.job.state == 'pending'">Waiting for renderer</div>
+      <div class="job labelled" v-if="!item.job">
+        <span v-if="!isRenderable(item)">Unconfigured:</span>
+        <div class="label" v-if="!item.speaker.project">Select an Unreal Project</div>
+        <div class="label" v-else-if="!item.speaker.scene">Select an Unreal Scene</div>
+        <div class="label" v-else-if="!item.speaker.sequence">Select an Unreal Sequence</div>
+        <div class="label" v-else>Ready to begin render</div>
+        <button class="small" v-if="isRenderable(item)" @click="doJob(item.id)">Queue Render</button>
+      </div>
+      <div class="job labelled" v-else  :class="item.job.state">
+        <div class="label" v-if="!item.job.state">Press Render to start</div>
+        <div class="label" v-else-if="item.job.state == 'pending'">Waiting for renderer</div>
         <div class="label" v-else-if="item.job.state == 'doing'">Rendering</div>
         <div class="label" v-else-if="item.job.state == 'done'">Render Complete</div>
         <div class="label" v-else-if="item.job.state == 'failed'">Render Failed</div>
         <div class="label" v-else-if="item.job.state == 'cancelled'">Render Cancelled</div>
-        <!-- <a @click="openOutput(item)">output dir</a> -->
+        <button class="small" v-if="isRenderable(item)" @click="doJob(item.id)" :disabled="item.job.saved">Queue Render</button>
       </div>
+      <!-- <a @click="openOutput(item)">output dir</a> -->
     </div>
     <div class="sub" v-if="!selectedTrackItem && !renderableItems.length">
       Select a timeline video item to begin adding Unreal shot info.
@@ -98,7 +108,7 @@ export default class ItemsList extends Vue {
   }
 
   doJob(id: string): void {
-    PipelineJobUpdater.checkItem(id);
+    PipelineJobUpdater.beginJob(id);
   }
 
   isRenderable(item:ItemBundle): boolean
@@ -124,17 +134,27 @@ interface ItemBundle {
 <style scoped lang="scss">
 .item {
   margin: 2px;
-  padding: 6px;
+  padding: 3px 6px 7px;
   flex-direction: column;
   box-sizing: border-box;
   > * {
-    margin: 0;
+    margin: 3px 0;
     flex-shrink: 0;
     box-sizing: border-box;
   }
 
   > .labelled {
     background: unset;
+  }
+
+  &.unselected {
+    .job {
+      height: 10px;
+
+      > * {
+        opacity: 0;
+      }
+    }
   }
 
   .label {
@@ -144,9 +164,24 @@ interface ItemBundle {
   }
   .job {
     border-radius: 6px;
-    margin: 6px;
+    margin: 0;
     text-transform: uppercase;
     text-align: center;
+    overflow: hidden;
+
+    height: 30px;
+    transition: height 0.2s;
+    
+    background: #222;
+    padding: 4px 5px;
+    
+    > * {
+      transition: opacity 0.2s;
+    }
+
+    button {
+      border-radius: 4px;
+    }
 
     &.doing {
       background: #007700;

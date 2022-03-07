@@ -1,4 +1,4 @@
-// import { watch } from "vue";
+import { watch } from "vue";
 import model from "@/model";
 import PipelineTools from "@/logic/PipelineTools";
 import { Job, JobInfoState } from "@/model/pipeline";
@@ -9,14 +9,13 @@ import path from "path";
  * in the model.
  */
 export function setup(): void {
-    //TODO: disabled temporarily
-    // watch(
-    //     () => [model.sequence.sequenceMeta, model.unreal.projectDetails],
-    //     () => {
-    //       checkJobs();
-    //     },
-    //     { immediate: true }
-    //   );
+    watch(
+        () => [model.sequence.sequenceMeta, model.unreal.projectDetails],
+        () => {
+          checkJobs();
+        },
+        { immediate: true }
+      );
 }
 
 function objEqual<R>(o1:R, o2:R): boolean{
@@ -95,35 +94,49 @@ export function checkItem(id:string): boolean {
     let jobPath;
     if(job){
         // Job already started, see if needs updating
-        if(job.state != JobInfoState.failed && objEqual(job.job, newJob)) {
+        if(job.saved && job.state != JobInfoState.failed && objEqual(job.job, newJob)) {
             // Job hasn't changed, skip
             return false;
         }
         job.job = newJob;
-        job.state = JobInfoState.pending;
+        job.saved = false;
         model.pipeline.jobs = {
             ...model.pipeline.jobs, // force updates
         }
         jobPath = job.path;
     } else{
         // New job
-        jobPath = PipelineTools.resolveJobPath(`${speaker.id}_${projDetails.name}_${lastPart(speaker.scene)}_${lastPart(speaker.sequence)}`);
+        jobPath = PipelineTools.resolveJobPath(`${speaker.id}_${projDetails.name}_${lastPart(speaker.scene)}_${lastPart(speaker.sequence)}`, true);
         job = {
-            state: JobInfoState.pending,
+            state: undefined,
             job: newJob,
-            path: jobPath
+            path: jobPath,
+            saved: false
         }
         model.pipeline.jobs = {
             ...model.pipeline.jobs,
             [speaker.id]: job
         }
     }
-    PipelineTools.writeJob(jobPath, newJob);
 
     return true;
 }
 
+export function beginJob(id: string): boolean {
+    const job = model.pipeline.jobs[id];
+    if(job && job.path && job.job) {
+        job.saved = true;
+        job.state = undefined;
+        PipelineTools.writeJob(job.path, job.job);
+        return true;
+    }else{
+        console.warn("Couldn't start job: ", id, job);
+        return false;
+    }
+}
+
 export default {
     checkItem,
+    beginJob,
     setup,
 };

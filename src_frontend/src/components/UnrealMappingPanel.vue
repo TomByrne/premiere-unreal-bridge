@@ -24,26 +24,26 @@
             </option>
           </select>
         </div>
-        <div class="labelled" v-if="selectedSpeakerItem.project">
+        <div class="labelled">
           <div class="label">Scene:</div>
           <select
             class="value"
             v-model="selectedSpeakerItem.scene"
             @change="updateSpeakerInfo($event.target, 'scene')"
-            :disabled="model.unreal.loadingProjectDetails"
+            :disabled="(!selectedSpeakerItem.project) || model.unreal.loadingProjectDetails"
           >
             <option v-for="scene in scenes()" :key="scene" :value="scene">
               {{ scene }}
             </option>
           </select>
         </div>
-        <div class="labelled" v-if="selectedSpeakerItem.project">
+        <div class="labelled">
           <div class="label">Sequence:</div>
           <select
             class="value"
             v-model="selectedSpeakerItem.sequence"
             @change="updateSpeakerInfo($event.target, 'sequence')"
-            :disabled="model.unreal.loadingProjectDetails"
+            :disabled="(!selectedSpeakerItem.project) || model.unreal.loadingProjectDetails"
           >
             <option v-for="seq in sequences()" :key="seq" :value="seq">
               {{ seq }}
@@ -51,7 +51,7 @@
           </select>
         </div>
       </div>
-      <button @click="remove()">Clear info from item</button>
+      <button @click="remove()">Remove</button>
       <button @click="refresh()" :disabled="model.unreal.loadingProjectDetails.value">{{model.unreal.loadingProjectDetails.value ? "Loading Unreal Data" : "Refresh Unreal Data"}}</button>
       <button @click="importItem()" v-if="canImport">Import image seq</button>
     </div>

@@ -352,7 +352,6 @@ namespace SequenceTools {
     }
 
     export function updateSpeakerItem(item: SpeakerItem, seq?: Sequence): boolean {
-        console.log("updateSpeakerItem: " + item.id + " " + item.render_proj_item);
         let meta = getMetaBrief(true, seq);
         if (!meta) return false;
 
@@ -390,13 +389,6 @@ namespace SequenceTools {
                 const projItem = ProjectItemTools.importImageSequence(files[0] as File);
                 if(projItem) {
                     speaker.render_proj_item = projItem.nodeId;
-                    let meta2 = getMetaBrief(true);
-                    if(meta2){
-                        console.log("hmm: "+(meta2 == meta));
-                        console.log("hmm2: "+meta2.speaker_items[0].render_proj_item);
-                        console.log("hmm3: "+(meta2.speaker_items[0] == speaker));
-                        console.log("hmm4: "+CachedSeqMeta?.speaker_items[0].render_proj_item);
-                    }
                     saveMeta(meta);
                     return true;
                 } else{
