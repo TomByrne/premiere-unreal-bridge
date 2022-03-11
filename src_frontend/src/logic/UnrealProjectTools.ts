@@ -3,6 +3,7 @@ import { UnrealProject, UnrealProjectDetail } from "@/UnrealProject";
 import model from "../model";
 import { watch } from "vue";
 import UnrealProjectScraper from "./UnrealProjectScraper";
+import fs from "fs";
 
 const type = "UnrealProjectTools";
 
@@ -30,8 +31,10 @@ function checkJobs(): void{
     if(!speaker.project) continue;
     const details = model.unreal.findProjectDetails(speaker.project);
     if(details) continue;
-    loadProjectDetails(speaker.project); 
-    return;
+    if(fs.existsSync(speaker.project)) {
+      loadProjectDetails(speaker.project); 
+      return;
+    }
   }
   // All loaded
 }

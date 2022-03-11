@@ -6,50 +6,12 @@ import { UnrealProject, UnrealProjectDetail } from "@/UnrealProject";
 
 export class UnrealProjectScraper {
 
-
-    /* findProjectFileIn(folder: string): string | undefined {
-        const files = glob.sync(folder + '/*.uproject', {nodir:true});
-        return files[0];
-    }
-
-    private findSceneFilesIn(folder: string): string[] {
-        const ret: string[] = [];
-        const content = `${path.normalize(folder)}\\Content`;
-        this.recurseSearch(content, content, ".umap", ret, 0, undefined, folders);
-        return ret;
-    }
-
-    private findSequenceFilesIn(folder: string): string[] {
-        const ret: string[] = [];
-        const content = `${path.normalize(folder)}\\Content`;
-        this.recurseSearch(content, content, ".uasset", ret, 0, (f: string) => f.toLowerCase().indexOf("sequence") != -1, folders);
-        return ret;
-    }
-
-    private recurseSearch(root: string, folder: string, ext: string, addTo: string[], depth = 0, fileFilter?: (f: string) => boolean, folders?:Array<string>): void {
-        if (depth > 10) {
-            console.log("Aborting recursive search at: " + folder);
-            return;
-        }
-        const all = fs.readdirSync(folder);
-        for (const name of all) {
-            const file = path.join(folder, name);
-            if (!fs.lstatSync(file).isDirectory()) {
-                if (name.lastIndexOf(ext) == name.length - ext.length &&
-                    (!fileFilter || fileFilter(file))) {
-
-                    const path2 = path.posix.normalize(path.relative(root, file));
-                    const asset = "/" + path2.substring(0, path2.length - ext.length);
-                    addTo.push(asset);
-                }
-            } else if (!folders || folders.indexOf(name) != -1) {
-                this.recurseSearch(root, file, ext, addTo, depth + 1, fileFilter, undefined);
-            }
-        }
-    }*/
-
      listProjects(): UnrealProject[] {
         const jobFolder = model.unreal.projectRoot;
+        if(!fs.existsSync(jobFolder)) {
+            console.log("Project folder not found:", jobFolder);
+            return [];
+        }
         const files = fs.readdirSync(jobFolder);
         const ret: UnrealProject[] = [];
         for (const name of files) {
@@ -82,6 +44,7 @@ export class UnrealProjectScraper {
             projectFile: path.normalize(projectFile),
             scenes: this.find(contentDir, model.unreal.globScene, true),
             sequences: this.find(contentDir, model.unreal.globSeqeuence, true),
+            imgSlots: this.find(contentDir, model.unreal.globImgSlots, true, false),
         }
     }
     
@@ -89,14 +52,14 @@ export class UnrealProjectScraper {
         const files = glob.sync(folder + search, {nodir:true});
         return files[0];
     }
-    private find(folder: string, search:string, relative?:boolean): string[] {
-        const files = glob.sync(folder + search, {nodir:true});
+    private find(folder: string, search:string, relative?:boolean, files = true): string[] {
+        const list = glob.sync(folder + search, {nodir:files});
         if(relative) {
-            for(let i=0; i<files.length; i++){
-                files[i] = path.relative(folder, files[i]);
+            for(let i=0; i<list.length; i++){
+                list[i] = path.relative(folder, list[i]);
             }
         }
-        return files;
+        return list;
     }
 }
 
