@@ -59,6 +59,7 @@ export interface SpeakerItem {
   project?: string | undefined;
   scene?: string | undefined;
   sequence?: string | undefined;
+  img_slot?: string | undefined;
 
   render_path: string,
   render_track_item?: string;

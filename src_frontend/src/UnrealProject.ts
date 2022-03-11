@@ -7,4 +7,5 @@ export interface UnrealProject {
 export interface UnrealProjectDetail extends UnrealProject {
   scenes: string[];
   sequences: string[];
+  imgSlots: string[];
 }

@@ -18,7 +18,7 @@
           <select
             class="value"
             v-model="selectedSpeakerItem.project"
-            @change="updateSpeakerInfo($event.target, 'project', ['scene', 'sequence'])"
+            @change="updateSpeakerInfo($event.target, 'project', ['scene', 'sequence', 'img_slot'])"
             :disabled="model.unreal.loadingProjects"
           >
             <option
@@ -52,6 +52,19 @@
             :disabled="(!selectedSpeakerItem.project) || model.unreal.loadingProjectDetails"
           >
             <option v-for="seq in sequences()" :key="seq" :value="seq">
+              {{ seq }}
+            </option>
+          </select>
+        </div>
+        <div class="labelled">
+          <div class="label">Slot:</div>
+          <select
+            class="value"
+            v-model="selectedSpeakerItem.img_slot"
+            @change="updateSpeakerInfo($event.target, 'sequence')"
+            :disabled="(!selectedSpeakerItem.project) || model.unreal.loadingProjectDetails"
+          >
+            <option v-for="seq in imgSlots()" :key="seq" :value="seq">
               {{ seq }}
             </option>
           </select>
@@ -124,6 +137,13 @@ export default class SequencePanel extends Vue {
       if(!this.ueProjectDetail?.sequences) return [];
       const empty:(string | undefined)[] = [undefined];
       return empty.concat(this.ueProjectDetail.sequences);
+    }
+  }
+  get imgSlots(): () => (string | undefined)[] {
+    return () => {
+      if(!this.ueProjectDetail?.imgSlots) return [];
+      const empty:(string | undefined)[] = [undefined];
+      return empty.concat(this.ueProjectDetail.imgSlots);
     }
   }
   get model(): unknown {

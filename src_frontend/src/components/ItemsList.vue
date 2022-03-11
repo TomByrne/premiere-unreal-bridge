@@ -32,7 +32,8 @@
         <div class="label" v-else-if="item.job.state == 'cancelled'">Render Cancelled</div>
 
         <span class="buttons">
-          <button class="small" v-if="isRenderable(item)" @click="doJob(item.id)" :disabled="item.job.saved">Queue Render</button>
+          <button class="small" v-if="isSlotRenderable(item)" @click="renderSlot(item.id)">Output Speaker</button>
+          <button class="small" v-if="isRenderable(item)" @click="doJob(item.id)" :disabled="!item.job || item.job.saved">Queue Render</button>
           <button class="small" @click="importItem(item.speaker)" v-if="canImport(item.speaker)">Import Render</button>
         </span>
       </div>
@@ -50,8 +51,10 @@ import model from "@/model";
 import { TrackItemInfo, SpeakerItem } from "@/model/sequence";
 import SequenceTools from "@/logic/SequenceTools";
 import PipelineJobUpdater from "@/logic/PipelineJobUpdater";
+import ExporterTools from "@/logic/ExporterTools";
 import { call } from "../logic/rest";
 import fs from "fs";
+import path from "path";
 
 export default class ItemsList extends Vue {
   get selectedTrackItem(): TrackItemInfo | undefined {
@@ -136,6 +139,14 @@ export default class ItemsList extends Vue {
   importItem(item: SpeakerItem): void {
     SequenceTools.importSpeakerRender(item.id);
   }
+
+  isSlotRenderable(item:ItemBundle): boolean {
+    return !!item.speaker?.img_slot;
+  }
+
+  renderSlot(id: string){
+    ExporterTools.exportSpeakerItem(id);
+  }
 }
 
 interface ItemBundle {
@@ -205,10 +216,12 @@ interface ItemBundle {
       button {
         margin-left: -1px;
         &:first-child {
-          border-radius: 4px 0 0 4px;
+          border-bottom-left-radius: 4px;
+          border-top-left-radius: 4px;
         }
         &:last-child {
-          border-radius: 0 4px 4px 0;
+          border-bottom-right-radius: 4px;
+          border-top-right-radius: 4px;
         }
       }
     }

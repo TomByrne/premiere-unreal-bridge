@@ -14,6 +14,7 @@ This is a work in progress for a Premiere Pro plugin that integrates with the ex
 
 - Open an Powershell / Terminal window
 - Navigate to this project folder
+- Run `yarn` to install tooling dependencies
 - Run `yarn link-premiere` (or `node .scripts/link-premiere.js`)
 - Confirm the Admin dialog when it asks (Windows only)
 

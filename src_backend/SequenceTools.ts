@@ -80,6 +80,13 @@ namespace SequenceTools {
             }
         }
     }
+    
+    export function findProjItemByTrackItem(itemId:string): ProjectItem | undefined {
+        const seq = findSeq();
+        if (!seq) return undefined;
+        const trackItem = findTrackItem(seq.videoTracks, itemId);
+        return trackItem?.projectItem;
+    }
 
     function hasById<T>(items: { id: T }[], id: T): boolean {
         for (let item of items) {
@@ -366,7 +373,7 @@ namespace SequenceTools {
         return false;
     }
 
-    function findSpeakerItem(id: string, meta?:SequenceMetaBrief): SpeakerItem | undefined {
+    export function findSpeakerItem(id: string, meta?:SequenceMetaBrief): SpeakerItem | undefined {
         if (!meta) meta = getMetaBrief(true);
         if (!meta) return;
 
