@@ -2,7 +2,7 @@
   <div id="content">
     <DevLink v-if="model.plugin.devMode" />
     <UnrealMappingPanel />
-    <ItemsList />
+    <SpeakerItemList />
   </div>
 </template>
 
@@ -10,7 +10,7 @@
 import { Options, Vue } from "vue-class-component";
 import UnrealMappingPanel from "./components/UnrealMappingPanel.vue";
 import DevLink from "./components/DevLink.vue";
-import ItemsList from "./components/ItemsList.vue";
+import SpeakerItemList from "./components/SpeakerItemList.vue";
 import model from "./model";
 import SequenceTools from "./logic/SequenceTools";
 import PipelineJobUpdater from "./logic/PipelineJobUpdater";
@@ -21,7 +21,7 @@ import ProjectTools from "./logic/ProjectTools";
 @Options({
   components: {
     UnrealMappingPanel,
-    ItemsList,
+    SpeakerItemList,
     DevLink,
   },
 })

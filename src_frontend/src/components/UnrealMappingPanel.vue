@@ -201,4 +201,10 @@ export default class SequencePanel extends Vue {
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.label {
+ padding-left: 3px;
+ text-transform: uppercase;
+ font-weight: bold;
+}
+</style>
