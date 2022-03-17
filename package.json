@@ -2,11 +2,10 @@
   "scripts": {
     "link-premiere": "node .scripts/link-premiere.js",
     "serve": "node .scripts/serve.js",
-    "build": "tsc && cd src_frontend && yarn build",
+    "build": "cd ../src_backend && tsc && cd ../src_frontend && yarn build",
     "postinstall": "cd src_frontend && yarn install"
   },
   "dependencies": {
-    "typescript": "^4.6.2",
     "windows-elevate": "^1.0.1"
   }
 }

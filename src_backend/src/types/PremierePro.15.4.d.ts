@@ -954,7 +954,7 @@ declare class Project extends Dispatcher {
 	/**
 	 *
 	 */
-	openSequence(sequenceID: SequenceId): boolean
+	openSequence(sequenceID: SequenceId | number): boolean
 
 	/**
 	 *

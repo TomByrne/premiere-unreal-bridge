@@ -8,7 +8,7 @@ module.exports = {
       function (context, request, callback) {
         if (request == "path" || request == "fs" || request == "os") {
           // Externalize to a commonjs module using the request path
-          console.log("Externalizing module: ", request);
+          // console.log("Externalizing module: ", request);
           return callback(null, 'commonjs ' + request);
         }
   

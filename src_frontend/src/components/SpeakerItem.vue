@@ -14,15 +14,26 @@
       <!-- <button v-else @click="unlink()">X</button> -->
     </div>
 
-    <div class="labelled slots-row" v-if="hasSlots" :class="!slotRenderable ? 'unconfiged' : null">
+    <div
+      class="labelled slots-row"
+      v-if="hasSlots"
+      :class="
+        !slotRenderable ? 'unconfiged' : needsSlotRender ? 'needs-action' : null
+      "
+    >
+      <div class="progress" v-if="slotRender" :style="{width: slotRenderPercent + '%'}"/>
       <span class="label-sup" v-if="!slotRenderable">Needs Config:</span>
       <div class="label" v-if="!slotRenderable">
         Select slot to render speaker
       </div>
+      <div class="label" v-else-if="slotRender">Rendering speaker to Unreal...</div>
       <div class="label" v-else>Render speaker to Unreal</div>
+      
+      <div class="info" v-if="slotRender">{{slotRender.done}} / {{slotRender.duration}} ({{Math.round(slotRenderPercent)}}%)</div>
+
       <span class="buttons">
-        <button class="small" v-if="slotRenderable" @click="renderSlot()">
-          {{ slotRendered ? "Re-export Speaker" : "Export Speaker" }}
+        <button class="small" v-if="slotRenderable && !slotRender" @click="renderSlot()">
+          {{ needsSlotRender ? "Export Speaker" : "Re-export Speaker" }}
         </button>
       </span>
     </div>
@@ -80,10 +91,10 @@
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import model from "@/model";
-import { TrackItemInfo, SpeakerItem } from "@/model/sequence";
+import { TrackItemInfo, SpeakerItem, SlotRender } from "@/model/sequence";
 import SequenceTools from "@/logic/SequenceTools";
 import PipelineJobUpdater from "@/logic/PipelineJobUpdater";
-import ExporterTools from "@/logic/ExporterTools";
+import ImageSlotTools from "@/logic/ImageSlotTools";
 import { UnrealProjectDetail } from "@/UnrealProject";
 import { call } from "../logic/rest";
 import fs from "fs";
@@ -91,16 +102,18 @@ import fs from "fs";
 @Options({
   props: {
     id: String,
-    speaker: SpeakerItem,
-    track: TrackItemInfo,
+    speaker: null,
+    track: null,
     selected: Boolean,
   },
 })
 export default class SpeakerItemView extends Vue {
-  id: string = "";
-  selected: boolean = false;
-  speaker: SpeakerItem;
-  track: TrackItemInfo;
+  isMounted = false;
+  id = "";
+  selected = false;
+  speaker: SpeakerItem | undefined;
+  track: TrackItemInfo | undefined;
+  needsSlotRender = false;
 
   get ueProjectDetail(): UnrealProjectDetail | undefined {
     const dir = this.speaker?.project;
@@ -108,7 +121,8 @@ export default class SpeakerItemView extends Vue {
   }
 
   get hasSlots(): boolean {
-    return this.ueProjectDetail?.imgSlots?.length > 0;
+    const slots = this.ueProjectDetail?.imgSlots;
+    return slots ? slots.length > 0 : false;
   }
 
   get jobRenderable(): boolean {
@@ -123,9 +137,17 @@ export default class SpeakerItemView extends Vue {
   get slotRenderable(): boolean {
     return !!this.speaker?.img_slot;
   }
+  get slotRender(): SlotRender | undefined {
+    return model.sequence.findSlotRender(this.id);
+  }
+  get slotRenderPercent(): number {
+    const slotRender = this.slotRender;
+    return slotRender ? (slotRender.done / slotRender.duration * 100) : 0;
+  }
 
   get importable(): boolean {
     let item = this.speaker;
+    if (!item) return false;
     let meta = model.sequence.sequenceMeta;
     if (!meta || !meta.render_track) return false;
     const hasFiles = item.render_path
@@ -133,15 +155,6 @@ export default class SpeakerItemView extends Vue {
         fs.readdirSync(item.render_path).length > 0
       : false;
     return !!(item && !item.render_proj_item && hasFiles);
-  }
-
-  get needsSlotRender(): boolean {
-      if(!this.hasSlots) return false;
-      return !this.slotRendered;
-  }
-
-  get slotRendered(){
-      return this.slotRenderable;
   }
 
   select(): void {
@@ -169,8 +182,31 @@ export default class SpeakerItemView extends Vue {
     SequenceTools.importSpeakerRender(this.id);
   }
 
-  renderSlot(id: string) {
-    ExporterTools.exportSpeakerItem(id);
+  renderSlot() {
+    ImageSlotTools.exportSpeakerItem(this.id);
+  }
+
+  mounted() {
+    this.isMounted = true;
+    this.checkNeedsSlotRender();
+  }
+  unmounted() {
+    this.isMounted = false;
+  }
+  checkNeedsSlotRender() {
+    if (!this.speaker) return false;
+    if (!this.hasSlots) {
+      this.checkNeedsSlotRenderLater();
+      return;
+    }
+    ImageSlotTools.needsSlotRender(this.speaker.id).then((value: boolean) => {
+      this.needsSlotRender = value;
+      this.checkNeedsSlotRenderLater();
+    });
+  }
+  checkNeedsSlotRenderLater() {
+    if (!this.isMounted) return;
+    setTimeout(() => this.checkNeedsSlotRender(), 5000);
   }
 }
 </script>
@@ -245,6 +281,9 @@ export default class SpeakerItemView extends Vue {
       }
     }
 
+    &.needs-action {
+      border: 2px #caac00 solid;
+    }
     &.idle {
       background: #222;
     }
@@ -274,6 +313,9 @@ export default class SpeakerItemView extends Vue {
       border-bottom-left-radius: 6px;
       border-bottom-right-radius: 6px;
     }
+  }
+  > .slots-row {
+    margin-bottom: 1px;
   }
 }
 </style>

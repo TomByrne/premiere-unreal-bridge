@@ -17,15 +17,11 @@
       "node"
     ],
     "rootDirs": [
-      "src",
-      "../src_shared"
+      "src"
     ],
     "paths": {
       "@/*": [
         "src/*"
-      ],
-      "shared@/*": [
-        "../src_shared/*"
       ]
     },
     "lib": [

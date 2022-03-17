@@ -10,7 +10,7 @@ if(!fs.existsSync(initPath)) {
     execSync("yarn build", {cwd:fe_cwd});
 }
 
-const be_cwd = path.resolve(__dirname, "..");
+const be_cwd = path.resolve(__dirname, "./src_backend");
 const be_cmd = "yarn run tsc --watch";
 console.log("Running typescript watcher for backend");
 const be = exec(be_cmd, {cwd:be_cwd});

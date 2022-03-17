@@ -1,11 +1,10 @@
 {
     "include": [
-        "src_backend/**/*",
-        "src_shared/**/*",
+        "src/**/*",
     ],
     "compilerOptions": {
-        "outDir": "dist/backend",
-        "outFile": "dist/backend.jsx",
+        "outDir": "../dist/backend",
+        "outFile": "../dist/backend.jsx",
         "sourceMap": false,
         "allowJs": true,
         "lib": [],                   // Specifying "lib" overwrites defaults (stops import of HTML DOM stuff).
@@ -16,11 +15,7 @@
         // "strictNullChecks": true,
         "target": "es3",             // In case TypeScript is used, this will compile to ECMAScript 3 (ExtendScript!) compatible code.
         "rootDirs":[
-            "./src_backend",
-            "./src_shared"
-        ], 
-        "typeRoots": [
-            "./src_shared"
+            "./src"
         ]
     }
 }

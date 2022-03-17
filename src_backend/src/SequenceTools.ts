@@ -80,6 +80,11 @@ namespace SequenceTools {
             }
         }
     }
+    export function findVideoTrackItem(itemId:string, seq?: Sequence): TrackItem | undefined {
+        seq = findSeq(seq);
+        if(!seq) return;
+        return findTrackItem(seq.videoTracks, itemId);
+    }
     
     export function findProjItemByTrackItem(itemId:string): ProjectItem | undefined {
         const seq = findSeq();
@@ -234,6 +239,9 @@ namespace SequenceTools {
             if (metaStr) {
                 try {
                     metaBrief = JSON.parse(metaStr);
+                    if(metaBrief && !metaBrief["slot_renders"]){
+                        metaBrief["slot_renders"] = [];
+                    }
                 } catch (e) {
                     console.log("Failed to parse sequence meta");
                 }
@@ -247,6 +255,7 @@ namespace SequenceTools {
                 name: seq.name,
                 render_track: undefined,
                 speaker_items: [],
+                slot_renders: [],
             }
         }
         CachedSeqMeta = metaBrief;
@@ -303,13 +312,14 @@ namespace SequenceTools {
                 name: seq.name,
                 render_track: value.render_track,
                 speaker_items: value.speaker_items,
+                slot_renders: value.slot_renders,
             }
         }
 
         return saveMeta(metaBrief, seq);
     }
 
-    function saveMeta(meta:SequenceMetaBrief | undefined, seq?:Sequence): boolean {
+    export function saveMeta(meta:SequenceMetaBrief | undefined, seq?:Sequence): boolean {
         if(!seq) seq = findSeq(seq);
         if(!seq) return false;
         if(!meta) meta = CachedSeqMeta;
@@ -365,7 +375,7 @@ namespace SequenceTools {
         for (let i = 0; i < meta.speaker_items.length; i++) {
             if (meta.speaker_items[i].id == item.id) {
                 meta.speaker_items[i] = item;
-                saveMeta(meta);
+                saveMeta(meta, seq);
                 return true;
             }
         }
@@ -409,4 +419,95 @@ namespace SequenceTools {
         }
         return false;
     }
+
+    export function setActiveRange(seq:Sequence, start:Time, end:Time): void {
+        setActiveRangeTracks(seq.videoTracks, start, end);
+        setActiveRangeTracks(seq.audioTracks, start, end);
+    }
+    export function setActiveRangeTracks(tracks:TrackCollection, start:Time, end:Time): void {
+        for(const track of tracks) {
+            for(const item of track.clips){
+                if(item.end.seconds < start.seconds ||
+                    item.start.seconds > end.seconds) {
+                    // Remove item if outside range
+                    item.remove(false, false);
+                } else {
+                    console.log("Update: ", item.start.seconds, start.seconds, item.inPoint.seconds);
+                    if(item.start.seconds < start.seconds) {
+                        const inPoint = new Time();
+                        inPoint.seconds = (item.inPoint.seconds + (start.seconds - item.start.seconds));
+                        item.inPoint = inPoint;
+                        item.move(start);
+                        console.log("Start: ", item.start.seconds, item.inPoint.seconds);
+                    }
+                    if(item.end.seconds > end.seconds) {
+                        item.end = end;
+                        console.log("End: ", item.end.seconds, end.seconds);
+                    }
+                }
+            }
+        }
+    }
 }
+
+// What gets stored
+declare interface SequenceMetaBrief {
+    id: number,
+    name: string,
+    render_track?: number;
+    speaker_items: SpeakerItem[];
+    slot_renders: SlotRender[];
+}
+
+// What gets decorated dynamically
+declare interface SequenceMeta extends SequenceMetaBrief {
+    saved: boolean,
+    // videoTracks: TrackInfo[],
+    selectedItem: TrackItemInfo | undefined,
+
+    items: Record<string, TrackItemInfo>,
+}
+
+// export interface TrackInfo {
+//     id: number,
+//     name: string,
+
+//     items: TrackItemInfo[]
+// }
+
+declare interface TrackItemInfo {
+    id: string,
+    name: string,
+    start: number,
+    end: number,
+}
+
+declare interface SpeakerItem {
+    id: string,
+
+    project?: string | undefined,
+    scene?: string | undefined,
+    sequence?: string | undefined,
+    img_slot?: string | undefined,
+
+    render_path: string,
+    render_track_item?: string;
+    render_proj_item?: string;
+    
+    // speaker_seq_item?: string;
+    // speaker_seq_id?: string;
+
+    // render_clip: string,
+    // render_imgseq_low: string,
+    // render_imgseq_high: string
+}
+
+
+declare interface SlotRender {
+    id: string;          // id of the speaker item
+    output: string;      // folder that AME is exporting to
+    dest: string;        // destination folder that exports should be transferred to
+    start: number;       // frame offset of start of render
+    duration: number;    // duration of render in frames 
+    done: number;        // frames captured and copied into UE project 
+  }

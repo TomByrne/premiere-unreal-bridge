@@ -1,12 +1,15 @@
 
 namespace ProjectItemTools {
-    export const RenderBinName = "ue_renders";
+    export const RootBinName = "ue_bridge";
+    export const RenderBinName = "renders";
+    export const TempBinName = ".temp";
 
     export function find(id: string): ProjectItem | undefined {
        return findWithin(app.project.rootItem, id);
     }
-    export function findWithin(within:ProjectItem, id: string): ProjectItem | undefined {
+    export function findWithin(within:ProjectItem, id: string, verbose?: boolean): ProjectItem | undefined {
         for(const item of within.children) {
+            if(verbose) console.log("search: ", item.nodeId, item.nodeId == id);
             if(item.nodeId == id) return item;
             else if(item.type == ProjectItemType.BIN){
                 const found = findWithin(item, id);
@@ -15,11 +18,31 @@ namespace ProjectItemTools {
         }
     }
 
-    export function getRenderBin(): ProjectItem {
+    export function getRootBin(): ProjectItem {
         for(const item of app.project.rootItem.children) {
+            if(item.name == RootBinName) return item;
+        }
+        return app.project.rootItem.createBin(RootBinName);
+    }
+
+    export function getTempBin(): ProjectItem {
+        const root = getRootBin();
+        for(const item of root.children) {
+            if(item.name == TempBinName) return item;
+        }
+        return root.createBin(TempBinName);
+    }
+
+    export function getRenderBin(): ProjectItem {
+        const root = getRootBin();
+        for(const item of root.children) {
             if(item.name == RenderBinName) return item;
         }
-        return app.project.rootItem.createBin(RenderBinName);
+        return root.createBin(RenderBinName);
+    }
+
+    export function findSpeakerItem(id: string, verbose?: boolean) : ProjectItem | undefined {
+        return findWithin(getTempBin(), id, verbose);
     }
 
     export function getSelected() {

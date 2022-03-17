@@ -19,6 +19,13 @@ export class SequenceModel {
       if (item.id == id) return item;
     }
   }
+  findSlotRender(id: string): SlotRender | undefined {
+    const meta = this.sequenceMeta;
+    if (!meta) return undefined;
+    for (const item of meta.slot_renders) {
+      if (item.id == id) return item;
+    }
+  }
 }
 
 export default reactive(new SequenceModel());
@@ -28,6 +35,7 @@ export interface SequenceMetaBrief {
   name: string,
   render_track: string | undefined;
   speaker_items: SpeakerItem[];
+  slot_renders: SlotRender[];
 }
 
 // What gets decorated dynamically
@@ -64,8 +72,21 @@ export interface SpeakerItem {
   render_path: string,
   render_track_item?: string;
   render_proj_item?: string;
+  
+  // speaker_seq_item?: string;
+  // speaker_seq_id?: string;
 
   // render_clip: string,
   // render_imgseq_low: string,
   // render_imgseq_high: string
+}
+
+
+export interface SlotRender {
+  id: string;          // id of the speaker item
+  output: string;      // folder that AME is exporting to
+  dest: string;        // destination folder that exports should be transferred to
+  start: number;       // frame offset of start of render
+  duration: number;    // duration of render in frames 
+  done: number;        // frames captured and copied into UE project 
 }

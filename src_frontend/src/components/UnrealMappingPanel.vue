@@ -61,7 +61,7 @@
           <select
             class="value"
             v-model="selectedSpeakerItem.img_slot"
-            @change="updateSpeakerInfo($event.target, 'sequence')"
+            @change="updateSpeakerInfo($event.target, 'img_slot')"
             :disabled="(!selectedSpeakerItem.project) || model.unreal.loadingProjectDetails"
           >
             <option v-for="seq in imgSlots()" :key="seq" :value="seq">

@@ -17,6 +17,7 @@ import PipelineJobUpdater from "./logic/PipelineJobUpdater";
 import PipelineJobWatcher from "./logic/PipelineJobWatcher";
 import UnrealProjectTools from "./logic/UnrealProjectTools";
 import ProjectTools from "./logic/ProjectTools";
+import SlotRenderWatcher from "./logic/SlotRenderWatcher";
 
 @Options({
   components: {
@@ -36,6 +37,8 @@ export default class App extends Vue {
     PipelineJobUpdater.setup();
     PipelineJobWatcher.setup();
     UnrealProjectTools.setup();
+    SlotRenderWatcher.setup();
+    console.log("SlotRenderWatcher: ", SlotRenderWatcher);
   }
 }
 </script>
