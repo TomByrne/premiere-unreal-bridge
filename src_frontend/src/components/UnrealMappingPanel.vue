@@ -17,7 +17,7 @@
           <div class="label">Project:</div>
           <select
             class="value"
-            v-model="selectedSpeakerItem.project"
+            v-model="selectedSpeakerItem.config.project"
             @change="updateSpeakerInfo($event.target, 'project', ['scene', 'sequence', 'img_slot'])"
             :disabled="model.unreal.loadingProjects"
           >
@@ -34,9 +34,9 @@
           <div class="label">Scene:</div>
           <select
             class="value"
-            v-model="selectedSpeakerItem.scene"
+            v-model="selectedSpeakerItem.config.scene"
             @change="updateSpeakerInfo($event.target, 'scene')"
-            :disabled="(!selectedSpeakerItem.project) || model.unreal.loadingProjectDetails"
+            :disabled="(!selectedSpeakerItem.config.project) || model.unreal.loadingProjectDetails"
           >
             <option v-for="scene in scenes()" :key="scene" :value="scene">
               {{ scene }}
@@ -47,9 +47,9 @@
           <div class="label">Sequence:</div>
           <select
             class="value"
-            v-model="selectedSpeakerItem.sequence"
+            v-model="selectedSpeakerItem.config.sequence"
             @change="updateSpeakerInfo($event.target, 'sequence')"
-            :disabled="(!selectedSpeakerItem.project) || model.unreal.loadingProjectDetails"
+            :disabled="(!selectedSpeakerItem.config.project) || model.unreal.loadingProjectDetails"
           >
             <option v-for="seq in sequences()" :key="seq" :value="seq">
               {{ seq }}
@@ -60,9 +60,9 @@
           <div class="label">Slot:</div>
           <select
             class="value"
-            v-model="selectedSpeakerItem.img_slot"
+            v-model="selectedSpeakerItem.config.img_slot"
             @change="updateSpeakerInfo($event.target, 'img_slot')"
-            :disabled="(!selectedSpeakerItem.project) || model.unreal.loadingProjectDetails"
+            :disabled="(!selectedSpeakerItem.config.project) || model.unreal.loadingProjectDetails"
           >
             <option v-for="seq in imgSlots()" :key="seq" :value="seq">
               {{ seq }}

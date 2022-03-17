@@ -164,6 +164,7 @@ a {
 		width: 30px;
 		margin: 4px 0;
 		min-width: fit-content;
+		margin: 0 4px;
 	}
 	.value {
 		min-width: 50px;
@@ -192,6 +193,12 @@ a {
 		width: 100%;
 		bottom: 2px;
 		background: #0F0;
+
+		&.failed,
+		&.Failed,
+		&.error {
+			background: #F00;
+		}
 	}
 }
 

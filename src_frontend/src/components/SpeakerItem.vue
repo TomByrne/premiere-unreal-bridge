@@ -21,18 +21,19 @@
         !slotRenderable ? 'unconfiged' : needsSlotRender ? 'needs-action' : null
       "
     >
-      <div class="progress" v-if="slotRender" :style="{width: slotRenderPercent + '%'}"/>
+      <div class="progress" v-if="slotRender" :style="{width: slotRenderPercent + '%'}" :class="slotRender?.state"/>
       <span class="label-sup" v-if="!slotRenderable">Needs Config:</span>
       <div class="label" v-if="!slotRenderable">
         Select slot to render speaker
       </div>
-      <div class="label" v-else-if="slotRender">Rendering speaker to Unreal...</div>
+      <div class="label" v-else-if="slotRendering">Rendering speaker to Unreal...</div>
       <div class="label" v-else>Render speaker to Unreal</div>
       
-      <div class="info" v-if="slotRender">{{slotRender.done}} / {{slotRender.duration}} ({{Math.round(slotRenderPercent)}}%)</div>
+      <div class="info" v-if="slotRendering">{{slotRender.done}} / {{slotRender.duration}} ({{Math.round(slotRenderPercent)}}%)</div>
+      <div class="info" v-else-if="slotRender">{{slotRender.state}}</div>
 
       <span class="buttons">
-        <button class="small" v-if="slotRenderable && !slotRender" @click="renderSlot()">
+        <button class="small" v-if="slotRenderable && !slotRendering" @click="renderSlot()">
           {{ needsSlotRender ? "Export Speaker" : "Re-export Speaker" }}
         </button>
       </span>
@@ -91,7 +92,7 @@
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import model from "@/model";
-import { TrackItemInfo, SpeakerItem, SlotRender } from "@/model/sequence";
+import { TrackItemInfo, SpeakerItem, SlotRender, SlotRenderState } from "@/model/sequence";
 import SequenceTools from "@/logic/SequenceTools";
 import PipelineJobUpdater from "@/logic/PipelineJobUpdater";
 import ImageSlotTools from "@/logic/ImageSlotTools";
@@ -139,6 +140,9 @@ export default class SpeakerItemView extends Vue {
   }
   get slotRender(): SlotRender | undefined {
     return this.speaker?.slots[this.speaker.id];
+  }
+  get slotRendering(): boolean {
+    return this.slotRender?.state == SlotRenderState.Rendering;
   }
   get slotRenderPercent(): number {
     const slotRender = this.slotRender;
