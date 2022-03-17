@@ -2,12 +2,12 @@
 
 namespace ImageSlotTools {
     export function speakerItemDest(speaker: SpeakerItem, checkExists = true): Folder | undefined {
-        if (!speaker.img_slot) {
+        if (!speaker.config.img_slot) {
             console.error("No image slot selected for this speaker item.");
             return;
         }
 
-        const destPath = new Folder(`${speaker.project}/Content/${speaker.img_slot}`);
+        const destPath = new Folder(`${speaker.config.project}/Content/${speaker.config.img_slot}`);
         if (checkExists && !destPath.exists) {
             console.error("Destination folder doesn't exist: ", destPath.fsName);
             return;
@@ -18,7 +18,7 @@ namespace ImageSlotTools {
 
     export function needsSlotRender(id: string): boolean {
         const speaker = SequenceTools.findSpeakerItem(id);
-        if (!speaker?.img_slot) return false;
+        if (!speaker?.config.img_slot) return false;
 
         const dest = speakerItemDest(speaker, false);
         if (!dest) return false;
@@ -51,7 +51,7 @@ namespace ImageSlotTools {
         const dest = speakerItemDest(speaker);
         if (!dest) return false;
 
-        if (!speaker.img_slot) {
+        if (!speaker.config.img_slot) {
             console.error("No image slot selected:", id);
             return false;
         }
@@ -118,14 +118,19 @@ namespace ImageSlotTools {
         const start = Math.round(trackItem.inPoint.seconds * fps);
         const duration = Math.round((trackItem.outPoint.seconds - trackItem.inPoint.seconds) * fps);
 
-        return addSlotRender({
+        speaker.slots[speaker.id] = {
+            state: SlotRenderState.Rendering,
             id: id,
             output: tempPath.fsName,
             dest: dest.fsName,
             start,
             duration,
             done: 0
-        }, true);
+        }
+
+        SequenceTools.updateSpeakerItem(speaker);
+
+        return true;
 
         //return monitorExport(tempPath, dest, startFrame, totalFrame);
     }

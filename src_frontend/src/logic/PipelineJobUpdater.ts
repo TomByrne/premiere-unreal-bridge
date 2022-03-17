@@ -1,8 +1,9 @@
 import { watch } from "vue";
 import model from "@/model";
 import PipelineTools from "@/logic/PipelineTools";
-import { Job, JobInfoState } from "@/model/pipeline";
 import path from "path";
+import { PipelineJob, SpeakerItem, SpeakerRenderState } from "@/model/sequence";
+import SequenceTools from "./SequenceTools";
 
 /**
  * This class CRUDs pipeline jobs based on the configured data
@@ -16,6 +17,21 @@ export function setup(): void {
         },
         { immediate: true }
       );
+
+    SequenceTools.emitter.on("removeSpeakerItem", (item) => {
+        killJob(item, false);
+    });
+}
+
+function killJob(item:SpeakerItem, save = true) {
+    if(item.render.job_path){
+        PipelineTools.deleteJob(item.render.job_path);
+        item.render.job_path = undefined;
+    }
+    item.render.job = undefined;
+    item.render.state = SpeakerRenderState.none;
+
+    if(save) SequenceTools.updateSpeakerItem(item);
 }
 
 function objEqual<R>(o1:R, o2:R): boolean{
@@ -40,14 +56,14 @@ export function checkJobs():void {
     }
 
     //Remove any old jobs which no longer have a related speaker item
-    for(const id in model.pipeline.jobs) {
-        const speaker = model.sequence.findSpeakerItem(id);
-        if(speaker) continue; // Still a valid job
+    // for(const id in model.pipeline.jobs) {
+    //     const speaker = model.sequence.findSpeakerItem(id);
+    //     if(speaker) continue; // Still a valid job
 
-        const job = model.pipeline.jobs[id];
-        delete model.pipeline.jobs[id];
-        PipelineTools.deleteJob(job.path);
-    }
+    //     const job = model.pipeline.jobs[id];
+    //     delete model.pipeline.jobs[id];
+    //     PipelineTools.deleteJob(job.path);
+    // }
 
     for(const speaker of meta.speaker_items) {
         checkItem(speaker.id);
@@ -64,73 +80,62 @@ export function checkItem(id:string): boolean {
     const speaker = model.sequence.findSpeakerItem(id);
     if(!speaker) return false;
 
-    let job = model.pipeline.jobs[speaker.id];
     const track = model.sequence.findTrackItem(speaker.id);
-    const projDetails = speaker.project ? model.unreal.findProjectDetails(speaker.project) : undefined;
+    const projDetails = speaker.config.project ? model.unreal.findProjectDetails(speaker.config.project) : undefined;
 
     if( !track ||
         !projDetails ||
-        !speaker.project ||
-        !speaker.scene ||
-        !speaker.sequence) {
+        !speaker.config.project ||
+        !speaker.config.scene ||
+        !speaker.config.sequence) {
 
-        if(job){
-            PipelineTools.deleteJob(job.path);
-            delete model.pipeline.jobs[speaker.id];
-        }
+        killJob(speaker);
         return false;
     }
 
-    const newJob:Job = {
+    const newJob:PipelineJob = {
         cmd: "cmd_4.27",
-        project: speaker.project,
-        scene: fileToAsset(speaker.scene),
-        sequence: fileToAsset(speaker.sequence),
+        project: speaker.config.project,
+        scene: fileToAsset(speaker.config.scene),
+        sequence: fileToAsset(speaker.config.sequence),
         render_settings: "4.27_RenderQueueSettings_rushes_quick_v3",
-        output: speaker.render_path,
+        output: speaker.render.render_path,
         output_format: "frame_{frame_number}"
     }
 
     let jobPath;
-    if(job){
+    if(speaker.render.job){
         // Job already started, see if needs updating
-        if(job.saved && job.state != JobInfoState.failed && objEqual(job.job, newJob)) {
+        if(speaker.render.saved && speaker.render.state != SpeakerRenderState.failed && objEqual(speaker.render.job, newJob)) {
             // Job hasn't changed, skip
             return false;
         }
-        job.job = newJob;
-        job.saved = false;
-        model.pipeline.jobs = {
-            ...model.pipeline.jobs, // force updates
-        }
-        jobPath = job.path;
+        speaker.render.job = newJob;
+        speaker.render.saved = false;
+        jobPath = speaker.render.job_path;
     } else{
         // New job
-        jobPath = PipelineTools.resolveJobPath(`${speaker.id}_${projDetails.name}_${lastPart(speaker.scene)}_${lastPart(speaker.sequence)}`, true);
-        job = {
-            state: undefined,
-            job: newJob,
-            path: jobPath,
-            saved: false
-        }
-        model.pipeline.jobs = {
-            ...model.pipeline.jobs,
-            [speaker.id]: job
-        }
+        jobPath = PipelineTools.resolveJobPath(`${speaker.id}_${projDetails.name}_${lastPart(speaker.config.scene)}_${lastPart(speaker.config.sequence)}`, true);
+        speaker.render.state = SpeakerRenderState.pending;
+        speaker.render.saved = false;
+        speaker.render.job_path = jobPath;
+        speaker.render.job = newJob;
     }
+
+    SequenceTools.updateSpeakerItem(speaker);
 
     return true;
 }
 
 export function beginJob(id: string): boolean {
-    const job = model.pipeline.jobs[id];
-    if(job && job.path && job.job) {
-        job.saved = true;
-        job.state = undefined;
-        PipelineTools.writeJob(job.path, job.job);
+    const item = model.sequence.findSpeakerItem(id);
+    if(item && item.render.job_path && item.render.job) {
+        item.render.saved = true;
+        item.render.state = SpeakerRenderState.pending;
+        PipelineTools.writeJob(item.render.job_path, item.render.job);
         return true;
     }else{
-        console.warn("Couldn't start job: ", id, job);
+        console.warn("Couldn't start job: ", id, item);
         return false;
     }
 }

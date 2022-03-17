@@ -67,26 +67,26 @@ namespace SequenceTools {
     //     };
     // }
 
-    function findTrack(tracks: TrackCollection, id:number): Track | undefined {
-        for(const track of tracks) if(track.id == id) return track;
+    function findTrack(tracks: TrackCollection, id: number): Track | undefined {
+        for (const track of tracks) if (track.id == id) return track;
     }
     function findEmptyTrack(tracks: TrackCollection): Track | undefined {
-        for(const track of tracks) if(track.clips.length == 0) return track;
+        for (const track of tracks) if (track.clips.length == 0) return track;
     }
-    function findTrackItem(tracks: Array<Track>, itemId:string): TrackItem | undefined {
-        for(const track of tracks){
-            for(const item of track.clips){
-                if(item.nodeId == itemId) return item;
+    function findTrackItem(tracks: Array<Track>, itemId: string): TrackItem | undefined {
+        for (const track of tracks) {
+            for (const item of track.clips) {
+                if (item.nodeId == itemId) return item;
             }
         }
     }
-    export function findVideoTrackItem(itemId:string, seq?: Sequence): TrackItem | undefined {
+    export function findVideoTrackItem(itemId: string, seq?: Sequence): TrackItem | undefined {
         seq = findSeq(seq);
-        if(!seq) return;
+        if (!seq) return;
         return findTrackItem(seq.videoTracks, itemId);
     }
-    
-    export function findProjItemByTrackItem(itemId:string): ProjectItem | undefined {
+
+    export function findProjItemByTrackItem(itemId: string): ProjectItem | undefined {
         const seq = findSeq();
         if (!seq) return undefined;
         const trackItem = findTrackItem(seq.videoTracks, itemId);
@@ -132,35 +132,35 @@ namespace SequenceTools {
         };
     }
 
-    function sortFiles(f1:File | Folder, f2:File | Folder): number {
+    function sortFiles(f1: File | Folder, f2: File | Folder): number {
         const n1 = f1.name;
         const n2 = f2.name;
         return (n1 < n2 ? -1 : (n2 < n1 ? 1 : 0));
     }
 
-    function findNodeIdIndex(collection:Collection<{nodeId:string}>, id:string): number {
-        for(let i=0; i<collection.length; i++){
+    function findNodeIdIndex(collection: Collection<{ nodeId: string }>, id: string): number {
+        for (let i = 0; i < collection.length; i++) {
             const item = collection[i];
-            if(item.nodeId == id) return i;
+            if (item.nodeId == id) return i;
         }
         return -1;
     }
 
-    function checkSpeakerRenderItems(seq:Sequence, meta:SequenceMetaBrief): boolean {
+    function checkSpeakerRenderItems(seq: Sequence, meta: SequenceMetaBrief): boolean {
         const renderTrack = meta.render_track == undefined ? undefined : findTrack(seq.videoTracks, meta.render_track);
         let ret = false;
-        for(const speaker of meta.speaker_items){
-            let item:TrackItem | undefined;
-            if(speaker.render_track_item) {
-                if(renderTrack) item = findTrackItem([renderTrack], speaker.render_track_item);
-                if(!item) item = findTrackItem(seq.videoTracks, speaker.render_track_item);
+        for (const speaker of meta.speaker_items) {
+            let item: TrackItem | undefined;
+            if (speaker.import.render_track_item) {
+                if (renderTrack) item = findTrackItem([renderTrack], speaker.import.render_track_item);
+                if (!item) item = findTrackItem(seq.videoTracks, speaker.import.render_track_item);
             }
 
             // Remove Track item if invalid
-            if(item && (!renderTrack || findNodeIdIndex(renderTrack.clips, item.nodeId) == -1)){
-                console.log("Remove item: "+speaker.render_track_item);
+            if (item && (!renderTrack || findNodeIdIndex(renderTrack.clips, item.nodeId) == -1)) {
+                console.log("Remove item: " + speaker.import.render_track_item);
                 item.remove(false, false);
-                speaker.render_track_item = undefined;
+                speaker.import.render_track_item = undefined;
                 ret = true;
                 item = undefined;
             }
@@ -169,36 +169,36 @@ namespace SequenceTools {
             //     ret = true;
             // }
 
-            if(!item && renderTrack && speaker.render_proj_item) {
-                const projItem = ProjectItemTools.find(speaker.render_proj_item);
+            if (!item && renderTrack && speaker.import.render_proj_item) {
+                const projItem = ProjectItemTools.find(speaker.import.render_proj_item);
                 const origTrackItem = findTrackItem(seq.videoTracks, speaker.id);
-                if(!origTrackItem) {
+                if (!origTrackItem) {
                     // TODO: Orig item removed, should remove spearker item
                     continue;
                 }
-                const renderTrackItem = speaker.render_track_item ? findTrackItem(seq.videoTracks, speaker.render_track_item)  :undefined;
-                if(!projItem) {
+                const renderTrackItem = speaker.import.render_track_item ? findTrackItem(seq.videoTracks, speaker.import.render_track_item) : undefined;
+                if (!projItem) {
                     console.log("Project item was not found");
                     // Proj item has been deleted
                     //TODO: clear track item
-                    speaker.render_proj_item = undefined;
-                    if(renderTrackItem){
+                    speaker.import.render_proj_item = undefined;
+                    if (renderTrackItem) {
                         renderTrackItem.remove(false, false);
-                        speaker.render_track_item = undefined;
+                        speaker.import.render_track_item = undefined;
                         ret = true;
                     }
                     ret = true;
-                }else{
-                    try{
-                        console.log("insert item: "+speaker.render_track_item);
+                } else {
+                    try {
+                        console.log("insert item: " + speaker.import.render_track_item);
                         item = insertClip(renderTrack, projItem, origTrackItem.start.seconds);
-                        if(item){
-                            console.log("item: "+item);
+                        if (item) {
+                            console.log("item: " + item);
                             item.end = origTrackItem.end;
-                            speaker.render_track_item = item.nodeId || "null";
+                            speaker.import.render_track_item = item.nodeId || "null";
                             ret = true;
                         }
-                    }catch(e){
+                    } catch (e) {
                         console.warn("Failed to insert clip", e);
                     }
                 }
@@ -209,22 +209,34 @@ namespace SequenceTools {
 
     function insertClip(track: Track, projItem: ProjectItem, startSecs: number): TrackItem | undefined {
         const itemIds = [];
-        for(const item of track.clips) itemIds.push(item.nodeId);
+        for (const item of track.clips) itemIds.push(item.nodeId);
 
-        if(!track.insertClip(projItem, startSecs)) return;
+        if (!track.insertClip(projItem, startSecs)) return;
 
-        for(const item of track.clips){
-            if(itemIds.indexOf(item.nodeId) == -1) return item;
+        for (const item of track.clips) {
+            if (itemIds.indexOf(item.nodeId) == -1) return item;
         }
     }
-    
+
+    export function clearMeta(seq?: Sequence): boolean {
+        seq = findSeq(seq);
+        if (!seq) return false;
+
+        if (CachedSeqMeta && CachedSeqMeta.id == seq.id) {
+            CachedSeqMeta = undefined;
+        }
+
+        XMP.setValue(seq.projectItem, creatorNS, creatorKey);
+        return true;
+    }
+
     export function getMetaBrief(create?: boolean, seq?: Sequence): SequenceMetaBrief | undefined {
 
         seq = findSeq(seq);
         if (!seq) return undefined;
 
         let metaBrief: SequenceMetaBrief | undefined;
-        // if(CachedSeqMeta) console.log("getMeta: "+ CachedSeqMeta?.speaker_items[0].render_proj_item);
+        // if(CachedSeqMeta) console.log("getMeta: "+ CachedSeqMeta?.speaker_items[0].import.render_proj_item);
         if (CachedSeqMeta) {
             if (CachedSeqMeta.id != seq.id) {
                 CachedSeqMeta = undefined;
@@ -239,7 +251,7 @@ namespace SequenceTools {
             if (metaStr) {
                 try {
                     metaBrief = JSON.parse(metaStr);
-                    if(metaBrief && !metaBrief["slot_renders"]){
+                    if (metaBrief && !metaBrief["slot_renders"]) {
                         metaBrief["slot_renders"] = [];
                     }
                 } catch (e) {
@@ -269,23 +281,23 @@ namespace SequenceTools {
         if (!seq) return undefined;
 
         const metaBrief = getMetaBrief(create, seq);
-        if(!metaBrief) return undefined;
-        
+        if (!metaBrief) return undefined;
+
         let resave = false;
 
         // Validate render track
-        if(metaBrief.render_track == undefined || !findTrack(seq.videoTracks, metaBrief.render_track)) {
+        if (metaBrief.render_track == undefined || !findTrack(seq.videoTracks, metaBrief.render_track)) {
             const track = findEmptyTrack(seq.videoTracks);
             metaBrief.render_track = track?.id;
             resave = true;
         }
-        
+
         // Validate render items
-        if(checkSpeakerRenderItems(seq, metaBrief)){
+        if (checkSpeakerRenderItems(seq, metaBrief)) {
             resave = true;
         }
-        
-        if(resave) saveMeta(metaBrief, seq);
+
+        if (resave) saveMeta(metaBrief, seq);
 
         // let videoTrackInfo = getTracksInfo(seq, seq.videoTracks);
         let trackItems = getTrackItems(seq.videoTracks, metaBrief.speaker_items);
@@ -319,13 +331,13 @@ namespace SequenceTools {
         return saveMeta(metaBrief, seq);
     }
 
-    export function saveMeta(meta:SequenceMetaBrief | undefined, seq?:Sequence): boolean {
-        if(!seq) seq = findSeq(seq);
-        if(!seq) return false;
-        if(!meta) meta = CachedSeqMeta;
-        if(!meta) return false;
-        
-        if(meta) CachedSeqMeta = meta;
+    export function saveMeta(meta: SequenceMetaBrief | undefined, seq?: Sequence): boolean {
+        if (!seq) seq = findSeq(seq);
+        if (!seq) return false;
+        if (!meta) meta = CachedSeqMeta;
+        if (!meta) return false;
+
+        if (meta) CachedSeqMeta = meta;
 
         const xmpValue = meta ? JSON.stringify(meta) : undefined;
         return XMP.setValue(seq.projectItem, creatorNS, creatorKey, xmpValue);
@@ -383,64 +395,64 @@ namespace SequenceTools {
         return false;
     }
 
-    export function findSpeakerItem(id: string, meta?:SequenceMetaBrief): SpeakerItem | undefined {
+    export function findSpeakerItem(id: string, meta?: SequenceMetaBrief): SpeakerItem | undefined {
         if (!meta) meta = getMetaBrief(true);
         if (!meta) return;
 
-        for(const item of meta.speaker_items) {
-            if(item.id == id) return item;
+        for (const item of meta.speaker_items) {
+            if (item.id == id) return item;
         }
     }
 
-    export function importSpeakerRender(id:string): boolean {
+    export function importSpeakerRender(id: string): boolean {
         let meta = getMetaBrief(true);
         if (!meta) return false;
 
         let speaker = findSpeakerItem(id, meta);
-        if(speaker && !speaker.render_proj_item && speaker.render_path) {
-            const dir = new Folder(speaker.render_path);
+        if (speaker && !speaker.import.render_proj_item && speaker.render.render_path) {
+            const dir = new Folder(speaker.render.render_path);
             let files = dir.getFiles();
-            if(files.length) {
+            if (files.length) {
                 // Renders are available, create a project item
                 files = files.sort(sortFiles);
                 const projItem = ProjectItemTools.importImageSequence(files[0] as File);
-                if(projItem) {
-                    speaker.render_proj_item = projItem.nodeId;
+                if (projItem) {
+                    speaker.import.render_proj_item = projItem.nodeId;
                     saveMeta(meta);
                     return true;
-                } else{
-                    console.warn("Import failed: ", speaker.render_path);
+                } else {
+                    console.warn("Import failed: ", speaker.render.render_path);
                 }
-            } else{
-                console.warn("No files to import: ", speaker.render_path);
+            } else {
+                console.warn("No files to import: ", speaker.render.render_path);
             }
-        } else{
+        } else {
             console.warn("Not ready to import: ", id);
         }
         return false;
     }
 
-    export function setActiveRange(seq:Sequence, start:Time, end:Time): void {
+    export function setActiveRange(seq: Sequence, start: Time, end: Time): void {
         setActiveRangeTracks(seq.videoTracks, start, end);
         setActiveRangeTracks(seq.audioTracks, start, end);
     }
-    export function setActiveRangeTracks(tracks:TrackCollection, start:Time, end:Time): void {
-        for(const track of tracks) {
-            for(const item of track.clips){
-                if(item.end.seconds < start.seconds ||
+    export function setActiveRangeTracks(tracks: TrackCollection, start: Time, end: Time): void {
+        for (const track of tracks) {
+            for (const item of track.clips) {
+                if (item.end.seconds < start.seconds ||
                     item.start.seconds > end.seconds) {
                     // Remove item if outside range
                     item.remove(false, false);
                 } else {
                     console.log("Update: ", item.start.seconds, start.seconds, item.inPoint.seconds);
-                    if(item.start.seconds < start.seconds) {
+                    if (item.start.seconds < start.seconds) {
                         const inPoint = new Time();
                         inPoint.seconds = (item.inPoint.seconds + (start.seconds - item.start.seconds));
                         item.inPoint = inPoint;
                         item.move(start);
                         console.log("Start: ", item.start.seconds, item.inPoint.seconds);
                     }
-                    if(item.end.seconds > end.seconds) {
+                    if (item.end.seconds > end.seconds) {
                         item.end = end;
                         console.log("End: ", item.end.seconds, end.seconds);
                     }
@@ -449,65 +461,3 @@ namespace SequenceTools {
         }
     }
 }
-
-// What gets stored
-declare interface SequenceMetaBrief {
-    id: number,
-    name: string,
-    render_track?: number;
-    speaker_items: SpeakerItem[];
-    slot_renders: SlotRender[];
-}
-
-// What gets decorated dynamically
-declare interface SequenceMeta extends SequenceMetaBrief {
-    saved: boolean,
-    // videoTracks: TrackInfo[],
-    selectedItem: TrackItemInfo | undefined,
-
-    items: Record<string, TrackItemInfo>,
-}
-
-// export interface TrackInfo {
-//     id: number,
-//     name: string,
-
-//     items: TrackItemInfo[]
-// }
-
-declare interface TrackItemInfo {
-    id: string,
-    name: string,
-    start: number,
-    end: number,
-}
-
-declare interface SpeakerItem {
-    id: string,
-
-    project?: string | undefined,
-    scene?: string | undefined,
-    sequence?: string | undefined,
-    img_slot?: string | undefined,
-
-    render_path: string,
-    render_track_item?: string;
-    render_proj_item?: string;
-    
-    // speaker_seq_item?: string;
-    // speaker_seq_id?: string;
-
-    // render_clip: string,
-    // render_imgseq_low: string,
-    // render_imgseq_high: string
-}
-
-
-declare interface SlotRender {
-    id: string;          // id of the speaker item
-    output: string;      // folder that AME is exporting to
-    dest: string;        // destination folder that exports should be transferred to
-    start: number;       // frame offset of start of render
-    duration: number;    // duration of render in frames 
-    done: number;        // frames captured and copied into UE project 
-  }

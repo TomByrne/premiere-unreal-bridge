@@ -1,16 +1,16 @@
 import { watch } from "vue";
 import model from "@/model";
-import { SlotRender } from "@/model/sequence";
+import { SlotRender, SlotRenderState, SpeakerItem } from "@/model/sequence";
 import fs from "fs";
 import path from "path";
-import ImageSlotTools from "./ImageSlotTools";
+import SequenceTools from "./SequenceTools";
 
 class RenderWatcher{
     timer: NodeJS.Timer;
     noFileLimit = 60;
     noFilesCount = 0;
 
-    constructor(private slot:SlotRender){
+    constructor(private item:SpeakerItem, private slot:SlotRender){
         this.timer = setInterval(() => this.watch(), 1000);
     }
 
@@ -21,7 +21,7 @@ class RenderWatcher{
                 this.noFilesCount++;
                 if(this.noFilesCount >= this.noFileLimit) {
                     console.warn("Speaker export timed out");
-                    this.cleanup();
+                    this.cleanup(false);
                 }
                 return;
             }
@@ -35,12 +35,12 @@ class RenderWatcher{
     
             if(this.slot.done == this.slot.duration){
                 console.log("Speaker export complete");
-                this.cleanup();
+                this.cleanup(true);
             }
         })
         .catch((e) => {
             console.warn("Failed to read output folder: ", this.slot.output, e);
-            this.cleanup();
+            this.cleanup(false);
         })
     }
 
@@ -60,15 +60,15 @@ class RenderWatcher{
                 this.incrementDone();
                 console.debug("Moved file to", destPath);
                 return true;
-            } catch(e:any){
-                if(e.message.indexOf("EBUSY:") == 0) {
+            } catch(e:unknown){
+                if(e instanceof Error && e.message.indexOf("EBUSY:") == 0) {
                     // AME still writing file
                 }else {
                     console.warn("Failed to move file: ", file, e);
                 }
                 return false;
             }
-        } catch(e:any) {
+        } catch(e:unknown) {
             console.warn("Failed to check file: ", file, e);
             return false;
         }
@@ -76,12 +76,14 @@ class RenderWatcher{
 
     private incrementDone(){
         this.slot.done++;
-        ImageSlotTools.addSlotRender(this.slot, true);
+        SequenceTools.updateSpeakerItem(this.item);
+        // ImageSlotTools.addSlotRender(this.slot, true);
     }
 
-    cleanup(){
+    cleanup(success: boolean, save = true){
+        this.slot.state = (success ? SlotRenderState.Complete : SlotRenderState.Failed);
         clearInterval(this.timer);
-        ImageSlotTools.removeSlotRender(this.slot.id);
+        if(save) SequenceTools.updateSpeakerItem(this.item);
     }
 }
 
@@ -102,17 +104,22 @@ class RenderWatcher{
 const watchers:Record<string, RenderWatcher> = {};
 
 function checkJobs(){
-    const slots = model.sequence.sequenceMeta?.slot_renders || [];
-    for(const i in watchers) {
-        if(!slots.find(x => x.id === i)) {
-            watchers[i].cleanup();
-            delete watchers[i];
+    const meta = model.sequence.sequenceMeta;
+    if(!meta) return;
+    
+    for(const id in watchers) {
+        if(!meta.speaker_items.find(x => !!x.slots[id])) {
+            watchers[id].cleanup(false, false);
+            delete watchers[id];
         }
     }
 
-    for(const slot of slots) {
-        if(!watchers[slot.id])
-            watchers[slot.id] = new RenderWatcher(slot);
+    for(const item of meta.speaker_items) {
+        for(const id in item.slots) {
+            if(!watchers[id]) {
+                watchers[id] = new RenderWatcher(item, item.slots[id]);
+            }
+        }
     }
 }
 

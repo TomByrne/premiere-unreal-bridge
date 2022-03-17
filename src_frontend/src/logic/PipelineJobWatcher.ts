@@ -1,8 +1,7 @@
-import { watch } from "vue";
 import model from "@/model";
 import fs from "fs";
 import path from "path";
-import { JobInfo, JobInfoState } from "@/model/pipeline";
+import { SpeakerItem, SpeakerRenderState } from "@/model/sequence";
 
 /**
  * This class watches running job files and updates the model with
@@ -12,38 +11,42 @@ export function setup(): void {
     setInterval(() => checkJobs(), 500);
 }
 
-function updateJob(job:JobInfo, state:JobInfoState | undefined, saved: boolean | undefined = false) {
-    job.state = state;
-    if(saved != undefined) job.saved = saved;
+function updateJob(item:SpeakerItem, state:SpeakerRenderState, saved: boolean | undefined = false) {
+    item.render.state = state;
+    if(saved != undefined) item.render.saved = saved;
 }
 
 function checkJobs(){
-    for(const id in model.pipeline.jobs) {
-        const job = model.pipeline.jobs[id];
-        const exists = fs.existsSync(job.path);
+    const meta = model.sequence.sequenceMeta;
+    if(!meta) return;
+    for(const i in meta.speaker_items) {
+        const item = meta.speaker_items[i];
+        if(!item.render.job_path) continue;
 
-        if( job.state == JobInfoState.done ||
-            job.state == JobInfoState.failed ||
-            job.state == JobInfoState.cancelled) continue;
+        const exists = fs.existsSync(item.render.job_path);
+
+        if( item.render.state == SpeakerRenderState.done ||
+            item.render.state == SpeakerRenderState.failed ||
+            item.render.state == SpeakerRenderState.cancelled) continue;
 
         if(!exists) {
-            const name = path.basename(job.path);
+            const name = path.basename(item.render.job_path);
             if(fs.existsSync(path.join(model.pipeline.jobFolder_done, name))) {
-                updateJob(job, JobInfoState.done);
+                updateJob(item, SpeakerRenderState.done);
 
             } else if(fs.existsSync(path.join(model.pipeline.jobFolder_failed, name))){
-                updateJob(job, JobInfoState.failed);
+                updateJob(item, SpeakerRenderState.failed);
                 
             } else if(fs.existsSync(path.join(model.pipeline.jobFolder_cancelled, name))){
-                updateJob(job, JobInfoState.cancelled);
+                updateJob(item, SpeakerRenderState.cancelled);
                 
-            } else if(job.saved) {
+            } else if(item.render.saved) {
                 // Lost job file!
-                updateJob(job, undefined);
+                updateJob(item, SpeakerRenderState.none);
             }
         } else {
             //TODO: check for alive file here
-            updateJob(job, JobInfoState.doing, undefined);
+            updateJob(item, SpeakerRenderState.doing, undefined);
         }
     }
 

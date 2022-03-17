@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import model from "@/model";
-import { Job } from "@/model/pipeline";
+import { PipelineJob } from "@/model/sequence";
 
 export function resolveJobPath(name: string, overwrite?: boolean): string {
     let file = path.join(model.pipeline.jobFolder, `${name}.json`);
@@ -13,7 +13,7 @@ export function resolveJobPath(name: string, overwrite?: boolean): string {
     return file;
 }
 
-export function writeJob(file: string, job: Job | string): Promise<null> {
+export function writeJob(file: string, job: PipelineJob | string): Promise<null> {
     console.log("writeJob: ", file, job);
     return new Promise((resolve, reject) => {
         if(typeof(job) != "string"){

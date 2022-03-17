@@ -1,4 +1,4 @@
-import { call2, call } from "./rest";
+import { call2 } from "./rest";
 import model from "../model";
 import { ProjectMeta } from "@/model/project";
 

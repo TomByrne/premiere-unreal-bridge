@@ -40,33 +40,33 @@
     <div
       class="labelled job-row"
       :class="
-        (speaker.job && speaker.job.state) ||
+        (speaker.render.job && speaker.render.state) ||
         (!jobRenderable ? 'unconfiged' : 'idle')
       "
       v-if="!needsSlotRender"
     >
       <span class="label-sup" v-if="!jobRenderable">Needs Config:</span>
 
-      <div class="label" v-if="!speaker.project">Select an Unreal Project</div>
-      <div class="label" v-else-if="!speaker.scene">Select an Unreal Scene</div>
-      <div class="label" v-else-if="!speaker.sequence">
+      <div class="label" v-if="!speaker.config.project">Select an Unreal Project</div>
+      <div class="label" v-else-if="!speaker.config.scene">Select an Unreal Scene</div>
+      <div class="label" v-else-if="!speaker.config.sequence">
         Select an Unreal Sequence
       </div>
-      <div class="label" v-else-if="!speaker.job">Waiting for job...</div>
-      <div class="label" v-else-if="!speaker.job.state">No render queued</div>
-      <div class="label" v-else-if="speaker.job.state == 'pending'">
+      <div class="label" v-else-if="!speaker.render.job">Waiting for job...</div>
+      <div class="label" v-else-if="!speaker.render.state">No render queued</div>
+      <div class="label" v-else-if="speaker.render.state == 'pending'">
         Waiting for renderer
       </div>
-      <div class="label" v-else-if="speaker.job.state == 'doing'">
+      <div class="label" v-else-if="speaker.render.state == 'doing'">
         Rendering
       </div>
-      <div class="label" v-else-if="speaker.job.state == 'done'">
+      <div class="label" v-else-if="speaker.render.state == 'done'">
         Render Complete
       </div>
-      <div class="label" v-else-if="speaker.job.state == 'failed'">
+      <div class="label" v-else-if="speaker.render.state == 'failed'">
         Render Failed
       </div>
-      <div class="label" v-else-if="speaker.job.state == 'cancelled'">
+      <div class="label" v-else-if="speaker.render.state == 'cancelled'">
         Render Cancelled
       </div>
 
@@ -75,7 +75,7 @@
           class="small"
           v-if="jobRenderable"
           @click="doJob()"
-          :disabled="!speaker.job || speaker.job.saved"
+          :disabled="!speaker.render.job || speaker.render.saved"
         >
           Queue Render
         </button>
@@ -116,7 +116,7 @@ export default class SpeakerItemView extends Vue {
   needsSlotRender = false;
 
   get ueProjectDetail(): UnrealProjectDetail | undefined {
-    const dir = this.speaker?.project;
+    const dir = this.speaker?.config.project;
     return dir ? model.unreal.findProjectDetails(dir) : undefined;
   }
 
@@ -128,17 +128,17 @@ export default class SpeakerItemView extends Vue {
   get jobRenderable(): boolean {
     if (!this.track || !this.speaker) return false;
     return !!(
-      this.speaker.project &&
-      this.speaker.sequence &&
-      this.speaker.scene
+      this.speaker.config.project &&
+      this.speaker.config.sequence &&
+      this.speaker.config.scene
     );
   }
 
   get slotRenderable(): boolean {
-    return !!this.speaker?.img_slot;
+    return !!this.speaker?.config.img_slot;
   }
   get slotRender(): SlotRender | undefined {
-    return model.sequence.findSlotRender(this.id);
+    return this.speaker?.slots[this.speaker.id];
   }
   get slotRenderPercent(): number {
     const slotRender = this.slotRender;
@@ -150,11 +150,12 @@ export default class SpeakerItemView extends Vue {
     if (!item) return false;
     let meta = model.sequence.sequenceMeta;
     if (!meta || !meta.render_track) return false;
-    const hasFiles = item.render_path
-      ? fs.existsSync(item.render_path) &&
-        fs.readdirSync(item.render_path).length > 0
+    //TODO: move this logic into a service
+    const hasFiles = item.render.render_path
+      ? fs.existsSync(item.render.render_path) &&
+        fs.readdirSync(item.render.render_path).length > 0
       : false;
-    return !!(item && !item.render_proj_item && hasFiles);
+    return !!(item && !item.import.render_proj_item && hasFiles);
   }
 
   select(): void {
@@ -174,27 +175,27 @@ export default class SpeakerItemView extends Vue {
   }
 
   openOutput(): void {
-    if (this.speaker?.render_path)
-      call("FileSystemTools.openFolder", [this.speaker.render_path]);
+    if (this.speaker?.render.render_path)
+      call("FileSystemTools.openFolder", [this.speaker.render.render_path]);
   }
 
   importItem(): void {
     SequenceTools.importSpeakerRender(this.id);
   }
 
-  renderSlot() {
+  renderSlot(): void {
     ImageSlotTools.exportSpeakerItem(this.id);
   }
 
-  mounted() {
+  mounted(): void {
     this.isMounted = true;
     this.checkNeedsSlotRender();
   }
-  unmounted() {
+  unmounted(): void {
     this.isMounted = false;
   }
-  checkNeedsSlotRender() {
-    if (!this.speaker) return false;
+  checkNeedsSlotRender(): void {
+    if (!this.speaker) return;
     if (!this.hasSlots) {
       this.checkNeedsSlotRenderLater();
       return;
@@ -204,7 +205,7 @@ export default class SpeakerItemView extends Vue {
       this.checkNeedsSlotRenderLater();
     });
   }
-  checkNeedsSlotRenderLater() {
+  checkNeedsSlotRenderLater(): void {
     if (!this.isMounted) return;
     setTimeout(() => this.checkNeedsSlotRender(), 5000);
   }

@@ -39,14 +39,12 @@ export default class SpeakerItemList extends Vue {
     if (meta) {
       for (let item of meta.speaker_items) {
         let trackItem = model.sequence.findTrackItem(item.id);
-        let job = model.pipeline.jobs[item.id];
         if (!trackItem) continue;
         ret.push({
           id: item.id,
           speaker: item,
           track: trackItem,
-          selected: item.id == selectedId,
-          job
+          selected: item.id == selectedId
         });
       }
     }

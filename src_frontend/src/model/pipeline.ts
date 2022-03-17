@@ -8,12 +8,12 @@ export class PipelineModel {
   jobFolder_failed = `${job_folder}\\failed`;
   jobFolder_cancelled = `${job_folder}\\cancelled`;
 
-  jobs:Record<string, JobInfo> = {};
+  // jobs:Record<string, JobInfo> = {};
 }
 
 export default reactive(new PipelineModel());
 
-export interface JobInfo {
+/*export interface JobInfo {
   state: JobInfoState | undefined;
   path: string;
   saved: boolean; // Does 'job' have changes that haven't been written to the queue
@@ -42,4 +42,4 @@ export interface Job {
   scale?: number,
   start_frame?: number,
   end_frame?: number,
-}
+}*/

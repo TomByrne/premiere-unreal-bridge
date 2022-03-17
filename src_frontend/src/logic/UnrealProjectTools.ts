@@ -1,11 +1,9 @@
-import { UnrealProject, UnrealProjectDetail } from "@/UnrealProject";
+import { UnrealProjectDetail } from "@/UnrealProject";
 // import { call } from "./rest";
 import model from "../model";
 import { watch } from "vue";
 import UnrealProjectScraper from "./UnrealProjectScraper";
 import fs from "fs";
-
-const type = "UnrealProjectTools";
 
 export function setup(): void{
   loadProjects();
@@ -28,11 +26,11 @@ function checkJobs(): void{
   }
 
   for(const speaker of meta.speaker_items) {
-    if(!speaker.project) continue;
-    const details = model.unreal.findProjectDetails(speaker.project);
+    if(!speaker.config.project) continue;
+    const details = model.unreal.findProjectDetails(speaker.config.project);
     if(details) continue;
-    if(fs.existsSync(speaker.project)) {
-      loadProjectDetails(speaker.project); 
+    if(fs.existsSync(speaker.config.project)) {
+      loadProjectDetails(speaker.config.project); 
       return;
     }
   }

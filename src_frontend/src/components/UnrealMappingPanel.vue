@@ -109,7 +109,7 @@ export default class SequencePanel extends Vue {
   }
 
   get ueProjectDetail(): UnrealProjectDetail | undefined {
-    const dir = this.selectedSpeakerItem?.project;
+    const dir = this.selectedSpeakerItem?.config.project;
     return dir ? model.unreal.findProjectDetails(dir) : undefined;
   }
   get hasSequence(): boolean {
@@ -151,7 +151,7 @@ export default class SequencePanel extends Vue {
   }
   /*get canImport(): boolean  {
     const speaker = this.selectedSpeakerItem;
-    return !!(speaker && !speaker.render_proj_item && speaker.render_path);
+    return !!(speaker && !speaker.import.render_proj_item && speaker.render.path);
   }*/
   enableSpeakerMode(): void {
     let id = model.sequence.sequenceMeta?.selectedItem?.id;
@@ -174,10 +174,11 @@ export default class SequencePanel extends Vue {
     console.log(`Select ${prop}: `, selection);
     let speakerItem = this.selectedSpeakerItem;
     if (!speakerItem) return;
-    Reflect.set(speakerItem, prop, selection);
+    const config = speakerItem.config;
+    Reflect.set(config, prop, selection);
     if(clear) {
       for(const clearProp of clear) {
-        Reflect.set(speakerItem, clearProp, undefined);
+        Reflect.set(config, clearProp, undefined);
       }
     }
     SequenceTools.updateSpeakerItem(speakerItem);
