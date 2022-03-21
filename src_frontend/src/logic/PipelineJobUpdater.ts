@@ -28,6 +28,10 @@ function killJob(item:SpeakerItem, save = true) {
         PipelineTools.deleteJob(item.render.job_path);
         item.render.job_path = undefined;
     }
+    
+    if(!item.render.job ||
+        item.render.state == SpeakerRenderState.none) return;
+
     item.render.job = undefined;
     item.render.state = SpeakerRenderState.none;
 

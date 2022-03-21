@@ -1,4 +1,4 @@
-import { call2 } from "./rest";
+import { callDetail } from "./rest";
 import model from "../model";
 import { ProjectMeta } from "@/model/project";
 
@@ -13,7 +13,7 @@ export function setup(): void {
 }
 let lastRes: string | undefined;
 function loadMeta() {
-  call2<ProjectMeta>("ProjectTools.getMeta", [])
+  callDetail<ProjectMeta>("ProjectTools.getMeta", [])
     .then((resp) => {
       if(lastRes != resp.str) {
         lastRes = resp.str;

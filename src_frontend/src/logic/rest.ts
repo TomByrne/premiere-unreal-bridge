@@ -1,36 +1,39 @@
-export function call<R>(method: string, args?: unknown[]): Promise<R> {
-  return new Promise((resolve, reject) => {
-    const argsSer = JSON.stringify(args || []);
+import { performance } from 'perf_hooks';
 
-    const script = `rest.evalCall('${method}', ${argsSer})`;
-    jsx.evalScript(
-      script,
-      (retStr: string) => {
-        let ret: RetValue;
-        try {
-          ret = JSON.parse(retStr);
-        } catch (e) {
-          console.error("Error in rest API: ", retStr);
-          reject(retStr);
-          return;
-        }
-        if (ret.succeed) resolve(ret.value as unknown as R);
-        else reject(ret.value);
-      },
-      undefined,
-      false
-    );
+const defWarnTime = 500;
+
+export function call<R>(method: string, args?: unknown[], opts?:CallOpts): Promise<R> {
+  return new Promise((resolve, reject) => {
+    callDetail<R>(method, args, opts)
+    .then((resp) => {
+      resolve(resp.parsed);
+    })
+    .catch((e) => {
+      reject(e);
+    })
   });
 }
 
-export function call2<R>(method: string, args?: unknown[]): Promise<Resp<R>> {
+export function callDetail<R>(method: string, args?: unknown[], opts?:CallOpts): Promise<Resp<R>> {
   return new Promise((resolve, reject) => {
     const argsSer = JSON.stringify(args || []);
 
+    const options:CallOpts = (opts == null ? {} : opts);
+
+    const scriptDbg = `${method}${argsSer}`;
+
+    const start = performance.now();
     const script = `rest.evalCall('${method}', ${argsSer})`;
+    if(options.outputScript != false) console.debug("Calling: ", scriptDbg);
     jsx.evalScript(
       script,
       (retStr: string) => {
+
+        const dur = performance.now() - start;
+        if(options.warnTime != false && dur > (options.warnTime == undefined ? defWarnTime : options.warnTime)) {
+          console.warn(`Call took ${dur}ms: ${scriptDbg}`);
+        }
+
         let ret: RetValue;
         try {
           ret = JSON.parse(retStr);
@@ -52,6 +55,11 @@ export function call2<R>(method: string, args?: unknown[]): Promise<Resp<R>> {
 export interface Resp<R> {
   parsed:R,
   str:string,
+}
+
+export interface CallOpts {
+  outputScript?: boolean,
+  warnTime?: number | false,
 }
 
 interface RetValue {

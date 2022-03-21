@@ -1,4 +1,4 @@
-import { call, call2 } from "./rest";
+import { call, callDetail } from "./rest";
 import model from "../model";
 import { ReadinessState, SequenceMeta, SpeakerItem, SpeakerRenderState } from "@/model/sequence";
 import path from "path";
@@ -70,7 +70,7 @@ export function setup(): void {
 }
 let lastRes: string | undefined;
 function loadMeta() {
-    call2<SequenceMeta>("SequenceTools.getMeta", [true])
+    callDetail<SequenceMeta>("SequenceTools.getMeta", [true], {outputScript:false})
         .then((resp) => {
             if (lastRes != resp.str) {
                 lastRes = resp.str;

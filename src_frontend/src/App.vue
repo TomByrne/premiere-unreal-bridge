@@ -38,7 +38,6 @@ export default class App extends Vue {
     PipelineJobWatcher.setup();
     UnrealProjectTools.setup();
     SlotRenderWatcher.setup();
-    console.log("SlotRenderWatcher: ", SlotRenderWatcher);
   }
 }
 </script>

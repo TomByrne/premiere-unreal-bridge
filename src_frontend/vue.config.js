@@ -6,7 +6,7 @@ module.exports = {
   configureWebpack: {
     externals: [
       function (context, request, callback) {
-        if (request == "path" || request == "fs" || request == "os") {
+        if (request == "path" || request == "fs" || request == "os" || request == 'perf_hooks') {
           // Externalize to a commonjs module using the request path
           // console.log("Externalizing module: ", request);
           return callback(null, 'commonjs ' + request);
