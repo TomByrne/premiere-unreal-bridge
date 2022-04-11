@@ -8,7 +8,7 @@ export class UnrealModel {
   globSeqeuence = "/AWS/Sequences/*.uasset"
   globImgSlots = "/AWS/PremiereSequences/*"
   // projectRoot = "W:\\2660_AWS_ReINVENT\\4 Motion Design\\3D\\Unreal_Projects";
-  projectRoot = "C:\\_projects\\2022";
+  projectRoot = "W:\\2660_AWS_ReINVENT\\4 Motion Design\\3D\\Unreal_Projects";
 
   loadingProjects = false;
   loadingProjectDetails = false;

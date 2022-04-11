@@ -27,9 +27,11 @@
         Select slot to render speaker
       </div>
       <div class="label" v-else-if="slotRendering">Rendering speaker to Unreal...</div>
+      <div class="label" v-else-if="slotFilling">Filling in start frames...</div>
       <div class="label" v-else>Render speaker to Unreal</div>
       
-      <div class="info" v-if="slotRendering">{{slotRender.done}} / {{slotRender.duration}} ({{Math.round(slotRenderPercent)}}%)</div>
+      <div class="info" v-if="slotRendering">{{slotRender.renderDone}} / {{slotRender.duration}} ({{Math.round(slotRenderPercent)}}%)</div>
+      <div class="info" v-else-if="slotFilling">{{slotRender.fillerDone}} / {{slotRender.start}} ({{Math.round(slotFillerPercent)}}%)</div>
       <div class="info" v-else-if="slotRender">{{slotRender.state}}</div>
 
       <span class="buttons">
@@ -144,9 +146,16 @@ export default class SpeakerItemView extends Vue {
   get slotRendering(): boolean {
     return this.slotRender?.state == SlotRenderState.Rendering;
   }
+  get slotFilling(): boolean {
+    return this.slotRender?.state == SlotRenderState.Filling;
+  }
   get slotRenderPercent(): number {
     const slotRender = this.slotRender;
-    return slotRender ? (slotRender.done / slotRender.duration * 100) : 0;
+    return slotRender ? (slotRender.renderDone / slotRender.duration * 100) : 0;
+  }
+  get slotFillerPercent(): number {
+    const slotRender = this.slotRender;
+    return slotRender ? (slotRender.fillerDone / slotRender.start * 100) : 0;
   }
 
   get importable(): boolean {

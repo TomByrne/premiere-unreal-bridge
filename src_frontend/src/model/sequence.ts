@@ -125,7 +125,10 @@ export interface SlotRender {
     dest: string;        // destination folder that exports should be transferred to
     start: number;       // frame offset of start of render
     duration: number;    // duration of render in frames 
-    done: number;        // frames captured and copied into UE project 
+    renderDone: number;  // frames captured and copied into UE project 
+    fillerDone: number;  // empty frames created before 'start' 
+    width: number;       // width of image sequence 
+    height: number;      // height of image sequence 
 }
 
 
@@ -133,6 +136,7 @@ export enum SlotRenderState {
     NotReady = "NotReady",
     Ready = "Ready",
     Rendering = "Rendering",
+    Filling = "Filling",
     Complete = "Complete",
     Failed = "Failed",
 }

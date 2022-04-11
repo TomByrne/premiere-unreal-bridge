@@ -4,13 +4,15 @@ import { SlotRender, SlotRenderState, SpeakerItem } from "@/model/sequence";
 import fs from "fs";
 import path from "path";
 import SequenceTools from "./SequenceTools";
+import { PNG } from "pngjs";
 
 class RenderWatcher{
     timer: NodeJS.Timer;
     noFileLimit = 60;
     noFilesCount = 0;
+    emptyPng: PNG | undefined;
 
-    constructor(private item:SpeakerItem, private slot:SlotRender){
+    constructor(private item:SpeakerItem, public slot:SlotRender){
         this.timer = setInterval(() => this.watch(), 1000);
     }
 
@@ -33,9 +35,11 @@ class RenderWatcher{
                 this.checkFile(file, path.join(this.slot.output, file));
             }
     
-            if(this.slot.done == this.slot.duration){
+            if(this.slot.renderDone == this.slot.duration){
                 console.log("Speaker export complete");
-                this.cleanup(true);
+                clearInterval(this.timer);
+                this.fillImages();
+                // this.cleanup(true);
             }
         })
         .catch((e) => {
@@ -52,11 +56,12 @@ class RenderWatcher{
     
             const frame = parseInt(name.replace(".png", ""));
             // console.log("File: ", frame, file);
-            const frameStr = (frame + this.slot.start).toString().padStart(6, "0");
-            const destPath = `${this.slot.dest}/${frameStr}.png`;
+            const destPath = this.getPath(frame + this.slot.start);
     
             try {
-                fs.renameSync(file, destPath);
+                // fs.renameSync(file, destPath); // Doesn't handle network drive well
+                fs.copyFileSync(file, destPath);
+                fs.unlinkSync(file);
                 this.incrementDone();
                 console.debug("Moved file to", destPath);
                 return true;
@@ -74,16 +79,66 @@ class RenderWatcher{
         }
     }
 
+    private getPath(frame: number): string {
+        const frameStr = frame.toString().padStart(6, "0");
+        return `${this.slot.dest}/${frameStr}.png`;
+    }
+
+    private fillImages(frame = 0): void {
+        if(this.slot.state == SlotRenderState.Complete || this.slot.state == SlotRenderState.Failed) return;
+        
+        this.slot.state = SlotRenderState.Filling;
+        SequenceTools.updateSpeakerItem(this.item);
+
+        if(frame >= this.slot.start) {
+            console.log("Finished filling in image sequence start");
+            this.cleanup(true);
+            return;
+        }
+        if(frame == 0) console.log("Filling in image sequence start");
+
+
+        const destPath = this.getPath(frame);
+        console.log("writing empty png: ", frame, this.slot.width, this.slot.height, destPath);
+        if(!this.emptyPng || this.emptyPng.width != this.slot.width || this.emptyPng.height != this.slot.height) {
+            this.clearPng();
+            this.emptyPng = new PNG({ width: this.slot.width, height: this.slot.height });
+        }
+        const stream = fs.createWriteStream(destPath);
+        // this.emptyPng.pipe(stream);
+
+        stream.write(PNG.sync.write(this.emptyPng));
+
+        stream.end();
+        stream
+        .on("error", (e) => {
+            console.error("Failed to write empty png: ", destPath, e);
+        })
+        .on("close", () => {
+            this.slot.fillerDone++;
+            SequenceTools.updateSpeakerItem(this.item);
+            this.fillImages(frame+1);
+        });
+    }
+
     private incrementDone(){
-        this.slot.done++;
+        this.slot.renderDone++;
         SequenceTools.updateSpeakerItem(this.item);
         // ImageSlotTools.addSlotRender(this.slot, true);
     }
 
     cleanup(success: boolean, save = true){
+        this.clearPng();
         this.slot.state = (success ? SlotRenderState.Complete : SlotRenderState.Failed);
         clearInterval(this.timer);
         if(save) SequenceTools.updateSpeakerItem(this.item);
+    }
+
+    clearPng(){
+        if(this.emptyPng) {
+            if(this.emptyPng.destroy) this.emptyPng.destroy();
+            this.emptyPng = undefined;
+        } 
     }
 }
 
@@ -118,6 +173,8 @@ function checkJobs(){
         for(const id in item.slots) {
             if(!watchers[id]) {
                 watchers[id] = new RenderWatcher(item, item.slots[id]);
+            }else{
+                watchers[id].slot = item.slots[id];
             }
         }
     }

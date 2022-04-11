@@ -77,46 +77,32 @@ namespace ImageSlotTools {
             return false;
         }
 
-        //TODO: validate / delete files in dest folder
-        //TODO: limit in/out points of sequence to overwrite few frames
+        // Sometimes the project item has a start time offset that isn't carried into the sequence
+        const startOffset = trackItem.projectItem.startTime().seconds;
 
-        speakerSeq.setInPoint(trackItem.inPoint.seconds);
-        speakerSeq.setOutPoint(trackItem.outPoint.seconds);
+        const speed = trackItem.getSpeed();
 
-        // speakerSeq.setInPoint(0);
-        // const end = new Time();
-        // end.ticks = speakerSeq.end;
-        // speakerSeq.setOutPoint(end.seconds);
-        // SequenceTools.setActiveRange(speakerSeq, trackItem.inPoint, trackItem.outPoint);
+        speakerSeq.setInPoint(trackItem.inPoint.seconds * speed);
+        speakerSeq.setOutPoint(trackItem.outPoint.seconds * speed);
 
         const ret = app.encoder.encodeSequence(
             speakerSeq,
             `${tempPath.fsName}/0.png`,
             presetPath.fsName,
-            app.encoder.ENCODE_IN_TO_OUT, // NO WAY TO SET IN OUT ON PROJ ITEM, NEED TO USE epr SETTINGS
+            app.encoder.ENCODE_IN_TO_OUT,
             1,
             true
         );
 
-        // const ret = app.encoder.encodeProjectItem(
-        //     projItem,
-        //     `${tempPath.fsName}/0.png`,
-        //     presetPath.fsName,
-        //     app.encoder.ENCODE_IN_TO_OUT, // NO WAY TO SET IN OUT ON PROJ ITEM, NEED TO USE epr SETTINGS
-        //     1
-        // );
-        // app.encoder.startBatch();
-
-        // console.log("Export: ", ret, projItem, tempPath, presetPath);
-        console.log("Slot render started");
-
-        app.project.deleteSequence(speakerSeq);
+        //app.project.deleteSequence(speakerSeq);
         app.project.activeSequence = mainSequence;
 
         const fps = 30; // also hard-coded into epr file
         
-        const start = Math.round(trackItem.inPoint.seconds * fps);
-        const duration = Math.round((trackItem.outPoint.seconds - trackItem.inPoint.seconds) * fps);
+        const start = Math.round(trackItem.start.seconds * fps);
+        const duration = Math.floor((trackItem.outPoint.seconds - trackItem.inPoint.seconds) * speed * fps);
+        
+        console.log(`Slot render started: ${duration} frames`);
 
         speaker.slots[speaker.id] = {
             state: SlotRenderState.Rendering,
@@ -125,7 +111,10 @@ namespace ImageSlotTools {
             dest: dest.fsName,
             start,
             duration,
-            done: 0
+            renderDone: 0,
+            fillerDone: 0,
+            width: speakerSeq.frameSizeHorizontal,
+            height: speakerSeq.frameSizeVertical,
         }
 
         SequenceTools.updateSpeakerItem(speaker);
