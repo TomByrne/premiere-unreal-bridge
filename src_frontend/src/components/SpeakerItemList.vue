@@ -32,10 +32,11 @@ export default class SpeakerItemList extends Vue {
     return model.sequence.getSelectedItem();
   }
   get renderableItems(): ItemBundle[] {
-    let ret = [];
+    let ret: ItemBundle[] = [];
     let meta = model.sequence.sequenceMeta;
     let selected = this.selectedTrackItem;
     let selectedId = selected ? selected.id : undefined;
+    var selectedIndex = 0;
     if (meta) {
       for (let item of meta.speaker_items) {
         let trackItem = model.sequence.findTrackItem(item.id);
@@ -47,14 +48,17 @@ export default class SpeakerItemList extends Vue {
           selected: item.id == selectedId
         });
 
-        if(selected && selected.id == item.id) {
-          selected = undefined;
+        if(selected) {
+          if(selected.id == item.id) selected = undefined;
+          else if(trackItem.start < selected.start) {
+            selectedIndex++;
+          }
         }
       }
     }
 
     if(selected) {
-      ret.unshift({
+      ret.splice(selectedIndex, 0, {
         id: selected.id,
         speaker: undefined,
         track: selected,
