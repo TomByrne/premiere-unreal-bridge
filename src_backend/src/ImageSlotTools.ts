@@ -77,9 +77,7 @@ namespace ImageSlotTools {
             return false;
         }
 
-        // Sometimes the project item has a start time offset that isn't carried into the sequence
-        const startOffset = trackItem.projectItem.startTime().seconds;
-
+        // Need to adjust for trackItems speed factor
         const speed = trackItem.getSpeed();
 
         speakerSeq.setInPoint(trackItem.inPoint.seconds * speed);
@@ -94,13 +92,13 @@ namespace ImageSlotTools {
             true
         );
 
-        //app.project.deleteSequence(speakerSeq);
+        app.project.deleteSequence(speakerSeq);
         app.project.activeSequence = mainSequence;
 
         const fps = 30; // also hard-coded into epr file
         
         const start = Math.round(trackItem.start.seconds * fps);
-        const duration = Math.floor((trackItem.outPoint.seconds - trackItem.inPoint.seconds) * speed * fps);
+        const duration = Math.round((trackItem.outPoint.seconds - trackItem.inPoint.seconds) * speed * fps);
         
         console.log(`Slot render started: ${duration} frames`);
 

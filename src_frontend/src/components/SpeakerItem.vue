@@ -22,8 +22,8 @@
       <div class="cont">
         <div class="msg">Are you sure you want to remove this item?</div>
         <div class="buttons value">
-          <button @click="unlink()">Remove</button>
-          <button @click="removing = false">Cancel</button>
+          <button class="small" @click="unlink()">Remove</button>
+          <button class="small" @click="removing = false">Cancel</button> 
         </div>
       </div>
     </div>

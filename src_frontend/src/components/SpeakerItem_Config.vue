@@ -36,7 +36,7 @@
           class="value"
           v-model="speaker.config.project"
           @change="
-            updateSpeakerInfo($event.target, 'project', [
+            updateSpeakerItem($event.target, 'project', [
               'scene',
               'sequence',
               'img_slot',
@@ -58,7 +58,7 @@
         <select
           class="value"
           v-model="speaker.config.scene"
-          @change="updateSpeakerInfo($event.target, 'scene')"
+          @change="updateSpeakerItem($event.target, 'scene')"
           :disabled="!speaker.config.project || unreal.loadingProjectDetails"
         >
           <option v-for="scene in scenes()" :key="scene" :value="scene">
@@ -71,7 +71,7 @@
         <select
           class="value"
           v-model="speaker.config.sequence"
-          @change="updateSpeakerInfo($event.target, 'sequence')"
+          @change="updateSpeakerItem($event.target, 'sequence')"
           :disabled="!speaker.config.project || unreal.loadingProjectDetails"
         >
           <option v-for="seq in sequences()" :key="seq" :value="seq">
@@ -84,7 +84,7 @@
         <select
           class="value"
           v-model="speaker.config.img_slot"
-          @change="updateSpeakerInfo($event.target, 'img_slot')"
+          @change="updateSpeakerItem($event.target, 'img_slot')"
           :disabled="!speaker.config.project || unreal.loadingProjectDetails"
         >
           <option v-for="seq in imgSlots()" :key="seq" :value="seq">
@@ -188,7 +188,7 @@ export default class SpeakerItem_Config extends Vue {
     };
   }
 
-  updateSpeakerInfo(
+  updateSpeakerItem(
     element: HTMLSelectElement,
     prop: string,
     clear?: string[]

@@ -104,8 +104,8 @@ declare interface SlotRender {
 
 
 enum SlotRenderState {
-    NotReady = "NotReady",
-    Ready = "Ready",
+    // NotReady = "NotReady",
+    // Ready = "Ready",
     Rendering = "Rendering",
     Complete = "Complete",
     Failed = "Failed",

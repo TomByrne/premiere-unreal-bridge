@@ -403,6 +403,12 @@ namespace SequenceTools {
         return false;
     }
 
+    export function updateSpeakerItems(items: SpeakerItem[], seq?: Sequence): void {
+        for(const item of items) {
+            updateSpeakerItem(item, seq);
+        }
+    }
+
     export function findSpeakerItem(id: string, meta?: SequenceMetaBrief): SpeakerItem | undefined {
         if (!meta) meta = getMetaBrief(true);
         if (!meta) return;

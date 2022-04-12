@@ -38,7 +38,7 @@
     <span class="buttons">
       <button
         class="small"
-        v-if="slotRenderable && !slotRendering"
+        v-if="slotRenderable && !slotRendering && !slotFilling"
         @click="renderSlot()"
       >
         {{ needsSlotRender ? "Export Speaker" : "Re-export Speaker" }}

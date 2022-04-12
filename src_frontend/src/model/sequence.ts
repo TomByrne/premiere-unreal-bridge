@@ -133,8 +133,8 @@ export interface SlotRender {
 
 
 export enum SlotRenderState {
-    NotReady = "NotReady",
-    Ready = "Ready",
+    // NotReady = "NotReady",
+    // Ready = "Ready",
     Rendering = "Rendering",
     Filling = "Filling",
     Complete = "Complete",

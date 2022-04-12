@@ -49,6 +49,7 @@ export function removeSpeakerItem(id: string): Promise<boolean> {
     return call("SequenceTools.removeSpeakerItem", [id]);
 }
 export function updateSpeakerItem(item: SpeakerItem): Promise<boolean> {
+    if(itemsToSend.length) itemsToSend = itemsToSend.filter((i) => i.id != item.id);
     return call("SequenceTools.updateSpeakerItem", [item]);
 }
 export function selectTrackItem(id: string): Promise<boolean> {
@@ -59,6 +60,28 @@ export function importSpeakerRender(id: string): Promise<boolean> {
 }
 export function clearMeta(): Promise<boolean> {
     return call("SequenceTools.clearMeta", []);
+}
+
+let itemTimer: NodeJS.Timeout | undefined;
+let itemsToSend: SpeakerItem[] = [];
+export function updateSpeakerItemSoon(item: SpeakerItem): void {
+    itemsToSend = itemsToSend.filter((i) => i.id != item.id);
+    itemsToSend.push(item);
+    if(!itemTimer) {
+        itemTimer = setTimeout(() => sendItemUpdates(), 1000);
+    }
+}
+
+function sendItemUpdates(){
+    if(itemTimer) {
+        clearTimeout(itemTimer);
+        itemTimer = undefined;
+    }
+
+    if(itemsToSend.length) {
+        call("SequenceTools.updateSpeakerItems", [itemsToSend]);
+        itemsToSend = [];
+    }
 }
 
 let watching = false;
@@ -101,6 +124,7 @@ export default {
     addSpeakerItem,
     removeSpeakerItem,
     updateSpeakerItem,
+    updateSpeakerItemSoon,
     selectTrackItem,
     importSpeakerRender,
     clearMeta,

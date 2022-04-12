@@ -10,7 +10,10 @@ class RenderWatcher{
     timer: NodeJS.Timer;
     noFileLimit = 60;
     noFilesCount = 0;
-    emptyPng: PNG | undefined;
+    emptyPng_buffer: Buffer | undefined;
+    emptyPng_width = 0;
+    emptyPng_height = 0;
+    finished = false;
 
     constructor(private item:SpeakerItem, public slot:SlotRender){
         this.timer = setInterval(() => this.watch(), 1000);
@@ -35,7 +38,7 @@ class RenderWatcher{
                 this.checkFile(file, path.join(this.slot.output, file));
             }
     
-            if(this.slot.renderDone == this.slot.duration){
+            if(this.slot.renderDone >= this.slot.duration){
                 console.log("Speaker export complete");
                 clearInterval(this.timer);
                 this.fillImages();
@@ -88,7 +91,7 @@ class RenderWatcher{
         if(this.slot.state == SlotRenderState.Complete || this.slot.state == SlotRenderState.Failed) return;
 
         this.slot.state = SlotRenderState.Filling;
-        SequenceTools.updateSpeakerItem(this.item);
+        SequenceTools.updateSpeakerItemSoon(this.item);
 
         if(frame >= this.slot.start) {
             console.log("Finished filling in image sequence start");
@@ -100,14 +103,15 @@ class RenderWatcher{
 
         const destPath = this.getPath(frame);
         // console.log("writing empty png: ", frame, this.slot.width, this.slot.height, destPath);
-        if(!this.emptyPng || this.emptyPng.width != this.slot.width || this.emptyPng.height != this.slot.height) {
-            this.clearPng();
-            this.emptyPng = new PNG({ width: this.slot.width, height: this.slot.height });
+        if(!this.emptyPng_buffer || this.emptyPng_width != this.slot.width || this.emptyPng_height != this.slot.height) {
+            const png = new PNG({ width: this.slot.width, height: this.slot.height });
+            this.emptyPng_buffer = PNG.sync.write(png);
+            this.emptyPng_width = this.slot.width;
+            this.emptyPng_height = this.slot.height;
         }
         const stream = fs.createWriteStream(destPath);
-        // this.emptyPng.pipe(stream);
 
-        stream.write(PNG.sync.write(this.emptyPng));
+        stream.write(this.emptyPng_buffer);
 
         stream.end();
         stream
@@ -116,29 +120,22 @@ class RenderWatcher{
         })
         .on("close", () => {
             this.slot.fillerDone++;
-            SequenceTools.updateSpeakerItem(this.item);
+            SequenceTools.updateSpeakerItemSoon(this.item);
             this.fillImages(frame+1);
         });
     }
 
     private incrementDone(){
         this.slot.renderDone++;
-        SequenceTools.updateSpeakerItem(this.item);
+        SequenceTools.updateSpeakerItemSoon(this.item);
         // ImageSlotTools.addSlotRender(this.slot, true);
     }
 
     cleanup(success: boolean, save = true){
-        this.clearPng();
+        this.finished = true;
         this.slot.state = (success ? SlotRenderState.Complete : SlotRenderState.Failed);
         clearInterval(this.timer);
         if(save) SequenceTools.updateSpeakerItem(this.item);
-    }
-
-    clearPng(){
-        if(this.emptyPng) {
-            if(this.emptyPng.destroy) this.emptyPng.destroy();
-            this.emptyPng = undefined;
-        } 
     }
 }
 
@@ -163,18 +160,21 @@ function checkJobs(){
     if(!meta) return;
     
     for(const id in watchers) {
-        if(!meta.speaker_items.find(x => !!x.slots[id])) {
-            watchers[id].cleanup(false, false);
+        const watcher = watchers[id];
+        if(watcher.finished || !meta.speaker_items.find(x => !!x.slots[id])) {
+            watcher.cleanup(false, false);
             delete watchers[id];
         }
     }
 
     for(const item of meta.speaker_items) {
         for(const id in item.slots) {
+            const slot = item.slots[id];
             if(!watchers[id]) {
-                watchers[id] = new RenderWatcher(item, item.slots[id]);
+                if(slot.state != SlotRenderState.Failed && slot.state != SlotRenderState.Complete)
+                    watchers[id] = new RenderWatcher(item, slot);
             }else{
-                watchers[id].slot = item.slots[id];
+                watchers[id].slot = slot;
             }
         }
     }
