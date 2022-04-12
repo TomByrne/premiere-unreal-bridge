@@ -128,7 +128,7 @@ export default class SpeakerItem_Config extends Vue {
   speaker: SpeakerItem | undefined;
   open = false;
 
-  mounted() {
+  mounted(): void {
     this.open = this.needsProject;
   }
 

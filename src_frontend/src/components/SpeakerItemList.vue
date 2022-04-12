@@ -9,7 +9,11 @@
       :selected="item.selected"
       />
       
-    <div class="sub" v-if="!selectedTrackItem && !renderableItems.length">
+    <div class="sub" v-if="!meta">
+      Loading sequence metadata...
+    </div>
+      
+    <div class="sub" v-else-if="!selectedTrackItem && !renderableItems.length">
       Select a timeline video item to begin adding Unreal shot info.
     </div>
   </div>
@@ -19,7 +23,7 @@
 import { Options, Vue } from "vue-class-component";
 import model from "@/model";
 import SpeakerItemView from "./SpeakerItem.vue";
-import { TrackItemInfo, SpeakerItem } from "@/model/sequence";
+import { TrackItemInfo, SpeakerItem, SequenceMeta } from "@/model/sequence";
 
 
 @Options({
@@ -28,6 +32,9 @@ import { TrackItemInfo, SpeakerItem } from "@/model/sequence";
   },
 })
 export default class SpeakerItemList extends Vue {
+  get meta(): SequenceMeta | undefined {
+    return model.sequence.sequenceMeta;
+  }
   get selectedTrackItem(): TrackItemInfo | undefined {
     return model.sequence.getSelectedItem();
   }

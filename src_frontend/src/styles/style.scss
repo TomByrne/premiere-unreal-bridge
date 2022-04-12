@@ -322,30 +322,30 @@ a {
 	}
 
 	.idle {
-		background: #222;
+		background: #222 !important;
 	}
 
 	.warn {
-		background: #caac00;
-		color: #000;
+		background: #caac00 !important;
+		color: #000 !important;
 	}
 
 	.doing {
-		background: #006600;
+		background: #006600 !important;
 	}
 
 	.done,
 	.success {
-		background: #000055;
+		background: #000055 !important;
 	}
 
 	.failed {
-		background: #990000;
+		background: #990000 !important;
 	}
 
 	.cancelled {
-		background: #333;
-		color: #ddd;
+		background: #333 !important;
+		color: #ddd !important;
 	}
 
 	.buttons {

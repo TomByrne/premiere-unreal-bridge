@@ -58,6 +58,7 @@ import { Options, Vue } from "vue-class-component";
 import model from "@/model";
 import { SpeakerItem, TrackItemInfo } from "@/model/sequence";
 import fs from "fs";
+import PipelineJobUpdater from "@/logic/PipelineJobUpdater";
 
 @Options({
   props: {
@@ -91,6 +92,10 @@ export default class SpeakerItem_Render extends Vue {
         fs.readdirSync(item.render.render_path).length > 0
       : false;
     return !!(item && !item.import.render_proj_item && hasFiles);
+  }
+
+  doJob(): void {
+    if (this.speaker) PipelineJobUpdater.beginJob(this.speaker.id);
   }
 }
 </script>

@@ -118,6 +118,10 @@ export default class SpeakerItem_Slots extends Vue {
     const slotRender = this.slotRender;
     return slotRender ? (slotRender.fillerDone / slotRender.start) * 100 : 0;
   }
+
+  renderSlot(): void {
+    if (this.speaker)ImageSlotTools.exportSpeakerItem(this.speaker.id);
+  }
 }
 </script>
 
