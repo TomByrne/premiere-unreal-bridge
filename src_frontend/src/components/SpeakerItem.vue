@@ -1,7 +1,11 @@
 <template>
   <div
     class="speaker-item"
-    :class="{ selected: selected, unselected: !selected }"
+    :class="{
+      selected: selected,
+      unselected: !selected,
+      'needs-action': !speaker,
+    }"
     @click="select()"
   >
     <div class="labelled info-row">
@@ -24,9 +28,20 @@
       </div>
     </div>
     <div class="speaker-rows" v-if="speaker">
-      <config :speaker="speaker" :minimised="!selected" />
-      <slots :speaker="speaker" :minimised="!selected" v-if="!needsConfig && hasSlots" />
-      <render :speaker="speaker" :minimised="!selected" :track="track" v-if="!needsConfig" />
+      <config :speaker="speaker" :hidden="!selected" v-if="selected" />
+      <slots
+        :speaker="speaker"
+        :minimised="!selected"
+        :hidden="needsConfig || !hasSlots"
+        v-if="!needsConfig && hasSlots"
+      />
+      <render
+        :speaker="speaker"
+        :minimised="!selected"
+        :track="track"
+        :hidden="needsConfig"
+        v-if="!needsConfig"
+      />
     </div>
   </div>
 </template>
@@ -109,25 +124,25 @@ export default class SpeakerItemView extends Vue {
 
 <style scoped lang="scss">
 .removing {
-    position: absolute;
-    margin: 0;
+  position: absolute;
+  margin: 0;
+  padding: 20px;
+  width: 100%;
+  height: 100%;
+  font-weight: bold;
+  z-index: 100;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.25);
+
+  .cont {
+    background: orange;
+    border-radius: 6px;
     padding: 20px;
-    width: 100%;
-    height: 100%;
-    font-weight: bold;
-    z-index: 100;
-    text-align: center;
-    background: rgba(0,0,0,0.25);
 
-    .cont {
-      background: orange;
-      border-radius: 6px;
-        padding: 20px;
-
-      .msg {
-        color: black;
-        padding-bottom: 16px;
-      }
+    .msg {
+      color: black;
+      padding-bottom: 16px;
     }
+  }
 }
 </style>

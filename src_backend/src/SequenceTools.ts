@@ -347,11 +347,19 @@ namespace SequenceTools {
         let meta = getMetaBrief(true, seq);
         if (!meta) return false;
 
+        let index = 0;
+        const trackItem1 = findVideoTrackItem(item.id, seq);
+        if(!trackItem1) return false;
+
         for (let speaker of meta.speaker_items) {
             if (speaker.id == item.id) return false;
+            const trackItem2 = findVideoTrackItem(speaker.id, seq);
+            if(trackItem2 && trackItem2.start.seconds < trackItem1.start.seconds) {
+                index++;
+            }
         }
 
-        meta.speaker_items.push(item);
+        meta.speaker_items.splice(index, 0, item);
         saveMeta(meta);
         return true;
     }

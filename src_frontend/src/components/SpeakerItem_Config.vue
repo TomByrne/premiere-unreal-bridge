@@ -1,6 +1,18 @@
 <template>
-  <div class="speaker-row" :class="{ 'needs-action': needsConfig, open: open, minimised:minimised }">
-    <div class="header" :class="{ success: !needsConfig }" @click="open = !open">
+  <div
+    class="speaker-row"
+    :class="{
+      'needs-action': needsConfig,
+      open: open,
+      minimised: minimised,
+      hidden: hidden,
+    }"
+  >
+    <div
+      class="header"
+      :class="{ success: !needsConfig }"
+      @click="open = !open"
+    >
       <span class="label-sup">Config:</span>
 
       <div class="label" v-if="needsProject">Select an Unreal Project</div>
@@ -109,6 +121,7 @@ import UnrealProjectTools from "@/logic/UnrealProjectTools";
   props: {
     speaker: null,
     minimised: Boolean,
+    hidden: Boolean,
   },
 })
 export default class SpeakerItem_Config extends Vue {
