@@ -16,6 +16,7 @@ class RenderWatcher{
     finished = false;
 
     constructor(private item:SpeakerItem, public slot:SlotRender){
+        console.log("Watching slot render: ", item, slot);
         this.timer = setInterval(() => this.watch(), 1000);
     }
 
@@ -31,7 +32,7 @@ class RenderWatcher{
                 return;
             }
 
-            this.noFileLimit = 5;
+            this.noFileLimit = 10;
             this.noFilesCount = 0;
     
             for(const file of files) {
@@ -161,9 +162,9 @@ function checkJobs(){
     
     for(const id in watchers) {
         const watcher = watchers[id];
-        if(watcher.finished || !meta.speaker_items.find(x => !!x.slots[id])) {
+        if(watcher.finished) delete watchers[id];
+        if(!meta.speaker_items.find(x => !!x.slots[id])) {
             watcher.cleanup(false, false);
-            delete watchers[id];
         }
     }
 

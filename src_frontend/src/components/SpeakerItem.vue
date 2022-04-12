@@ -14,8 +14,8 @@
         {{ track.start.toFixed(2) }}s to {{ track.end.toFixed(2) }}s
       </div>
       <div class="buttons">
-        <button v-if="!speaker" @click="link()">Enable</button>
-        <button v-else @click="removing = true">Remove</button>
+        <button class="small" v-if="!speaker" @click="link()">Enable</button>
+        <button class="small" v-else @click="removing = true">Remove</button>
       </div>
     </div>
     <div class="removing" v-if="removing">
@@ -42,6 +42,12 @@
         :hidden="needsConfig"
         v-if="!needsConfig"
       />
+      <import
+        :speaker="speaker"
+        :minimised="!selected"
+        :hidden="needsConfig"
+        v-if="!needsConfig"
+      />
     </div>
   </div>
 </template>
@@ -55,6 +61,7 @@ import { UnrealProjectDetail } from "@/UnrealProject";
 import SpeakerItem_Config from "./SpeakerItem_Config.vue";
 import SpeakerItem_Slots from "./SpeakerItem_Slots.vue";
 import SpeakerItem_Render from "./SpeakerItem_Render.vue";
+import SpeakerItem_Import from "./SpeakerItem_Import.vue";
 
 @Options({
   props: {
@@ -67,6 +74,7 @@ import SpeakerItem_Render from "./SpeakerItem_Render.vue";
     config: SpeakerItem_Config,
     slots: SpeakerItem_Slots,
     render: SpeakerItem_Render,
+    import: SpeakerItem_Import,
   },
 })
 export default class SpeakerItemView extends Vue {

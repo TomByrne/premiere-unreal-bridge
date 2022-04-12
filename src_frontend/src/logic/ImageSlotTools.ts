@@ -1,7 +1,12 @@
 import { call } from "./rest";
+import SequenceTools from "./SequenceTools";
 
 export function exportSpeakerItem(id: string): Promise<boolean> {
-    return call("ImageSlotTools.exportSpeakerItem", [id]);
+    const ret = call<boolean>("ImageSlotTools.exportSpeakerItem", [id]);
+    ret.then((success) => {
+        if(success) SequenceTools.loadMeta();
+    });
+    return ret;
 }
 
 export function needsSlotRender(id: string): Promise<boolean> {

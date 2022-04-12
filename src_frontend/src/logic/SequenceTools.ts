@@ -18,7 +18,7 @@ export function addSpeakerItem(id: string): Promise<boolean> {
             return;
         }
         const itemHash = md5(model.project.meta.id + "_" + model.sequence.sequenceMeta.id + "_" + id).substring(0, 8);
-        const render_path = path.join(dir, `ue_renders/item_${itemHash}`);
+        const asset_path = path.join(dir, `ue_renders/item_${itemHash}`);
         const item: SpeakerItem = {
             id,
             config: {
@@ -29,11 +29,12 @@ export function addSpeakerItem(id: string): Promise<boolean> {
                 state: SpeakerRenderState.none,
                 saved: false,
                 job_path: undefined,
-                render_path: render_path,
+                render_path: undefined,
                 job: undefined,
             },
             import: {
                 state: ReadinessState.NotReady,
+                asset_path,
             }
         }
         const prom = call<boolean>("SequenceTools.addSpeakerItem", [item]);
@@ -92,7 +93,8 @@ export function setup(): void {
     loadMeta();
 }
 let lastRes: string | undefined;
-function loadMeta() {
+export function loadMeta(): void {
+    clearMetaTimer();
     callDetail<SequenceMeta>("SequenceTools.getMeta", [true], {outputScript:false})
         .then((resp) => {
             if (lastRes != resp.str) {
@@ -100,21 +102,30 @@ function loadMeta() {
                 console.log("Sequence Metadata: ", resp.parsed);
                 model.sequence.sequenceMeta = resp.parsed;
             }
-            timerId = setTimeout(() => loadMeta(), 500);
+            timerId = setTimeout(() => {
+                timerId = undefined;
+                loadMeta();
+            }, 500);
         })
         .catch((e) => {
             console.warn("Failed to load sequence meta: ", e);
-            timerId = setTimeout(() => loadMeta(), 1500);
+            timerId = setTimeout(() => {
+                timerId = undefined;
+                loadMeta();
+            }, 1500);
         });
 }
 export function stopWatchingMeta(): void {
     if (!watching) return;
     watching = false;
+    clearMetaTimer();
+}
+
+function clearMetaTimer(){
     if (timerId) {
         clearInterval(timerId);
         timerId = undefined;
     }
-
 }
 
 export default {
@@ -128,4 +139,5 @@ export default {
     selectTrackItem,
     importSpeakerRender,
     clearMeta,
+    loadMeta,
 };

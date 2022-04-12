@@ -79,11 +79,15 @@ export interface SpeakerConfig {
 
 
 export interface SpeakerRender {
-    state: SpeakerRenderState;
-    render_path: string;
-    job_path: string | undefined;
-    saved: boolean; // Does 'job' have changes that haven't been written to the queue
-    job: PipelineJob | undefined;
+  state: SpeakerRenderState;
+  render_path: string | undefined;
+  job_path: string | undefined;
+  saved: boolean; // Does 'job' have changes that haven't been written to the queue
+  job: PipelineJob | undefined;
+
+  processor?: string | undefined; // Pipeline node processing the job
+  frames?: number | undefined; // Frames generated
+  total?: number | undefined; // Total frames
 }
 
 export interface PipelineJob {
@@ -116,6 +120,7 @@ export interface SpeakerImport {
   state: ReadinessState;
   render_track_item?: string;
   render_proj_item?: string;
+  asset_path: string;
 }
 
 export interface SlotRender {

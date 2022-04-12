@@ -423,8 +423,8 @@ namespace SequenceTools {
         if (!meta) return false;
 
         let speaker = findSpeakerItem(id, meta);
-        if (speaker && !speaker.import.render_proj_item && speaker.render.render_path) {
-            const dir = new Folder(speaker.render.render_path);
+        if (speaker && !speaker.import.render_proj_item && speaker.import.asset_path) {
+            const dir = new Folder(speaker.import.asset_path);
             let files = dir.getFiles();
             if (files.length) {
                 // Renders are available, create a project item
@@ -435,10 +435,10 @@ namespace SequenceTools {
                     saveMeta(meta);
                     return true;
                 } else {
-                    console.warn("Import failed: ", speaker.render.render_path);
+                    console.warn("Import failed: ", speaker.import.asset_path);
                 }
             } else {
-                console.warn("No files to import: ", speaker.render.render_path);
+                console.warn("No files to import: ", speaker.import.asset_path);
             }
         } else {
             console.warn("Not ready to import: ", id);

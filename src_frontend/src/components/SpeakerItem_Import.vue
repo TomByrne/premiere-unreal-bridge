@@ -1,0 +1,60 @@
+<template>
+  <div
+    class="speaker-row header"
+    :class="{
+      minimised: minimised,
+      hidden: hidden,
+    }"
+  >
+    <span class="label-sup">Import:</span>
+
+    <div class="label">
+    </div>
+
+    <span class="buttons">
+      <button class="small" @click="importItem()" :disabled="!importable">
+        Import Render
+      </button>
+    </span>
+  </div>
+</template>
+
+<script lang="ts">
+import { Options, Vue } from "vue-class-component";
+import model from "@/model";
+import { SpeakerItem } from "@/model/sequence";
+import fs from "fs";
+import SequenceTools from "@/logic/SequenceTools";
+
+@Options({
+  props: {
+    speaker: null,
+    minimised: Boolean,
+    hidden: Boolean,
+  },
+})
+export default class SpeakerItem_Import extends Vue {
+  speaker: SpeakerItem | undefined;
+
+
+  get importable(): boolean {
+    let item = this.speaker;
+    if (!item) return false;
+    let meta = model.sequence.sequenceMeta;
+    if (!meta || !meta.render_track) return false;
+    //TODO: move this logic into a service
+    const hasFiles = item.import.asset_path
+      ? fs.existsSync(item.import.asset_path) &&
+        fs.readdirSync(item.import.asset_path).length > 0
+      : false;
+    return !!(item && !item.import.render_proj_item && hasFiles);
+  }
+
+  importItem(): void {
+    if (this.speaker) SequenceTools.importSpeakerRender(this.speaker.id);
+  }
+}
+</script>
+
+<style scoped lang="scss">
+</style>

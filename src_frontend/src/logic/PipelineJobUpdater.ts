@@ -48,8 +48,8 @@ function objEqual<R>(o1:R, o2:R): boolean{
     return true;
 };
 
-function lastPart(file:string): string{
-    return path.basename(file);
+function lastPart(file:string, ext?:string): string{
+    return path.basename(file, ext);
 }
 
 export function checkJobs():void {
@@ -96,6 +96,14 @@ export function checkItem(id:string): boolean {
         killJob(speaker);
         return false;
     }
+    
+    const fps = 30; // also hard-coded into epr file
+
+    speaker.render.render_path = speaker.config.project + "/Saved/PipelineRenders/" + speaker.id;
+    const start = Math.round(track.start * fps);
+    const end = Math.round(track.end * fps);
+    speaker.render.total = end - start;
+    speaker.render.frames = 0;
 
     const newJob:PipelineJob = {
         cmd: "cmd_4.27",
@@ -104,7 +112,9 @@ export function checkItem(id:string): boolean {
         sequence: fileToAsset(speaker.config.sequence),
         render_settings: "4.27_RenderQueueSettings_rushes_quick_v3",
         output: speaker.render.render_path,
-        output_format: "frame_{frame_number}"
+        output_format: "{frame_number}",
+        start_frame: start,
+        end_frame: end,
     }
 
     let jobPath;
@@ -119,12 +129,12 @@ export function checkItem(id:string): boolean {
         jobPath = speaker.render.job_path;
     } else{
         // New job
-        jobPath = PipelineTools.resolveJobPath(`${speaker.id}_${projDetails.name}_${lastPart(speaker.config.scene)}_${lastPart(speaker.config.sequence)}`, true);
         speaker.render.state = SpeakerRenderState.pending;
         speaker.render.saved = false;
-        speaker.render.job_path = jobPath;
         speaker.render.job = newJob;
     }
+    if(!jobPath) jobPath = PipelineTools.resolveJobPath(`${speaker.id}_${projDetails.name}_${lastPart(speaker.config.scene, ".umap")}_${lastPart(speaker.config.sequence, ".uasset")}`, true);
+    speaker.render.job_path = jobPath;
 
     SequenceTools.updateSpeakerItem(speaker);
 

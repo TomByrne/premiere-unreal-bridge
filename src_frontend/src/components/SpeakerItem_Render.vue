@@ -10,16 +10,7 @@
   >
     <span class="label-sup">Render:</span>
 
-    <div class="label" v-if="!speaker.config.project">
-      Select an Unreal Project
-    </div>
-    <div class="label" v-else-if="!speaker.config.scene">
-      Select an Unreal Scene
-    </div>
-    <div class="label" v-else-if="!speaker.config.sequence">
-      Select an Unreal Sequence
-    </div>
-    <div class="label" v-else-if="!speaker.render.job">Waiting for job...</div>
+    <div class="label" v-if="!speaker.render.job">Waiting for job...</div>
     <div class="label" v-else-if="!speaker.render.state">No render queued</div>
     <div class="label" v-else-if="speaker.render.state == 'pending'">
       Waiting for renderer
@@ -36,6 +27,15 @@
     <div class="label" v-else-if="speaker.render.state == 'cancelled'">
       Render Cancelled
     </div>
+    <div class="label" v-else>
+    </div>
+
+    
+    <div class="info" v-if="speaker.render.frames">
+      {{ speaker.render.frames }} / {{ speaker.render.total }} ({{
+        Math.round(speaker.render.frames / speaker.render.total * 100)
+      }}%)
+    </div>
 
     <span class="buttons">
       <button
@@ -46,18 +46,13 @@
       >
         Queue Render
       </button>
-      <button class="small" @click="importItem()" v-if="importable">
-        Import Render
-      </button>
     </span>
   </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-import model from "@/model";
 import { SpeakerItem, TrackItemInfo } from "@/model/sequence";
-import fs from "fs";
 import PipelineJobUpdater from "@/logic/PipelineJobUpdater";
 
 @Options({
@@ -81,22 +76,10 @@ export default class SpeakerItem_Render extends Vue {
     );
   }
 
-  get importable(): boolean {
-    let item = this.speaker;
-    if (!item) return false;
-    let meta = model.sequence.sequenceMeta;
-    if (!meta || !meta.render_track) return false;
-    //TODO: move this logic into a service
-    const hasFiles = item.render.render_path
-      ? fs.existsSync(item.render.render_path) &&
-        fs.readdirSync(item.render.render_path).length > 0
-      : false;
-    return !!(item && !item.import.render_proj_item && hasFiles);
-  }
-
   doJob(): void {
     if (this.speaker) PipelineJobUpdater.beginJob(this.speaker.id);
   }
+
 }
 </script>
 
