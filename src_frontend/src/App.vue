@@ -1,14 +1,14 @@
 <template>
   <div id="content">
     <DevLink v-if="model.plugin.devMode" />
-    <UnrealMappingPanel />
+    <!-- <UnrealMappingPanel /> -->
     <SpeakerItemList />
   </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-import UnrealMappingPanel from "./components/UnrealMappingPanel.vue";
+// import UnrealMappingPanel from "./components/UnrealMappingPanel.vue";
 import DevLink from "./components/DevLink.vue";
 import SpeakerItemList from "./components/SpeakerItemList.vue";
 import model from "./model";
@@ -21,7 +21,7 @@ import SlotRenderWatcher from "./logic/SlotRenderWatcher";
 
 @Options({
   components: {
-    UnrealMappingPanel,
+    // UnrealMappingPanel,
     SpeakerItemList,
     DevLink,
   },

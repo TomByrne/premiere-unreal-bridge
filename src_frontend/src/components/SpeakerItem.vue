@@ -1,6 +1,6 @@
 <template>
   <div
-    class="item labelled"
+    class="speaker-item"
     :class="{ selected: selected, unselected: !selected }"
     @click="select()"
   >
@@ -9,98 +9,37 @@
       <div class="info">
         {{ track.start.toFixed(2) }}s to {{ track.end.toFixed(2) }}s
       </div>
-      <!-- <button v-if="jobRenderable" @click="doJob()">Render</button>
-        <button v-if="!speaker" @click="link()">Enable</button> -->
-      <!-- <button v-else @click="unlink()">X</button> -->
+      <div class="buttons">
+        <button v-if="!speaker" @click="link()">Enable</button>
+        <button v-else @click="removing = true">Remove</button>
+      </div>
     </div>
-
-    <div
-      class="labelled slots-row"
-      v-if="hasSlots"
-      :class="
-        !slotRenderable ? 'unconfiged' : needsSlotRender ? 'needs-action' : null
-      "
-    >
-      <div class="progress" v-if="slotRender" :style="{width: slotRenderPercent + '%'}" :class="slotRender?.state"/>
-      <span class="label-sup" v-if="!slotRenderable">Needs Config:</span>
-      <div class="label" v-if="!slotRenderable">
-        Select slot to render speaker
+    <div class="removing" v-if="removing">
+      <div class="cont">
+        <div class="msg">Are you sure you want to remove this item?</div>
+        <div class="buttons value">
+          <button @click="unlink()">Remove</button>
+          <button @click="removing = false">Cancel</button>
+        </div>
       </div>
-      <div class="label" v-else-if="slotRendering">Rendering speaker to Unreal...</div>
-      <div class="label" v-else-if="slotFilling">Filling in start frames...</div>
-      <div class="label" v-else>Render speaker to Unreal</div>
-      
-      <div class="info" v-if="slotRendering">{{slotRender.renderDone}} / {{slotRender.duration}} ({{Math.round(slotRenderPercent)}}%)</div>
-      <div class="info" v-else-if="slotFilling">{{slotRender.fillerDone}} / {{slotRender.start}} ({{Math.round(slotFillerPercent)}}%)</div>
-      <div class="info" v-else-if="slotRender">{{slotRender.state}}</div>
-
-      <span class="buttons">
-        <button class="small" v-if="slotRenderable && !slotRendering" @click="renderSlot()">
-          {{ needsSlotRender ? "Export Speaker" : "Re-export Speaker" }}
-        </button>
-      </span>
     </div>
-    <div
-      class="labelled job-row"
-      :class="
-        (speaker.render.job && speaker.render.state) ||
-        (!jobRenderable ? 'unconfiged' : 'idle')
-      "
-      v-if="!needsSlotRender"
-    >
-      <span class="label-sup" v-if="!jobRenderable">Needs Config:</span>
-
-      <div class="label" v-if="!speaker.config.project">Select an Unreal Project</div>
-      <div class="label" v-else-if="!speaker.config.scene">Select an Unreal Scene</div>
-      <div class="label" v-else-if="!speaker.config.sequence">
-        Select an Unreal Sequence
-      </div>
-      <div class="label" v-else-if="!speaker.render.job">Waiting for job...</div>
-      <div class="label" v-else-if="!speaker.render.state">No render queued</div>
-      <div class="label" v-else-if="speaker.render.state == 'pending'">
-        Waiting for renderer
-      </div>
-      <div class="label" v-else-if="speaker.render.state == 'doing'">
-        Rendering
-      </div>
-      <div class="label" v-else-if="speaker.render.state == 'done'">
-        Render Complete
-      </div>
-      <div class="label" v-else-if="speaker.render.state == 'failed'">
-        Render Failed
-      </div>
-      <div class="label" v-else-if="speaker.render.state == 'cancelled'">
-        Render Cancelled
-      </div>
-
-      <span class="buttons">
-        <button
-          class="small"
-          v-if="jobRenderable"
-          @click="doJob()"
-          :disabled="!speaker.render.job || speaker.render.saved"
-        >
-          Queue Render
-        </button>
-        <button class="small" @click="importItem()" v-if="importable">
-          Import Render
-        </button>
-      </span>
+    <div class="speaker-rows" v-if="speaker">
+      <config :speaker="speaker" :minimised="!selected" />
+      <slots :speaker="speaker" :minimised="!selected" v-if="!needsConfig && hasSlots" />
+      <render :speaker="speaker" :minimised="!selected" :track="track" v-if="!needsConfig" />
     </div>
-    <!-- <a @click="openOutput()">output dir</a> -->
   </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import model from "@/model";
-import { TrackItemInfo, SpeakerItem, SlotRender, SlotRenderState } from "@/model/sequence";
+import { TrackItemInfo, SpeakerItem } from "@/model/sequence";
 import SequenceTools from "@/logic/SequenceTools";
-import PipelineJobUpdater from "@/logic/PipelineJobUpdater";
-import ImageSlotTools from "@/logic/ImageSlotTools";
 import { UnrealProjectDetail } from "@/UnrealProject";
-import { call } from "../logic/rest";
-import fs from "fs";
+import SpeakerItem_Config from "./SpeakerItem_Config.vue";
+import SpeakerItem_Slots from "./SpeakerItem_Slots.vue";
+import SpeakerItem_Render from "./SpeakerItem_Render.vue";
 
 @Options({
   props: {
@@ -109,14 +48,39 @@ import fs from "fs";
     track: null,
     selected: Boolean,
   },
+  components: {
+    config: SpeakerItem_Config,
+    slots: SpeakerItem_Slots,
+    render: SpeakerItem_Render,
+  },
 })
 export default class SpeakerItemView extends Vue {
-  isMounted = false;
   id = "";
   selected = false;
   speaker: SpeakerItem | undefined;
   track: TrackItemInfo | undefined;
-  needsSlotRender = false;
+  removing = false;
+
+  get needsProject(): boolean {
+    return !this.speaker?.config.project;
+  }
+  get needsScene(): boolean {
+    return !this.speaker?.config.scene;
+  }
+  get needsSequence(): boolean {
+    return !this.speaker?.config.sequence;
+  }
+  get needsSlot(): boolean {
+    return this.hasSlots && !this.speaker?.config.img_slot;
+  }
+  get needsConfig(): boolean {
+    return (
+      this.needsProject ||
+      this.needsScene ||
+      this.needsSequence ||
+      this.needsSlot
+    );
+  }
 
   get ueProjectDetail(): UnrealProjectDetail | undefined {
     const dir = this.speaker?.config.project;
@@ -128,208 +92,42 @@ export default class SpeakerItemView extends Vue {
     return slots ? slots.length > 0 : false;
   }
 
-  get jobRenderable(): boolean {
-    if (!this.track || !this.speaker) return false;
-    return !!(
-      this.speaker.config.project &&
-      this.speaker.config.sequence &&
-      this.speaker.config.scene
-    );
-  }
-
-  get slotRenderable(): boolean {
-    return !!this.speaker?.config.img_slot;
-  }
-  get slotRender(): SlotRender | undefined {
-    return this.speaker?.slots[this.speaker.id];
-  }
-  get slotRendering(): boolean {
-    return this.slotRender?.state == SlotRenderState.Rendering;
-  }
-  get slotFilling(): boolean {
-    return this.slotRender?.state == SlotRenderState.Filling;
-  }
-  get slotRenderPercent(): number {
-    const slotRender = this.slotRender;
-    return slotRender ? (slotRender.renderDone / slotRender.duration * 100) : 0;
-  }
-  get slotFillerPercent(): number {
-    const slotRender = this.slotRender;
-    return slotRender ? (slotRender.fillerDone / slotRender.start * 100) : 0;
-  }
-
-  get importable(): boolean {
-    let item = this.speaker;
-    if (!item) return false;
-    let meta = model.sequence.sequenceMeta;
-    if (!meta || !meta.render_track) return false;
-    //TODO: move this logic into a service
-    const hasFiles = item.render.render_path
-      ? fs.existsSync(item.render.render_path) &&
-        fs.readdirSync(item.render.render_path).length > 0
-      : false;
-    return !!(item && !item.import.render_proj_item && hasFiles);
-  }
-
   select(): void {
     SequenceTools.selectTrackItem(this.id);
   }
 
   unlink(): void {
     SequenceTools.removeSpeakerItem(this.id);
+    this.removing = false;
   }
 
   link(): void {
     SequenceTools.addSpeakerItem(this.id);
   }
-
-  doJob(): void {
-    PipelineJobUpdater.beginJob(this.id);
-  }
-
-  openOutput(): void {
-    if (this.speaker?.render.render_path)
-      call("FileSystemTools.openFolder", [this.speaker.render.render_path]);
-  }
-
-  importItem(): void {
-    SequenceTools.importSpeakerRender(this.id);
-  }
-
-  renderSlot(): void {
-    ImageSlotTools.exportSpeakerItem(this.id);
-  }
-
-  mounted(): void {
-    this.isMounted = true;
-    this.checkNeedsSlotRender();
-  }
-  unmounted(): void {
-    this.isMounted = false;
-  }
-  checkNeedsSlotRender(): void {
-    if (!this.speaker) return;
-    if (!this.hasSlots) {
-      this.checkNeedsSlotRenderLater();
-      return;
-    }
-    ImageSlotTools.needsSlotRender(this.speaker.id).then((value: boolean) => {
-      this.needsSlotRender = value;
-      this.checkNeedsSlotRenderLater();
-    });
-  }
-  checkNeedsSlotRenderLater(): void {
-    if (!this.isMounted) return;
-    setTimeout(() => this.checkNeedsSlotRender(), 5000);
-  }
 }
 </script>
 
 <style scoped lang="scss">
-.item {
-  margin: 2px;
-  padding: 3px 6px 7px;
-  flex-direction: column;
-  box-sizing: border-box;
-  > * {
-    margin: 3px 0;
-    flex-shrink: 0;
-    box-sizing: border-box;
-  }
-
-  > .labelled {
-    background: unset;
-  }
-
-  &.unselected {
-    .slots-row,
-    .job-row {
-      height: 10px;
-
-      > * {
-        opacity: 0;
-      }
-    }
-  }
-
-  .label {
-    flex-shrink: 3;
-    overflow: hidden;
-    min-width: 50px;
-  }
-  > .slots-row,
-  > .job-row {
+.removing {
+    position: absolute;
     margin: 0;
-    overflow: hidden;
-    text-transform: uppercase;
-    background: #333;
+    padding: 20px;
+    width: 100%;
+    height: 100%;
+    font-weight: bold;
+    z-index: 100;
+    text-align: center;
+    background: rgba(0,0,0,0.25);
 
-    height: 30px;
-    transition: height 0.2s;
+    .cont {
+      background: orange;
+      border-radius: 6px;
+        padding: 20px;
 
-    padding: 4px 5px;
-
-    .label-sup {
-      margin-right: 10px;
-    }
-
-    .label {
-      font-weight: 800;
-    }
-
-    > * {
-      transition: opacity 0.2s;
-    }
-
-    .buttons {
-      button {
-        margin-left: -1px;
-        &:first-child {
-          border-bottom-left-radius: 4px;
-          border-top-left-radius: 4px;
-        }
-        &:last-child {
-          border-bottom-right-radius: 4px;
-          border-top-right-radius: 4px;
-        }
+      .msg {
+        color: black;
+        padding-bottom: 16px;
       }
     }
-
-    &.needs-action {
-      border: 2px #caac00 solid;
-    }
-    &.idle {
-      background: #222;
-    }
-    &.unconfiged {
-      background: #caac00;
-      color: #000;
-    }
-    &.doing {
-      background: #006600;
-    }
-    &.done {
-      background: #000055;
-    }
-    &.failed {
-      background: #990000;
-    }
-    &.cancelled {
-      background: #333;
-      color: #ddd;
-    }
-
-    &:nth-child(2) {
-      border-top-left-radius: 6px;
-      border-top-right-radius: 6px;
-    }
-    &:last-child {
-      border-bottom-left-radius: 6px;
-      border-bottom-right-radius: 6px;
-    }
-  }
-  > .slots-row {
-    margin-bottom: 1px;
-  }
 }
 </style>

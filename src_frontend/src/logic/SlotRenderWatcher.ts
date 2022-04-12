@@ -86,7 +86,7 @@ class RenderWatcher{
 
     private fillImages(frame = 0): void {
         if(this.slot.state == SlotRenderState.Complete || this.slot.state == SlotRenderState.Failed) return;
-        
+
         this.slot.state = SlotRenderState.Filling;
         SequenceTools.updateSpeakerItem(this.item);
 
@@ -99,7 +99,7 @@ class RenderWatcher{
 
 
         const destPath = this.getPath(frame);
-        console.log("writing empty png: ", frame, this.slot.width, this.slot.height, destPath);
+        // console.log("writing empty png: ", frame, this.slot.width, this.slot.height, destPath);
         if(!this.emptyPng || this.emptyPng.width != this.slot.width || this.emptyPng.height != this.slot.height) {
             this.clearPng();
             this.emptyPng = new PNG({ width: this.slot.width, height: this.slot.height });

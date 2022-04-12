@@ -46,7 +46,20 @@ export default class SpeakerItemList extends Vue {
           track: trackItem,
           selected: item.id == selectedId
         });
+
+        if(selected && selected.id == item.id) {
+          selected = undefined;
+        }
       }
+    }
+
+    if(selected) {
+      ret.unshift({
+        id: selected.id,
+        speaker: undefined,
+        track: selected,
+        selected: true
+      });
     }
     return ret;
   }
@@ -55,7 +68,7 @@ export default class SpeakerItemList extends Vue {
 
 interface ItemBundle {
   id: string,
-  speaker: SpeakerItem,
+  speaker: SpeakerItem | undefined,
   track: TrackItemInfo,
   selected: boolean,
 }
