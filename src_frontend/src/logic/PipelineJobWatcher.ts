@@ -60,25 +60,25 @@ function checkJobs() {
 
         const exists = fs.existsSync(item.render.job_path);
 
-        if (item.render.state == SpeakerRenderState.done ||
-            item.render.state == SpeakerRenderState.failed ||
-            item.render.state == SpeakerRenderState.cancelled) continue;
+        if (item.render.state == SpeakerRenderState.Done ||
+            item.render.state == SpeakerRenderState.Failed ||
+            item.render.state == SpeakerRenderState.Cancelled) continue;
 
         const name = path.basename(item.render.job_path);
 
         if (!exists) {
             if (fs.existsSync(path.join(model.pipeline.jobFolder_done, name))) {
-                updateJob(item, { state: SpeakerRenderState.done, saved: false });
+                updateJob(item, { state: SpeakerRenderState.Done, saved: false });
 
             } else if (fs.existsSync(path.join(model.pipeline.jobFolder_failed, name))) {
-                updateJob(item, { state: SpeakerRenderState.failed, saved: false });
+                updateJob(item, { state: SpeakerRenderState.Failed, saved: false });
 
             } else if (fs.existsSync(path.join(model.pipeline.jobFolder_cancelled, name))) {
-                updateJob(item, { state: SpeakerRenderState.cancelled, saved: false });
+                updateJob(item, { state: SpeakerRenderState.Cancelled, saved: false });
 
             } else if (item.render.saved) {
                 // Lost job file!
-                updateJob(item, { state: SpeakerRenderState.none, saved: false });
+                updateJob(item, { state: undefined, saved: false });
             }
         } else {
 
@@ -96,7 +96,7 @@ function checkJobs() {
                 break;
             }
 
-            updateJob(item, { state: SpeakerRenderState.doing, processor });
+            updateJob(item, { state: SpeakerRenderState.Doing, processor });
 
         }
     }

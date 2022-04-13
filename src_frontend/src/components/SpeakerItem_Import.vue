@@ -1,21 +1,22 @@
 <template>
   <div
-    class="speaker-row header"
+    class="speaker-row"
     :class="{
       minimised: minimised,
       hidden: hidden,
     }"
   >
-    <span class="label-sup">Import:</span>
+    <div class="header">
+      <span class="label-sup">Import:</span>
 
-    <div class="label">
+      <div class="label"></div>
+
+      <span class="buttons">
+        <button class="small" @click="importItem()" :disabled="!importable">
+          Import Render
+        </button>
+      </span>
     </div>
-
-    <span class="buttons">
-      <button class="small" @click="importItem()" :disabled="!importable">
-        Import Render
-      </button>
-    </span>
   </div>
 </template>
 
@@ -35,7 +36,6 @@ import SequenceTools from "@/logic/SequenceTools";
 })
 export default class SpeakerItem_Import extends Vue {
   speaker: SpeakerItem | undefined;
-
 
   get importable(): boolean {
     let item = this.speaker;

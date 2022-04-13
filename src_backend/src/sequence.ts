@@ -7,7 +7,6 @@ declare interface SequenceMetaBrief {
     name: string,
     render_track?: number;
     speaker_items: SpeakerItem[];
-    slot_renders: SlotRender[];
 }
 
 // What gets decorated dynamically
@@ -51,7 +50,7 @@ declare interface SpeakerConfig {
 
 
 declare interface SpeakerRender {
-    state: SpeakerRenderState;
+    state: SpeakerRenderState | undefined;
     render_path: string | undefined;
     job_path: string | undefined;
     saved: boolean; // Does 'job' have changes that haven't been written to the queue
@@ -79,11 +78,12 @@ declare interface PipelineJob {
 }
 
 enum SpeakerRenderState {
-    pending = "pending",
-    doing = "doing",
-    done = "done",
-    failed = "failed",
-    cancelled = "cancelled",
+    // none = "none",
+    Pending = "Pending",
+    Doing = "Doing",
+    Done = "Done",
+    Failed = "Failed",
+    Cancelled = "Cancelled",
 }
 
 

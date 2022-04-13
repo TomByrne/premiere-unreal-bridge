@@ -19,13 +19,6 @@ export class SequenceModel {
       if (item.id == id) return item;
     }
   }
-  /*findSlotRender(id: string): SlotRender | undefined {
-    const meta = this.sequenceMeta;
-    if (!meta) return undefined;
-    for (const item of meta.slot_renders) {
-      if (item.id == id) return item;
-    }
-  }*/
 }
 
 export default reactive(new SequenceModel());
@@ -35,7 +28,6 @@ export interface SequenceMetaBrief {
   name: string,
   render_track: string | undefined;
   speaker_items: SpeakerItem[];
-  // slot_renders: SlotRender[];
 }
 
 // What gets decorated dynamically
@@ -79,7 +71,7 @@ export interface SpeakerConfig {
 
 
 export interface SpeakerRender {
-  state: SpeakerRenderState;
+  state: SpeakerRenderState | undefined;
   render_path: string | undefined;
   job_path: string | undefined;
   saved: boolean; // Does 'job' have changes that haven't been written to the queue
@@ -107,12 +99,12 @@ export interface PipelineJob {
 }
 
 export enum SpeakerRenderState {
-  none = "none",
-  pending = "pending",
-  doing = "doing",
-  done = "done",
-  failed = "failed",
-  cancelled = "cancelled",
+  // none = "none",
+  Pending = "Pending",
+  Doing = "Doing",
+  Done = "Done",
+  Failed = "Failed",
+  Cancelled = "Cancelled",
 }
 
 

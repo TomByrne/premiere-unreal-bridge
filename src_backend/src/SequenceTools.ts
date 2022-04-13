@@ -251,9 +251,6 @@ namespace SequenceTools {
             if (metaStr) {
                 try {
                     metaBrief = JSON.parse(metaStr);
-                    if (metaBrief && !metaBrief["slot_renders"]) {
-                        metaBrief["slot_renders"] = [];
-                    }
                 } catch (e) {
                     console.log("Failed to parse sequence meta");
                 }
@@ -267,7 +264,6 @@ namespace SequenceTools {
                 name: seq.name,
                 render_track: undefined,
                 speaker_items: [],
-                slot_renders: [],
             }
         }
         CachedSeqMeta = metaBrief;
@@ -324,7 +320,6 @@ namespace SequenceTools {
                 name: seq.name,
                 render_track: value.render_track,
                 speaker_items: value.speaker_items,
-                slot_renders: value.slot_renders,
             }
         }
 

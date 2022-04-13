@@ -10,6 +10,15 @@ type Events = {
 };
 export const emitter = mitt<Events>();
 
+export function findSpeakerItem(id: string): SpeakerItem | undefined {
+    const meta = model.sequence.sequenceMeta;
+    if (!meta) return;
+
+    for (const item of meta.speaker_items) {
+        if (item.id == id) return item;
+    }
+}
+
 export function addSpeakerItem(id: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
         const dir = model.project.getProjectDir();
@@ -26,7 +35,7 @@ export function addSpeakerItem(id: string): Promise<boolean> {
             },
             slots: {},
             render: {
-                state: SpeakerRenderState.none,
+                state: undefined,
                 saved: false,
                 job_path: undefined,
                 render_path: undefined,
@@ -100,7 +109,16 @@ export function loadMeta(): void {
             if (lastRes != resp.str) {
                 lastRes = resp.str;
                 console.log("Sequence Metadata: ", resp.parsed);
-                model.sequence.sequenceMeta = resp.parsed;
+
+                const meta = resp.parsed;
+                // Need to update with any pending speaker item changes
+                for(let i=0; i<itemsToSend.length; i++){
+                    const item = itemsToSend[i];
+                    const itemInd = meta.speaker_items.findIndex(i => i.id == item.id);
+                    if(itemInd == -1) meta.speaker_items.push(item);
+                    else meta.speaker_items[itemInd] = item;
+                }
+                model.sequence.sequenceMeta = meta;
             }
             timerId = setTimeout(() => {
                 timerId = undefined;
@@ -132,6 +150,7 @@ export default {
     emitter,
     setup,
     stopWatchingMeta,
+    findSpeakerItem,
     addSpeakerItem,
     removeSpeakerItem,
     updateSpeakerItem,

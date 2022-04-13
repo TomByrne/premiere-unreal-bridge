@@ -28,7 +28,7 @@
       </div>
     </div>
     <div class="speaker-rows" v-if="speaker">
-      <config :speaker="speaker" :hidden="!selected" v-if="selected" />
+      <config :speaker="speaker" :hidden="!selected && !needsConfig" :minimised="!selected" />
       <slots
         :speaker="speaker"
         :minimised="!selected"

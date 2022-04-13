@@ -29,6 +29,8 @@
       </span>
     </div>
 
+    <Progress :value="stepsDone" :total="stepsTotal" :minimised="true"/>
+
     <div v-if="open" class="controls labelled-list">
       <div class="labelled">
         <div class="label">Project:</div>
@@ -117,12 +119,16 @@ import { UnrealProjectDetail } from "@/UnrealProject";
 import { UnrealModel } from "@/model/unreal";
 import UnrealProjectTools from "@/logic/UnrealProjectTools";
 import { watch } from "vue";
+import Progress from "./Progress.vue";
 
 @Options({
   props: {
     speaker: null,
     minimised: Boolean,
     hidden: Boolean,
+  },
+  components: {
+    Progress,
   },
 })
 export default class SpeakerItem_Config extends Vue {
@@ -132,33 +138,54 @@ export default class SpeakerItem_Config extends Vue {
   mounted(): void {
     this.open = this.needsProject;
 
-
     // Auto-select single item lists
     watch(
       () => [this.ueProjectDetail],
       () => {
-        if(!this.speaker || !this.ueProjectDetail) return;
+        if (!this.speaker || !this.ueProjectDetail) return;
 
         let changes = false;
 
-        if(!this.speaker.config.scene && this.ueProjectDetail.scenes?.length == 1) {
+        if (
+          !this.speaker.config.scene &&
+          this.ueProjectDetail.scenes?.length == 1
+        ) {
           changes = true;
           this.speaker.config.scene = this.ueProjectDetail.scenes[0];
         }
 
-        if(!this.speaker.config.sequence && this.ueProjectDetail.sequences?.length == 1) {
+        if (
+          !this.speaker.config.sequence &&
+          this.ueProjectDetail.sequences?.length == 1
+        ) {
           changes = true;
           this.speaker.config.sequence = this.ueProjectDetail.sequences[0];
         }
 
-        if(!this.speaker.config.img_slot && this.ueProjectDetail.imgSlots?.length == 1) {
+        if (
+          !this.speaker.config.img_slot &&
+          this.ueProjectDetail.imgSlots?.length == 1
+        ) {
           changes = true;
           this.speaker.config.img_slot = this.ueProjectDetail.imgSlots[0];
         }
 
-        if(changes) SequenceTools.updateSpeakerItem(this.speaker);
+        if (changes) SequenceTools.updateSpeakerItem(this.speaker);
       }
     );
+  }
+
+  get stepsDone(): number {
+    return (
+      (this.needsProject ? 0 : 1) +
+      (this.needsScene ? 0 : 1) +
+      (this.needsSequence ? 0 : 1) +
+      (!this.hasSlots || this.needsSlot ? 0 : 1)
+    );
+  }
+
+  get stepsTotal(): number {
+    return 3 + (this.hasSlots ? 1 : 0);
   }
 
   get unreal(): UnrealModel {

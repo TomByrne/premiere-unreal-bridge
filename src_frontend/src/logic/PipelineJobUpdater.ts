@@ -30,10 +30,10 @@ function killJob(item:SpeakerItem, save = true) {
     }
     
     if(!item.render.job ||
-        item.render.state == SpeakerRenderState.none) return;
+        item.render.state == undefined) return;
 
     item.render.job = undefined;
-    item.render.state = SpeakerRenderState.none;
+    item.render.state = undefined;
 
     if(save) SequenceTools.updateSpeakerItem(item);
 }
@@ -120,7 +120,7 @@ export function checkItem(id:string): boolean {
     let jobPath;
     if(speaker.render.job){
         // Job already started, see if needs updating
-        if(speaker.render.saved && speaker.render.state != SpeakerRenderState.failed && objEqual(speaker.render.job, newJob)) {
+        if(speaker.render.saved && speaker.render.state != SpeakerRenderState.Failed && objEqual(speaker.render.job, newJob)) {
             // Job hasn't changed, skip
             return false;
         }
@@ -129,7 +129,7 @@ export function checkItem(id:string): boolean {
         jobPath = speaker.render.job_path;
     } else{
         // New job
-        speaker.render.state = SpeakerRenderState.pending;
+        speaker.render.state = SpeakerRenderState.Pending;
         speaker.render.saved = false;
         speaker.render.job = newJob;
     }
@@ -145,7 +145,7 @@ export function beginJob(id: string): boolean {
     const item = model.sequence.findSpeakerItem(id);
     if(item && item.render.job_path && item.render.job) {
         item.render.saved = true;
-        item.render.state = SpeakerRenderState.pending;
+        item.render.state = SpeakerRenderState.Pending;
         PipelineTools.writeJob(item.render.job_path, item.render.job);
         return true;
     }else{

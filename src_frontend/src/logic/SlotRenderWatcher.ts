@@ -7,17 +7,22 @@ import SequenceTools from "./SequenceTools";
 import { PNG } from "pngjs";
 
 class RenderWatcher{
-    timer: NodeJS.Timer;
-    noFileLimit = 60;
+    timer: NodeJS.Timer | undefined;
+    noFileLimit = 10;
     noFilesCount = 0;
     emptyPng_buffer: Buffer | undefined;
     emptyPng_width = 0;
     emptyPng_height = 0;
     finished = false;
 
-    constructor(private item:SpeakerItem, public slot:SlotRender){
+    constructor(public item:SpeakerItem, public slot:SlotRender){
         console.log("Watching slot render: ", item, slot);
-        this.timer = setInterval(() => this.watch(), 1000);
+        if(slot.state == SlotRenderState.Filling) {
+            this.fillImages(slot.fillerDone);
+        }else{
+            this.timer = setInterval(() => this.watch(), 1000);
+            this.watch();
+        }
     }
 
     private watch(){
@@ -41,7 +46,7 @@ class RenderWatcher{
     
             if(this.slot.renderDone >= this.slot.duration){
                 console.log("Speaker export complete");
-                clearInterval(this.timer);
+                if(this.timer) clearInterval(this.timer);
                 this.fillImages();
                 // this.cleanup(true);
             }
@@ -122,7 +127,7 @@ class RenderWatcher{
         .on("close", () => {
             this.slot.fillerDone++;
             SequenceTools.updateSpeakerItemSoon(this.item);
-            this.fillImages(frame+1);
+            this.fillImages(this.slot.fillerDone);
         });
     }
 
@@ -135,7 +140,7 @@ class RenderWatcher{
     cleanup(success: boolean, save = true){
         this.finished = true;
         this.slot.state = (success ? SlotRenderState.Complete : SlotRenderState.Failed);
-        clearInterval(this.timer);
+        if(this.timer) clearInterval(this.timer);
         if(save) SequenceTools.updateSpeakerItem(this.item);
     }
 }
@@ -175,6 +180,7 @@ function checkJobs(){
                 if(slot.state != SlotRenderState.Failed && slot.state != SlotRenderState.Complete)
                     watchers[id] = new RenderWatcher(item, slot);
             }else{
+                watchers[id].item = item;
                 watchers[id].slot = slot;
             }
         }

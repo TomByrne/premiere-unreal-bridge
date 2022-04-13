@@ -1,6 +1,7 @@
 
 
 namespace ImageSlotTools {
+    // This exists in the frontend also!!
     export function speakerItemDest(speaker: SpeakerItem, checkExists = true): Folder | undefined {
         if (!speaker.config.img_slot) {
             console.error("No image slot selected for this speaker item.");
@@ -16,18 +17,18 @@ namespace ImageSlotTools {
         return destPath;
     }
 
-    export function needsSlotRender(id: string): boolean {
-        const speaker = SequenceTools.findSpeakerItem(id);
-        if (!speaker?.config.img_slot) return false;
+    // export function needsSlotRender(id: string): boolean {
+    //     const speaker = SequenceTools.findSpeakerItem(id);
+    //     if (!speaker?.config.img_slot) return false;
 
-        const dest = speakerItemDest(speaker, false);
-        if (!dest) return false;
-        else if (!dest.exists) return true;
+    //     const dest = speakerItemDest(speaker, false);
+    //     if (!dest) return false;
+    //     else if (!dest.exists) return true;
 
-        const pngs = dest.getFiles("*.png");
-        // TODO: Check files within range match expectations
-        return pngs.length == 0;
-    }
+    //     const pngs = dest.getFiles("*.png");
+    //     // TODO: Check files within range match expectations (e.g. dimensions)
+    //     return pngs.length == 0;
+    // }
 
     export function exportSpeakerItem(id: string): boolean {
         const speaker = SequenceTools.findSpeakerItem(id);
@@ -120,52 +121,5 @@ namespace ImageSlotTools {
         return true;
 
         //return monitorExport(tempPath, dest, startFrame, totalFrame);
-    }
-
-    
-
-    export function getSlotRender(id: string): SlotRender | undefined {
-        let meta = SequenceTools.getMetaBrief(true);
-        if (!meta) return;
-
-        for (let item of meta.slot_renders) {
-            if (item.id == id) return item;
-        }
-        return;
-    }
-    export function addSlotRender(item: SlotRender, update = false): boolean {
-        let meta = SequenceTools.getMetaBrief(true);
-        if (!meta) return false;
-
-        let found = false;
-        for (let i=0; i<meta.slot_renders.length; i++) {
-            const slot = meta.slot_renders[i];
-            if (slot.id == item.id) {
-                if(!update) return false;
-                else {
-                    found = true;
-                    meta.slot_renders[i] = item;
-                }
-            }
-        }
-
-        if(!found) meta.slot_renders.push(item);
-        SequenceTools.saveMeta(meta);
-        return true;
-    }
-    export function removeSlotRender(id: string): boolean {
-        let meta = SequenceTools.getMetaBrief(true);
-        if (!meta) return false;
-
-        for (let i=0; i<meta.slot_renders.length; i++) {
-            const item = meta.slot_renders[i];
-            if (item.id == id){
-                meta.slot_renders.splice(i, 1);
-                SequenceTools.saveMeta(meta);
-                return true;
-            }
-        }
-
-        return false;
     }
 }

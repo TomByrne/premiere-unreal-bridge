@@ -49,6 +49,9 @@ input[type="submit"] {
 		background: var(--input-grad1);
 		border: none;
 	}
+	&:focus {
+		outline: inherit;
+	}
 }
 
 input[type="text"],
@@ -194,7 +197,7 @@ a {
 		flex-grow: 1;
 	}
 
-	.progress {
+	.progress-old {
 		position: absolute;
 		height: 2px;
 		width: 100%;
@@ -263,15 +266,10 @@ a {
 			@extend .list-item;
 
 			width: 100%;
-			height: 28px;
 			transition: height 0.2s;
 			flex-direction: column;
 			overflow: hidden;
 			background: #444;
-
-			&.open {
-				height: fit-content;
-			}
 
 			&.header,
 			.header {
@@ -304,10 +302,17 @@ a {
 
 
 			&.minimised {
-				height: 10px;
+				height: 3px;
+				border: unset;
 
-				>* {
+				&.header ,
+				.header {
 					opacity: 0;
+					height: 0;
+					padding: 0;
+				}
+				.progress {
+					opacity: 1;
 				}
 			}
 			&.hidden {
@@ -323,7 +328,6 @@ a {
 	&.needs-action,
 	.needs-action {
 		border: 2px #caac00 solid;
-		margin: -2px;
 	}
 
 	.idle {
@@ -339,10 +343,10 @@ a {
 		background: #006600 !important;
 	}
 
-	.done,
-	.success {
-		background: #000055 !important;
-	}
+	// .done,
+	// .success {
+	// 	background: #000055 !important;
+	// }
 
 	.failed {
 		background: #990000 !important;
