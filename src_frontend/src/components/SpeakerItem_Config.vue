@@ -116,6 +116,7 @@ import SequenceTools from "@/logic/SequenceTools";
 import { UnrealProjectDetail } from "@/UnrealProject";
 import { UnrealModel } from "@/model/unreal";
 import UnrealProjectTools from "@/logic/UnrealProjectTools";
+import { watch } from "vue";
 
 @Options({
   props: {
@@ -130,6 +131,34 @@ export default class SpeakerItem_Config extends Vue {
 
   mounted(): void {
     this.open = this.needsProject;
+
+
+    // Auto-select single item lists
+    watch(
+      () => [this.ueProjectDetail],
+      () => {
+        if(!this.speaker || !this.ueProjectDetail) return;
+
+        let changes = false;
+
+        if(!this.speaker.config.scene && this.ueProjectDetail.scenes?.length == 1) {
+          changes = true;
+          this.speaker.config.scene = this.ueProjectDetail.scenes[0];
+        }
+
+        if(!this.speaker.config.sequence && this.ueProjectDetail.sequences?.length == 1) {
+          changes = true;
+          this.speaker.config.sequence = this.ueProjectDetail.sequences[0];
+        }
+
+        if(!this.speaker.config.img_slot && this.ueProjectDetail.imgSlots?.length == 1) {
+          changes = true;
+          this.speaker.config.img_slot = this.ueProjectDetail.imgSlots[0];
+        }
+
+        if(changes) SequenceTools.updateSpeakerItem(this.speaker);
+      }
+    );
   }
 
   get unreal(): UnrealModel {
