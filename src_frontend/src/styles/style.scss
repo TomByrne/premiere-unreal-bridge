@@ -44,6 +44,11 @@ input[type="submit"] {
 		background-image: -webkit-linear-gradient(top, var(--disabled-grad1), var(--disabled-grad2));
 		color: var(--disabled);
 	}
+
+	option {
+		background: var(--input-grad1);
+		border: none;
+	}
 }
 
 input[type="text"],
@@ -284,7 +289,7 @@ a {
 				.label-sup {
 					margin-right: 10px;
 					min-width: 60px;
-					color: #666;
+					color: rgba(255,255,255,0.2);
 					font-weight: bold;
 				}
 
