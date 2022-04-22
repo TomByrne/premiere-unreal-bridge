@@ -17,19 +17,6 @@ namespace ImageSlotTools {
         return destPath;
     }
 
-    // export function needsSlotRender(id: string): boolean {
-    //     const speaker = SequenceTools.findSpeakerItem(id);
-    //     if (!speaker?.config.img_slot) return false;
-
-    //     const dest = speakerItemDest(speaker, false);
-    //     if (!dest) return false;
-    //     else if (!dest.exists) return true;
-
-    //     const pngs = dest.getFiles("*.png");
-    //     // TODO: Check files within range match expectations (e.g. dimensions)
-    //     return pngs.length == 0;
-    // }
-
     export function exportSpeakerItem(id: string): boolean {
         const speaker = SequenceTools.findSpeakerItem(id);
         if (!speaker) {
