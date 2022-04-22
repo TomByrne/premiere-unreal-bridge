@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="5.0" ExtensionBundleId="imagsyd.aws.unreal" ExtensionBundleVersion="11.1"
-ExtensionBundleName="Premiere Pro sample panel" 
+<ExtensionManifest Version="5.0" ExtensionBundleId="tbyrne.unreal.bridge" ExtensionBundleVersion="11.1"
+ExtensionBundleName="Unreal Bridge" 
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ExtensionList>
-		<Extension Id="imagsyd.aws.unreal" Version="1.0.0" />
+		<Extension Id="tbyrne.unreal.bridge" Version="1.0.0" />
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
@@ -18,7 +18,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	</ExecutionEnvironment>
 
 	<DispatchInfoList>
-		<Extension Id="imagsyd.aws.unreal">
+		<Extension Id="tbyrne.unreal.bridge">
 			<DispatchInfo >
 				<Resources>
 					<MainPath>./dist/frontend/index.html</MainPath>

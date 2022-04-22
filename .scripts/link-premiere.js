@@ -28,7 +28,7 @@ if(platform == "win32"){
     execSync(`defaults write ~/Library/Preferences/com.adobe.${csxs}.plist ${val} 1`);
 }
 
-const extId = "imagsyd.aws.unreal";
+const extId = "tbyrne.unreal.bridge";
 
 const extPath = path.normalize(homedir + (
     platform == "win32" ? 
