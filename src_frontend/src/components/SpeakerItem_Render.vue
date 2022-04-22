@@ -9,7 +9,7 @@
     }"
   >
     <div class="header" @click="open = !open">
-      <span class="label-sup">Render:</span>
+      <span class="label-sup"><FolderLink :path="renderPath" title="Temporary render folder (in UE project)"/>Render:</span>
 
       <div class="label" v-if="!speaker.render.job">Waiting for job...</div>
       <div class="label" v-else-if="!speaker.render.state">
@@ -65,6 +65,7 @@ import { Options, Vue } from "vue-class-component";
 import { SpeakerItem, SpeakerRenderState, TrackItemInfo } from "@/model/sequence";
 import PipelineJobUpdater from "@/logic/PipelineJobUpdater";
 import Progress from "./Progress.vue";
+import FolderLink from "./FolderLink.vue";
 
 @Options({
   props: {
@@ -75,6 +76,7 @@ import Progress from "./Progress.vue";
   },
   components: {
     Progress,
+    FolderLink,
   },
 })
 export default class SpeakerItem_Render extends Vue {
@@ -82,9 +84,13 @@ export default class SpeakerItem_Render extends Vue {
   track: TrackItemInfo | undefined;
   open = false;
 
+  get renderPath():string | undefined {
+    return this.speaker?.render.render_path;
+  }
+
   get progressState():string {
       switch(this.speaker?.render.state) {
-        case SpeakerRenderState.Doing: return "active";
+        case SpeakerRenderState.Rendering: return "active";
         case SpeakerRenderState.Done: return "complete";
         case SpeakerRenderState.Failed: return "error";
         case SpeakerRenderState.Cancelled: return "cancelled";

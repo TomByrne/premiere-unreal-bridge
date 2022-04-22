@@ -58,9 +58,17 @@ export function removeSpeakerItem(id: string): Promise<boolean> {
     }
     return call("SequenceTools.removeSpeakerItem", [id]);
 }
+let updating: SpeakerItem[] = [];
 export function updateSpeakerItem(item: SpeakerItem): Promise<boolean> {
     if(itemsToSend.length) itemsToSend = itemsToSend.filter((i) => i.id != item.id);
-    return call("SequenceTools.updateSpeakerItem", [item]);
+    if(updating.length) updating = updating.filter((i) => i.id != item.id);
+    updating.push(item);
+    const ret = call<boolean>("SequenceTools.updateSpeakerItem", [item]);
+    ret.finally(() => {
+        updating = updating.filter((i) => i != item);
+    });
+
+    return ret;
 }
 export function selectTrackItem(id: string): Promise<boolean> {
     return call("SequenceTools.selectTrackItem", [id]);
@@ -89,7 +97,15 @@ function sendItemUpdates(){
     }
 
     if(itemsToSend.length) {
-        call("SequenceTools.updateSpeakerItems", [itemsToSend]);
+        const items = itemsToSend;
+        for(const item of items){
+            if(updating.length) updating = updating.filter((i) => i.id != item.id);
+            updating.push(item);
+        }
+        const ret = call("SequenceTools.updateSpeakerItems", [items]);
+        ret.finally(() => {
+            updating = updating.filter((i) => items.indexOf(i) == -1);
+        });
         itemsToSend = [];
     }
 }
@@ -100,6 +116,14 @@ export function setup(): void {
     if (watching) return;
     watching = true;
     loadMeta();
+}
+function updateMetaItems(meta:SequenceMeta, items:SpeakerItem[]) {
+    for(let i=0; i<items.length; i++){
+        const item = items[i];
+        const itemInd = meta.speaker_items.findIndex(i => i.id == item.id);
+        if(itemInd == -1) meta.speaker_items.push(item);
+        else meta.speaker_items[itemInd] = item;
+    }
 }
 let lastRes: string | undefined;
 export function loadMeta(): void {
@@ -112,12 +136,8 @@ export function loadMeta(): void {
 
                 const meta = resp.parsed;
                 // Need to update with any pending speaker item changes
-                for(let i=0; i<itemsToSend.length; i++){
-                    const item = itemsToSend[i];
-                    const itemInd = meta.speaker_items.findIndex(i => i.id == item.id);
-                    if(itemInd == -1) meta.speaker_items.push(item);
-                    else meta.speaker_items[itemInd] = item;
-                }
+                updateMetaItems(meta, updating);
+                updateMetaItems(meta, itemsToSend);
                 model.sequence.sequenceMeta = meta;
             }
             timerId = setTimeout(() => {

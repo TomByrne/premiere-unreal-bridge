@@ -1,7 +1,7 @@
 <template>
   <div
     class="progress"
-    :class="{ [state]: true, minimised, hidden, complete: value == total }"
+    :class="{ [state]: true, minimised, hidden, complete: value >= total }"
   >
     <div class="track">
       <div class="fill" :style="{ width: (value / total) * 100 + '%' }" />
@@ -77,6 +77,11 @@ export default class Progress extends Vue {
     left: 50%;
     padding: 0 6px;
     transition: opacity 0.2s ease;
+
+    .label {
+      font-weight: bold;
+      text-transform: uppercase;
+    }
   }
 
   &.minimised {

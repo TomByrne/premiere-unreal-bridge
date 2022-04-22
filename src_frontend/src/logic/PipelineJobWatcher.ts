@@ -96,7 +96,7 @@ function checkJobs() {
                 break;
             }
 
-            updateJob(item, { state: SpeakerRenderState.Doing, processor });
+            updateJob(item, { state: SpeakerRenderState.Rendering, processor });
 
         }
     }

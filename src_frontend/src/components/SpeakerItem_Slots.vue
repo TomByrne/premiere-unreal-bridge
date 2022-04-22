@@ -8,7 +8,7 @@
     }"
   >
     <div class="header" @click="open = !open">
-      <span class="label-sup">Speaker:</span>
+      <span class="label-sup"><FolderLink :path="slotPath" title="Speaker render path (in UE project)"/>Speaker:</span>
       <div class="label" v-if="!slotRenderable">
         Select slot to render speaker
       </div>
@@ -48,6 +48,7 @@ import { SlotRender, SlotRenderState, SpeakerItem } from "@/model/sequence";
 import { UnrealProjectDetail } from "@/UnrealProject";
 import ImageSlotTools from "@/logic/ImageSlotTools";
 import Progress from "./Progress.vue";
+import FolderLink from "./FolderLink.vue";
 
 @Options({
   props: {
@@ -57,6 +58,7 @@ import Progress from "./Progress.vue";
   },
   components: {
     Progress,
+    FolderLink,
   },
 })
 export default class SpeakerItem_Slots extends Vue {
@@ -64,6 +66,10 @@ export default class SpeakerItem_Slots extends Vue {
   isMounted = false;
   needsSlotRender = false;
   open = false;
+
+  get slotPath() {
+    return this.slotRender?.dest;
+  }
 
   get progressState():string {
     if(!this.slotRender) {
@@ -95,13 +101,17 @@ export default class SpeakerItem_Slots extends Vue {
     this.isMounted = false;
   }
   checkNeedsSlotRender(): void {
-    if (!this.speaker) return;
-    if (!this.hasSlots) {
+    if (!this.speaker || !this.isMounted) return;
+    if (!this.hasSlots || !this.slotRender) {
+      this.needsSlotRender = false;
       this.checkNeedsSlotRenderLater();
       return;
     }
-    this.needsSlotRender = ImageSlotTools.needsSlotRender(this.speaker.id);
-    this.checkNeedsSlotRenderLater();
+    ImageSlotTools.needsSlotRender(this.speaker, this.slotRender)
+    .then((value) => {
+      this.needsSlotRender = value;
+      this.checkNeedsSlotRenderLater();
+    })
   }
   checkNeedsSlotRenderLater(): void {
     if (!this.isMounted) return;

@@ -8,7 +8,7 @@ import { PNG } from "pngjs";
 
 class RenderWatcher{
     timer: NodeJS.Timer | undefined;
-    noFileLimit = 10;
+    noFileLimit = 60;
     noFilesCount = 0;
     emptyPng_buffer: Buffer | undefined;
     emptyPng_width = 0;

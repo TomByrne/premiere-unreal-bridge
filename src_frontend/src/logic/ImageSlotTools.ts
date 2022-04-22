@@ -1,8 +1,7 @@
-import { SpeakerItem } from "@/model/sequence";
+import { SlotRender, SpeakerItem } from "@/model/sequence";
 import { call } from "./rest";
 import fs from "fs";
-import glob from "glob";
-import SequenceTools, { findSpeakerItem } from "./SequenceTools";
+import SequenceTools from "./SequenceTools";
 
 export function exportSpeakerItem(id: string): Promise<boolean> {
     const ret = call<boolean>("ImageSlotTools.exportSpeakerItem", [id]);
@@ -32,17 +31,26 @@ function speakerItemDest(speaker: SpeakerItem, checkExists = true): string | und
     return destPath;
 }
 
-export function needsSlotRender(id: string): boolean {
-    const speaker = SequenceTools.findSpeakerItem(id);
-    if (!speaker?.config.img_slot) return false;
+export function needsSlotRender(speaker: SpeakerItem, slot:SlotRender): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+        if (!speaker.config.img_slot) return false;
 
-    const dest = speakerItemDest(speaker, false);
-    if (!dest) return false;
-    else if (!fs.existsSync(dest)) return true;
+        const dest = speakerItemDest(speaker, false);
+        if (!dest) return false;
+        else if (!fs.existsSync(dest)) return true;
 
-    const pngs = glob.sync(`${dest}/*.png`, {nodir:true});//dest.getFiles("*.png");
-    // TODO: Check files within range match expectations (e.g. dimensions)
-    return pngs.length == 0;
+        // const pngs = glob.sync(`${dest}/*.png`, {nodir:true});//dest.getFiles("*.png");
+        // TODO: Check files within range match expectations (e.g. dimensions)
+        // return pngs.length == 0;
+        fs.readdir(dest, (e, files) => {
+            if(e){
+                reject(e);
+            } else {
+                const pngs = files.filter((f) => f.indexOf(".png") == f.length - 4);
+                resolve(pngs.length == slot.duration);
+            }
+        });
+    });
 }
 
 export default {

@@ -7,7 +7,7 @@
     }"
   >
     <div class="header">
-      <span class="label-sup">Import:</span>
+      <span class="label-sup"><FolderLink :path="imgPath" title="Unreal render path (relative to Premiere project)"/>Import:</span>
 
       <div class="label"></div>
 
@@ -26,6 +26,7 @@ import model from "@/model";
 import { SpeakerItem } from "@/model/sequence";
 import fs from "fs";
 import SequenceTools from "@/logic/SequenceTools";
+import FolderLink from "./FolderLink.vue";
 
 @Options({
   props: {
@@ -33,9 +34,16 @@ import SequenceTools from "@/logic/SequenceTools";
     minimised: Boolean,
     hidden: Boolean,
   },
+  components: {
+    FolderLink,
+  },
 })
 export default class SpeakerItem_Import extends Vue {
   speaker: SpeakerItem | undefined;
+
+  get imgPath() {
+    return this.speaker?.import.asset_path;
+  }
 
   get importable(): boolean {
     let item = this.speaker;

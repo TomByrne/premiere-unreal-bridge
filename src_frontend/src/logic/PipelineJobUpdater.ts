@@ -99,11 +99,8 @@ export function checkItem(id:string): boolean {
     
     const fps = 30; // also hard-coded into epr file
 
-    speaker.render.render_path = speaker.config.project + "/Saved/PipelineRenders/" + speaker.id;
     const start = Math.round(track.start * fps);
     const end = Math.round(track.end * fps);
-    speaker.render.total = end - start;
-    speaker.render.frames = 0;
 
     const newJob:PipelineJob = {
         cmd: "cmd_4.27",
@@ -111,8 +108,8 @@ export function checkItem(id:string): boolean {
         scene: fileToAsset(speaker.config.scene),
         sequence: fileToAsset(speaker.config.sequence),
         render_settings: "4.27_RenderQueueSettings_rushes_quick_v3",
-        output: speaker.render.render_path,
-        output_format: "{frame_number}",
+        output: speaker.config.project + "/Saved/PipelineRenders/" + speaker.id,
+        output_format: "{frame_number}.png",
         start_frame: start,
         end_frame: end,
     }
@@ -144,9 +141,13 @@ export function checkItem(id:string): boolean {
 export function beginJob(id: string): boolean {
     const item = model.sequence.findSpeakerItem(id);
     if(item && item.render.job_path && item.render.job) {
+        const job = item.render.job;
         item.render.saved = true;
         item.render.state = SpeakerRenderState.Pending;
-        PipelineTools.writeJob(item.render.job_path, item.render.job);
+        item.render.render_path = job.output;
+        item.render.total = (job.end_frame || 0) - (job.start_frame || 0);
+        item.render.frames = 0;
+        PipelineTools.writeJob(item.render.job_path, job);
         return true;
     }else{
         console.warn("Couldn't start job: ", id, item);

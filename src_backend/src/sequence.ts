@@ -80,7 +80,7 @@ declare interface PipelineJob {
 enum SpeakerRenderState {
     // none = "none",
     Pending = "Pending",
-    Doing = "Doing",
+    Rendering = "Rendering",
     Done = "Done",
     Failed = "Failed",
     Cancelled = "Cancelled",
