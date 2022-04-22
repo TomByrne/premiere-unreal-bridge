@@ -109,7 +109,7 @@ export function checkItem(id:string): boolean {
         sequence: fileToAsset(speaker.config.sequence),
         render_settings: "4.27_RenderQueueSettings_rushes_quick_v3",
         output: speaker.config.project + "/Saved/PipelineRenders/" + speaker.id,
-        output_format: "{frame_number}.png",
+        output_format: "{frame_number}.jpg",
         start_frame: start,
         end_frame: end,
     }

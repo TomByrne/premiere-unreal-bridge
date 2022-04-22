@@ -47,7 +47,7 @@ function checkJobs() {
             for (const image of images) {
                 const frame = (parseInt(image) - start).toString().padStart(6, "0");
                 const imgPath = path.join(item.render.render_path, image);
-                const destPath = path.join(item.import.asset_path, `frame_${frame}.png`);
+                const destPath = path.join(item.import.asset_path, `frame_${frame}.jpg`);
                 fs.copyFileSync(imgPath, destPath);
                 fs.unlinkSync(imgPath);
             }
