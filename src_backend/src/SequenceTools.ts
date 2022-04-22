@@ -190,10 +190,8 @@ namespace SequenceTools {
                     ret = true;
                 } else {
                     try {
-                        console.log("insert item: " + speaker.import.render_track_item);
                         item = insertClip(renderTrack, projItem, origTrackItem.start.seconds);
                         if (item) {
-                            console.log("item: " + item);
                             item.end = origTrackItem.end;
                             speaker.import.render_track_item = item.nodeId || "null";
                             ret = true;
