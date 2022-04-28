@@ -93,10 +93,6 @@ export default class SettingsPanel extends Vue {
     padding-top: 0;
   }
 
-  h1 {
-    font-size: 1.5em;
-    opacity: 0.4;
-  }
 
   h2 {
     padding-top: 10px;
