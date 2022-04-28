@@ -4,10 +4,10 @@ import model from "@/model";
 import { PipelineJob } from "@/model/sequence";
 
 export function resolveJobPath(name: string, overwrite?: boolean): string {
-    let file = path.join(model.pipeline.jobFolder, `${name}.json`);
+    let file = path.join(model.settings.pipeline_jobFolder, `${name}.json`);
     let counter = 0;
     while(!overwrite && fs.existsSync(file)) {
-        file = path.join(model.pipeline.jobFolder, `${name}_${counter}.json`);
+        file = path.join(model.settings.pipeline_jobFolder, `${name}_${counter}.json`);
         counter++;
     }
     return file;

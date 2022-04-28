@@ -2,13 +2,6 @@ import { UnrealProject, UnrealProjectDetail } from "@/UnrealProject";
 import { reactive } from "vue";
 
 export class UnrealModel {
-  // searchProjFolders = ["AWS"];
-  globProject = "/*.uproject"
-  globScene = "/AWS/Maps/*.umap"
-  globSeqeuence = "/AWS/Sequences/*.uasset"
-  globImgSlots = "/AWS/PremiereSequences/*"
-  // projectRoot = "W:\\2660_AWS_ReINVENT\\4 Motion Design\\3D\\Unreal_Projects";
-  projectRoot = "W:\\2660_AWS_ReINVENT\\4 Motion Design\\3D\\Unreal_Projects";
 
   loadingProjects = false;
   loadingProjectDetails = false;

@@ -7,7 +7,7 @@ import { UnrealProject, UnrealProjectDetail } from "@/UnrealProject";
 export class UnrealProjectScraper {
 
      listProjects(): UnrealProject[] {
-        const jobFolder = model.unreal.projectRoot;
+        const jobFolder = model.settings.unreal_projectFolder;
         if(!fs.existsSync(jobFolder)) {
             console.log("Project folder not found:", jobFolder);
             return [];
@@ -18,7 +18,7 @@ export class UnrealProjectScraper {
             const file = path.join(jobFolder, name);
             if (!fs.lstatSync(file).isDirectory()) continue;
 
-            const projectFile = this.findOne(file, model.unreal.globProject);
+            const projectFile = this.findOne(file, model.settings.unreal_globProject);
             if (!projectFile) continue;
 
             ret.push({
@@ -33,7 +33,7 @@ export class UnrealProjectScraper {
      getProjectDetails(dir: string): UnrealProjectDetail | undefined {
         if (!fs.existsSync(dir)) return undefined;
 
-        const projectFile = this.findOne(dir, model.unreal.globProject);
+        const projectFile = this.findOne(dir, model.settings.unreal_globProject);
         if (!projectFile) return undefined;
 
         const contentDir = path.join(dir, "Content");
@@ -42,9 +42,9 @@ export class UnrealProjectScraper {
             name: path.basename(dir),
             dir: path.normalize(dir),
             projectFile: path.normalize(projectFile),
-            scenes: this.find(contentDir, model.unreal.globScene, true),
-            sequences: this.find(contentDir, model.unreal.globSeqeuence, true),
-            imgSlots: this.find(contentDir, model.unreal.globImgSlots, true, false),
+            scenes: this.find(contentDir, model.settings.unreal_globScene, true),
+            sequences: this.find(contentDir, model.settings.unreal_globSequence, true),
+            imgSlots: this.find(contentDir, model.settings.unreal_globImgSlots, true, false),
         }
     }
     

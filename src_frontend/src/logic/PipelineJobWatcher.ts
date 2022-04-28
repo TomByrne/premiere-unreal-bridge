@@ -33,9 +33,9 @@ function updateJob(item: SpeakerItem, updates: Record<string, unknown>) {
 
 function checkJobs() {
     const meta = model.sequence.sequenceMeta;
-    if (!meta) return;
+    if (!meta || !fs.existsSync(model.settings.pipeline_jobFolder)) return;
 
-    const allFiles = fs.readdirSync(model.pipeline.jobFolder);
+    const allFiles = fs.readdirSync(model.settings.pipeline_jobFolder);
 
     for (const i in meta.speaker_items) {
         const item = meta.speaker_items[i];
@@ -67,13 +67,13 @@ function checkJobs() {
         const name = path.basename(item.render.job_path);
 
         if (!exists) {
-            if (fs.existsSync(path.join(model.pipeline.jobFolder_done, name))) {
+            if (fs.existsSync(path.join(model.settings.pipeline_jobFolder, model.pipeline.doneFolder, name))) {
                 updateJob(item, { state: SpeakerRenderState.Done, saved: false });
 
-            } else if (fs.existsSync(path.join(model.pipeline.jobFolder_failed, name))) {
+            } else if (fs.existsSync(path.join(model.settings.pipeline_jobFolder, model.pipeline.failedFolder, name))) {
                 updateJob(item, { state: SpeakerRenderState.Failed, saved: false });
 
-            } else if (fs.existsSync(path.join(model.pipeline.jobFolder_cancelled, name))) {
+            } else if (fs.existsSync(path.join(model.settings.pipeline_jobFolder, model.pipeline.cancelledFolder, name))) {
                 updateJob(item, { state: SpeakerRenderState.Cancelled, saved: false });
 
             } else if (item.render.saved) {

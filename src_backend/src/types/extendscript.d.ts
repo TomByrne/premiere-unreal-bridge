@@ -1895,7 +1895,7 @@ interface FolderConstructor {
    * If the user cancels, returns null.
    * @param prompt The prompt text, if the dialog allows a prompt.
    */
-  selectDialog(prompt?: string): Folder
+  selectDialog(prompt?: string): Folder | undefined
 }
 declare const Folder: FolderConstructor
 

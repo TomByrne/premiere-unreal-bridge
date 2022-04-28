@@ -182,7 +182,7 @@ function updateThemeWithAppSkinInfo(appSkinInfo) {
     setVar("font", "#CCC");
     setVar("disabled", toHex(panelBackgroundColor, 100));
     setVar("border", toHex(panelBackgroundColor, -45));
-    setVar("input-bg", toHex(panelBackgroundColor, -20));
+    setVar("input-bg", toHex(panelBackgroundColor, -10));
   }
 }
 

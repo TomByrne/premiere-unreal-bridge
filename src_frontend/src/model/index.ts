@@ -3,6 +3,7 @@ import sequence from "./sequence";
 import unreal from "./unreal";
 import pipeline from "./pipeline";
 import project from "./project";
+import settings from "./settings";
 
 export default {
   plugin,
@@ -10,4 +11,5 @@ export default {
   unreal,
   pipeline,
   project,
+  settings,
 };

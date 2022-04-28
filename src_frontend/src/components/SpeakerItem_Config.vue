@@ -282,8 +282,5 @@ export default class SpeakerItem_Config extends Vue {
       font-weight: bold;
     }
   }
-  .buttons {
-    text-align: right;
-  }
 }
 </style>

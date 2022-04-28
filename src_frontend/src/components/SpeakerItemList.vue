@@ -1,5 +1,5 @@
 <template>
-  <div class="panel">
+  <div class="item-list panel">
     
     <SpeakerItemView v-for="item in renderableItems"
       :key="item.id"
