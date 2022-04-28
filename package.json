@@ -1,11 +1,12 @@
 {
   "scripts": {
-    "postinstall": "cd src_frontend && yarn install",
+    "postinstall": "cd src_frontend && yarn install && yarn copy-epr",
     "link-premiere": "node .scripts/link-premiere.js",
     "serve": "node .scripts/serve.js",
     "full-build": "yarn build && yarn package && yarn sign",
     "build": "cd ./src_backend && tsc && cd ../src_frontend && yarn build",
     "package": "node .scripts/package-zxp.js",
+    "copy-epr": "node .scripts/copy-epr.js",
     "sign": ""
   },
   "dependencies": {

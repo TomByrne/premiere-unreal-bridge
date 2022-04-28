@@ -1,7 +1,8 @@
-const { execSync, exec } = require("child_process");
 const fs = require("fs");
 const { getLatestVersion } = require("./versions.js");
 const zxpSignCmd = require("zxp-sign-cmd");
+
+require('./copy-epr.js');
 
 const here = ".";
 const dist = "./dist";
@@ -70,6 +71,8 @@ async function packageZxp(){
         cert: cert,
         password: cert_pw,
     });
+
+    exports.output = dest;
 
     return dest;
 }
