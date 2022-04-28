@@ -1,11 +1,18 @@
 {
   "scripts": {
+    "postinstall": "cd src_frontend && yarn install",
     "link-premiere": "node .scripts/link-premiere.js",
     "serve": "node .scripts/serve.js",
-    "build": "cd ../src_backend && tsc && cd ../src_frontend && yarn build",
-    "postinstall": "cd src_frontend && yarn install"
+    "full-build": "yarn build && yarn package && yarn sign",
+    "build": "cd ./src_backend && tsc && cd ../src_frontend && yarn build",
+    "package": "node .scripts/package-zxp.js",
+    "sign": ""
   },
   "dependencies": {
     "windows-elevate": "^1.0.1"
+  },
+  "devDependencies": {
+    "version-sort": "^0.1.1",
+    "zxp-sign-cmd": "^2.0.0"
   }
 }

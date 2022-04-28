@@ -8,6 +8,7 @@ node_modules/
 dist/
 reference/
 payloads/
+packaged/
 
 # Compiled Java class files
 *.class
@@ -49,3 +50,5 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
+
+.tools/cert.*

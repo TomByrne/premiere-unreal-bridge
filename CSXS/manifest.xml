@@ -3,7 +3,7 @@
 ExtensionBundleName="Unreal Bridge" 
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ExtensionList>
-		<Extension Id="tbyrne.unreal.bridge" Version="1.0.0" />
+		<Extension Id="tbyrne.unreal.bridge" Version="{version}" />
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
