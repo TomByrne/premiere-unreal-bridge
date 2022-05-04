@@ -1,6 +1,6 @@
 <template>
   <div id="content">
-    <DevLink v-if="model.plugin.devMode" />
+    <DevLink v-if="model.plugin.devMode.value" />
     <SpeakerItemList />
     <SettingsPanel />
   </div>
