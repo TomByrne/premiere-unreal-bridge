@@ -4,6 +4,7 @@ const fs = require('fs');
 const platform = require('os').platform();
 const { execSync } = require("child_process");
 var elevate = require('windows-elevate');
+var extId = require('../package.json').name;
 
 const csxs = 'CSXS.11';
 const val = 'PlayerDebugMode';
@@ -28,7 +29,6 @@ if(platform == "win32"){
     execSync(`defaults write ~/Library/Preferences/com.adobe.${csxs}.plist ${val} 1`);
 }
 
-const extId = "tbyrne.unreal.bridge";
 
 const extPath = path.normalize(homedir + (
     platform == "win32" ? 

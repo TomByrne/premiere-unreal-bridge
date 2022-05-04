@@ -1,13 +1,14 @@
 {
+  "name": "tbyrne.unreal.bridge",
   "scripts": {
     "postinstall": "cd src_frontend && yarn install && yarn copy-epr",
     "link-premiere": "node .scripts/link-premiere.js",
+    "unlink-premiere": "node .scripts/unlink-premiere.js",
     "serve": "node .scripts/serve.js",
-    "full-build": "yarn build && yarn package && yarn sign",
+    "full-build": "yarn build && yarn package",
     "build": "cd ./src_backend && tsc && cd ../src_frontend && yarn build",
     "package": "node .scripts/package-zxp.js",
-    "copy-epr": "node .scripts/copy-epr.js",
-    "sign": ""
+    "copy-epr": "node .scripts/copy-epr.js"
   },
   "dependencies": {
     "windows-elevate": "^1.0.1"
