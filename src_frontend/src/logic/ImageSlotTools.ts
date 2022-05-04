@@ -1,10 +1,20 @@
 import { SlotRender, SpeakerItem } from "@/model/sequence";
 import { call } from "./rest";
 import fs from "fs";
+import path from "path";
 import SequenceTools from "./SequenceTools";
 
+
+const csInterface = new CSInterface();
+
+function resolveExtFile(file: string): string {
+    const root = csInterface.getSystemPath(SystemPath.EXTENSION);
+    return path.normalize(root + file);
+}
+
 export function exportSpeakerItem(id: string): Promise<boolean> {
-    const ret = call<boolean>("ImageSlotTools.exportSpeakerItem", [id]);
+    const epr = resolveExtFile("/epr/png_export_4k.epr");
+    const ret = call<boolean>("ImageSlotTools.exportSpeakerItem", [id, epr]);
     ret.then((success) => {
         if(success) SequenceTools.loadMeta();
     });

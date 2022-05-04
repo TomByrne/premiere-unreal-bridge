@@ -17,7 +17,7 @@ namespace ImageSlotTools {
         return destPath;
     }
 
-    export function exportSpeakerItem(id: string): boolean {
+    export function exportSpeakerItem(id: string, epr: string): boolean {
         const speaker = SequenceTools.findSpeakerItem(id);
         if (!speaker) {
             console.error("Speaker item not found:", id);
@@ -44,9 +44,10 @@ namespace ImageSlotTools {
             return false;
         }
 
-        const presetPath = new File(new File($.fileName).path + "/epr/png_export_4k.epr");
-        if (!presetPath.exists) {
-            console.error("Preset not found:", presetPath.absoluteURI);
+        // const presetPath = new File(new File($.fileName).path + "/epr/png_export_4k.epr");
+        const presetPath = new File(epr);
+        if (!presetPath?.exists) {
+            console.error("Preset not found:", presetPath?.absoluteURI);
             return false;
         }
 
