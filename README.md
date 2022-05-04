@@ -4,7 +4,7 @@ This plugin is a video production tool for integrating an Unreal Engine render p
 
 It allows a Premiere Pro users to easily replace clips in their sequence with renders from UE, including compositing a 'speaker' track from Premiere into the Unreal scene (optional).
 
-UE renders are sent to the [Unreal render pipeline](https://bitbucket.org/imagination/aws-unreal-renderpipeline), which can be running on another PC (or multiple PCs) with access to the same network drive. At the moment, this is the only supported render backend, so the pipeline must be running for this plugin to work.
+UE renders are sent to the [Unreal render pipeline](https://github.com/TomByrne/unreal-render-pipeline), which can be running on another PC (or multiple PCs) with access to the same network drive. At the moment, this is the only supported render backend, so the pipeline must be running for this plugin to work.
 
 The basic steps:
 
