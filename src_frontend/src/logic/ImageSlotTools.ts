@@ -3,9 +3,8 @@ import { call } from "./rest";
 import fs from "fs";
 import path from "path";
 import SequenceTools from "./SequenceTools";
+import csInterface from "../utils/CSInt";
 
-
-const csInterface = new CSInterface();
 
 function resolveExtFile(file: string): string {
     const root = csInterface.getSystemPath(SystemPath.EXTENSION);

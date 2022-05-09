@@ -1,4 +1,6 @@
-import { call } from "./rest";
+import csInterface from "../utils/CSInt";
+import path from "path";
+import fs from "fs";
 
 export function getDevUrl(): string {
   return "http://localhost:8080";
@@ -9,7 +11,11 @@ export function isAtDevUrl(): boolean {
 }
 
 export function getDevMode(): Promise<boolean> {
-  return call("PluginTools.getDevMode");
+  return new Promise((resolve) => {
+    const root = csInterface.getSystemPath(SystemPath.EXTENSION);
+    const debugFile = path.normalize(root + '/.debug');
+    resolve(fs.existsSync(debugFile));
+  });
 }
 
 export function loadBackend(): void {

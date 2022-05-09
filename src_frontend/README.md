@@ -1,4 +1,4 @@
-# aws-unreal-plugin
+# tbyrne.unreal.bridge
 
 ## Project setup
 ```

@@ -1,5 +1,5 @@
 {
-  "name": "aws-unreal-plugin",
+  "name": "tbyrne.unreal.bridge",
   "version": "0.1.0",
   "private": true,
   "scripts": {

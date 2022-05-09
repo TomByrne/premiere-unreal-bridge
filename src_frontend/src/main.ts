@@ -5,6 +5,7 @@ import plugin from "./model/plugin";
 
 getDevMode()
   .then((res: boolean) => {
+    console.log("Dev mode: " + res);
     plugin.devMode.value = res;
   })
   .catch((e) => {
