@@ -4,10 +4,12 @@ import { SlotRender, SlotRenderState, SpeakerItem } from "@/model/sequence";
 import fs from "fs";
 import path from "path";
 import SequenceTools from "./SequenceTools";
+import { speakerItemDest } from "./ImageSlotTools";
 import { PNG } from "pngjs";
+import glob from "glob";
 
 class RenderWatcher{
-    timer: NodeJS.Timer | undefined;
+    nextTimer: NodeJS.Timer | undefined;
     noFileLimit = 60;
     noFilesCount = 0;
     emptyPng_buffer: Buffer | undefined;
@@ -17,23 +19,92 @@ class RenderWatcher{
 
     constructor(public item:SpeakerItem, public slot:SlotRender){
         console.log("Watching slot render: ", item, slot);
-        if(slot.state == SlotRenderState.Filling) {
-            this.fillImages(slot.fillerDone);
-        }else{
-            this.timer = setInterval(() => this.watch(), 1000);
-            this.watch();
+        // if(slot.state == SlotRenderState.Filling) {
+        //     this.fillImages(slot.fillerDone);
+        // }else{
+        //     this.timer = setInterval(() => this.watchAMEOutput(), 1000);
+        //     this.watchAMEOutput();
+        // }
+        this.next();
+    }
+    
+    private nextLater(secs = 1) {
+        if(this.nextTimer != undefined) return;
+        this.nextTimer = setTimeout(() => {
+            this.nextTimer = undefined;
+            this.next()
+        }, secs * 1000);
+    }
+
+    private next() {
+        switch(this.slot.state) {
+            case SlotRenderState.Rendering:
+                this.watchAMEOutput();
+                break;
+
+            case SlotRenderState.Filling:
+                this.fillImages(this.slot.fillerDone);
+                break;
+                
+            case SlotRenderState.Complete:
+                this.watchFolder();
+                break;
+            
+            case SlotRenderState.Failed:
+                this.nextLater(5)
+                break;
         }
     }
 
-    private watch(){
-        fs.promises.readdir(this.slot.output)
-        .then((files) => {
+    private watchFolder() {
+        if(!fs.existsSync(this.slot.dest)) {
+            this.failed();
+            this.nextLater();
+        } else {
+            glob(`${this.slot.dest}/*.png`, {nodir:true}, (e, files) => {
+                if(e) {
+                    console.warn("Failed to read dest folder: ", this.slot.dest, e);
+                    this.nextLater();
+                    return;
+                }
+
+                if(files.length < this.slot.fillerDone + this.slot.renderDone) {
+                    this.failed();
+                }
+                this.nextLater(5);
+            });
+        }
+    }
+
+    private failed(){
+        this.slot.fillerDone = 0;
+        this.slot.renderDone = 0;
+        this.slot.state = SlotRenderState.Failed;
+        SequenceTools.updateSpeakerItemSoon(this.item);
+    }
+
+    private success(){
+        this.slot.state = SlotRenderState.Complete;
+        SequenceTools.updateSpeakerItemSoon(this.item);
+    }
+
+    private watchAMEOutput(){
+        // fs.promises.readdir(this.slot.output)
+        glob(`${this.slot.output}/*.png`, {nodir:true}, (e, files) => {
+            if(e) {
+                console.warn("Failed to read output folder: ", this.slot.output, e);
+                // this.cleanup(false);
+                this.nextLater();
+                return;
+            }
             if(files.length == 0) {
                 this.noFilesCount++;
                 if(this.noFilesCount >= this.noFileLimit) {
                     console.warn("Speaker export timed out");
-                    this.cleanup(false);
+                    // this.cleanup(false);
+                    this.failed();
                 }
+                this.nextLater();
                 return;
             }
 
@@ -41,20 +112,17 @@ class RenderWatcher{
             this.noFilesCount = 0;
     
             for(const file of files) {
-                this.checkFile(file, path.join(this.slot.output, file));
+                this.checkFile(path.basename(file), file);
             }
     
             if(this.slot.renderDone >= this.slot.duration){
                 console.log("Speaker export complete");
-                if(this.timer) clearInterval(this.timer);
-                this.fillImages();
-                // this.cleanup(true);
+                this.slot.fillerDone = 0;
+                this.slot.state = SlotRenderState.Filling;
+                SequenceTools.updateSpeakerItemSoon(this.item);
             }
-        })
-        .catch((e) => {
-            console.warn("Failed to read output folder: ", this.slot.output, e);
-            this.cleanup(false);
-        })
+            this.nextLater();
+        });
     }
 
     private checkFile(name: string, file: string): boolean {
@@ -101,7 +169,9 @@ class RenderWatcher{
 
         if(frame >= this.slot.start) {
             console.log("Finished filling in image sequence start");
-            this.cleanup(true);
+            //this.cleanup(true);
+            this.success();
+            this.nextLater();
             return;
         }
         if(frame == 0) console.log("Filling in image sequence start");
@@ -123,11 +193,12 @@ class RenderWatcher{
         stream
         .on("error", (e) => {
             console.error("Failed to write empty png: ", destPath, e);
+            this.nextLater();
         })
         .on("close", () => {
             this.slot.fillerDone++;
             SequenceTools.updateSpeakerItemSoon(this.item);
-            this.fillImages(this.slot.fillerDone);
+            this.next();
         });
     }
 
@@ -137,11 +208,16 @@ class RenderWatcher{
         // ImageSlotTools.addSlotRender(this.slot, true);
     }
 
-    cleanup(success: boolean, save = true){
-        this.finished = true;
-        this.slot.state = (success ? SlotRenderState.Complete : SlotRenderState.Failed);
-        if(this.timer) clearInterval(this.timer);
-        if(save) SequenceTools.updateSpeakerItem(this.item);
+    // cleanup(success: boolean, save = true){
+    //     this.finished = true;
+    //     this.slot.state = (success ? SlotRenderState.Complete : SlotRenderState.Failed);
+    //     if(this.timer) clearInterval(this.timer);
+    //     if(save) SequenceTools.updateSpeakerItem(this.item);
+    // }
+
+    cleanup(){
+        console.log("Cleanup slot watcher");
+        if(this.nextTimer != undefined) clearTimeout(this.nextTimer);
     }
 }
 
@@ -169,15 +245,17 @@ function checkJobs(){
         const watcher = watchers[id];
         if(watcher.finished) delete watchers[id];
         if(!meta.speaker_items.find(x => !!x.slots[id])) {
-            watcher.cleanup(false, false);
+            watcher.cleanup();
         }
     }
 
     for(const item of meta.speaker_items) {
         for(const id in item.slots) {
             const slot = item.slots[id];
+            
             if(!watchers[id]) {
-                if(slot.state != SlotRenderState.Failed && slot.state != SlotRenderState.Complete)
+
+                // if(slot.state != SlotRenderState.Failed && slot.state != SlotRenderState.Complete)
                     watchers[id] = new RenderWatcher(item, slot);
             }else{
                 watchers[id].item = item;
