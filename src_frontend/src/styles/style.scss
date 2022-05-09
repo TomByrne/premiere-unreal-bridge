@@ -271,6 +271,7 @@ a {
 			flex-direction: column;
 			overflow: hidden;
 			background: #444;
+			box-sizing: border-box;
 
 			&.header,
 			.header {
