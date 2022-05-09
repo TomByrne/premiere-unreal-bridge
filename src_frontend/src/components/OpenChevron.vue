@@ -1,6 +1,6 @@
 <template>
   <span class="open-chevron">
-    <span class="icon" :class="{closed:!open, open:open}"/>
+    <span class="icon" :class="{ closed: !open, open: open }" />
   </span>
 </template>
 
@@ -11,9 +11,9 @@ import { Options, Vue } from "vue-class-component";
   props: {
     open: Boolean,
   },
-  components:{
+  components: {
     // Icon
-  }
+  },
 })
 export default class OpenChevron extends Vue {
   open = false;
@@ -23,18 +23,22 @@ export default class OpenChevron extends Vue {
 <style scoped lang="scss">
 .icon {
   margin-right: 4px;
-  display:inline-block;
-  -webkit-mask-size: cover;
-  mask-size: cover;
+  display: inline-block;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
   -webkit-mask-image: url(../assets/icons_chevron.svg);
   mask-image: url(../assets/icons_chevron.svg);
   background-color: currentColor;
-  width: 14px; 
+  width: 8px;
   height: 12px;
   cursor: pointer;
 
   &:hover {
-   background-color: #fff;
+    background-color: #fff;
   }
 
   &.closed {
