@@ -7,7 +7,10 @@
     }"
   >
     <div class="header">
-      <span class="label-sup"><FolderLink :path="imgPath" title="Unreal render path (relative to Premiere project)"/>Import:</span>
+      <span class="label-sup">
+        <FolderLink :path="imgPath" title="Unreal render path (relative to Premiere project)"/>
+        Import:
+      </span>
 
       <div class="label"></div>
 

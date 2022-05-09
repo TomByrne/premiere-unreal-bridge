@@ -11,9 +11,11 @@
     <div
       class="header"
       :class="{ success: !needsConfig }"
-      @click="open = !open"
     >
-      <span class="label-sup">Config:</span>
+      <span class="label-sup">
+        <OpenChevron :open="open" @click="open = !open"/>
+        Config:
+      </span>
 
       <div class="label" v-if="needsProject">Select an Unreal Project</div>
       <div class="label" v-else-if="needsScene">Select an Unreal Scene</div>
@@ -120,6 +122,7 @@ import { UnrealModel } from "@/model/unreal";
 import UnrealProjectTools from "@/logic/UnrealProjectTools";
 import { watch } from "vue";
 import Progress from "./Progress.vue";
+import OpenChevron from "./OpenChevron.vue";
 
 @Options({
   props: {
@@ -129,6 +132,7 @@ import Progress from "./Progress.vue";
   },
   components: {
     Progress,
+    OpenChevron,
   },
 })
 export default class SpeakerItem_Config extends Vue {

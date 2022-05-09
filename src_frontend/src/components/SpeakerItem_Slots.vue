@@ -2,13 +2,17 @@
   <div
     class="speaker-row"
     :class="{
-      'needs-action': needsSlotRender,
+      'needs-action': !slotComplete,
       minimised: minimised,
       hidden: hidden,
     }"
   >
-    <div class="header" @click="open = !open">
-      <span class="label-sup"><FolderLink :path="slotPath" title="Speaker render path (in UE project)"/>Speaker:</span>
+    <div class="header">
+      <span class="label-sup">
+        <OpenChevron :open="open" @click="open = !open"/>
+        <FolderLink :path="slotPath" title="Speaker render path (in UE project)"/>
+        Speaker:
+      </span>
       <div class="label" v-if="!slotRenderable">
         Select slot to render speaker
       </div>
@@ -26,7 +30,7 @@
           v-if="slotRenderable && !slotRendering && !slotFilling"
           @click="renderSlot()"
         >
-          {{ needsSlotRender ? "Export Speaker" : "Re-export Speaker" }}
+          {{ slotComplete || slotFailed ? "Re-export Speaker" : "Export Speaker" }}
         </button>
       </span>
     </div>
@@ -49,6 +53,7 @@ import { UnrealProjectDetail } from "@/UnrealProject";
 import ImageSlotTools from "@/logic/ImageSlotTools";
 import Progress from "./Progress.vue";
 import FolderLink from "./FolderLink.vue";
+import OpenChevron from "./OpenChevron.vue";
 
 @Options({
   props: {
@@ -59,12 +64,13 @@ import FolderLink from "./FolderLink.vue";
   components: {
     Progress,
     FolderLink,
+    OpenChevron,
   },
 })
 export default class SpeakerItem_Slots extends Vue {
   speaker: SpeakerItem | undefined;
-  isMounted = false;
-  needsSlotRender = false;
+  //isMounted = false;
+  //needsSlotRender = false;
   open = false;
 
   get slotPath() {
@@ -93,7 +99,7 @@ export default class SpeakerItem_Slots extends Vue {
     return slots ? slots.length > 0 : false;
   }
 
-  mounted(): void {
+  /*mounted(): void {
     this.isMounted = true;
     this.checkNeedsSlotRender();
   }
@@ -116,7 +122,7 @@ export default class SpeakerItem_Slots extends Vue {
   checkNeedsSlotRenderLater(): void {
     if (!this.isMounted) return;
     setTimeout(() => this.checkNeedsSlotRender(), 5000);
-  }
+  }*/
 
   get slotRenderable(): boolean {
     return !!this.speaker?.config.img_slot;
@@ -129,6 +135,12 @@ export default class SpeakerItem_Slots extends Vue {
   }
   get slotFilling(): boolean {
     return this.slotRender?.state == SlotRenderState.Filling;
+  }
+  get slotComplete(): boolean {
+    return this.slotRender?.state == SlotRenderState.Complete;
+  }
+  get slotFailed(): boolean {
+    return this.slotRender?.state == SlotRenderState.Failed;
   }
   get slotRenderPercent(): number {
     const slotRender = this.slotRender;

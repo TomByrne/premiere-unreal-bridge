@@ -8,8 +8,12 @@
       hidden: hidden,
     }"
   >
-    <div class="header" @click="open = !open">
-      <span class="label-sup"><FolderLink :path="renderPath" title="Temporary render folder (in UE project)"/>Render:</span>
+    <div class="header">
+      <span class="label-sup">
+        <OpenChevron :open="open" @click="open = !open"/>
+        <FolderLink :path="renderPath" title="Temporary render folder (in UE project)"/>
+        Render:
+      </span>
 
       <div class="label" v-if="!speaker.render.job">Waiting for job...</div>
       <div class="label" v-else-if="!speaker.render.state">
@@ -66,6 +70,7 @@ import { SpeakerItem, SpeakerRenderState, TrackItemInfo } from "@/model/sequence
 import PipelineJobUpdater from "@/logic/PipelineJobUpdater";
 import Progress from "./Progress.vue";
 import FolderLink from "./FolderLink.vue";
+import OpenChevron from "./OpenChevron.vue";
 
 @Options({
   props: {
@@ -77,6 +82,7 @@ import FolderLink from "./FolderLink.vue";
   components: {
     Progress,
     FolderLink,
+    OpenChevron,
   },
 })
 export default class SpeakerItem_Render extends Vue {
