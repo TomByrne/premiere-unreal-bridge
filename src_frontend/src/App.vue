@@ -2,8 +2,8 @@
   <div id="content">
     <DevLink v-if="model.plugin.devMode.value" />
     <SpeakerItemList />
-    <SettingsPanel />
   </div>
+  <SettingsPanel />
   <SettingsButton />
 </template>
 
@@ -54,7 +54,7 @@ export default class App extends Vue {
 
 .settings-icon {
   position: absolute;
-  right: 15px;
+  right: 25px;
   bottom: 15px;
 }
 </style>

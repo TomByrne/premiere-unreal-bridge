@@ -80,10 +80,15 @@ export default class SettingsPanel extends Vue {
 
 <style scoped lang="scss">
 .settings {
+  position: absolute;
+  bottom: 0;
+  left:0;
   transition: all 0.35s ease;
   overflow: hidden;
   padding-bottom: 50px;
   height: fit-content;
+  width: 100%;
+  background-color: var(--bg);
 
   &.closed {
     opacity: 0;
