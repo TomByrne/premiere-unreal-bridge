@@ -8,7 +8,7 @@
     </div>
     <div class="text">
       <span class="label">{{ label }}</span>
-      <span class="fraction" v-if="showFraction">{{ value }}/{{ total }}</span>
+      <span class="fraction" v-if="showFraction && total && value != null">{{ value }}/{{ total }}</span>
       <span class="percent" v-if="showPercent">
         {{ Math.round((value / total) * 100) + "%" }}
       </span>

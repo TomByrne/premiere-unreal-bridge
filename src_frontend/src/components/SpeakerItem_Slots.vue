@@ -39,7 +39,7 @@
       :state="progressState"
       :minimised="minimised || hidden || !open"
       :total="slotRender ? slotRender.start + slotRender.duration : 0"
-      :value="slotRender ? slotRender.renderDone + slotRender.fillerDone : 0"
+      :value="slotRender ? slotRender.fillerDone + slotRender.renderDone : 0"
       :label="slotRender ? slotRender.state : null"
     />
   </div>

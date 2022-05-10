@@ -146,7 +146,7 @@ namespace SequenceTools {
         return -1;
     }
 
-    function checkSpeakerRenderItems(seq: Sequence, meta: SequenceMetaBrief): boolean {
+    function checkSpeakerRenderItems(seq: Sequence, meta: SequenceMetaBrief, addToSeq = false): boolean {
         const renderTrack = meta.render_track == undefined ? undefined : findTrack(seq.videoTracks, meta.render_track);
         let ret = false;
         for (const speaker of meta.speaker_items) {
@@ -188,7 +188,10 @@ namespace SequenceTools {
                         ret = true;
                     }
                     ret = true;
-                } else {
+                } else if(renderTrackItem) {
+                    // All good
+
+                } else if(addToSeq) {
                     try {
                         item = insertClip(renderTrack, projItem, origTrackItem.start.seconds);
                         if (item) {
@@ -199,6 +202,10 @@ namespace SequenceTools {
                     } catch (e) {
                         console.warn("Failed to insert clip", e);
                     }
+
+                } else if(speaker.import.render_track_item) {
+                    speaker.import.render_track_item = undefined;
+                    ret = true;
                 }
             }
         }
@@ -411,12 +418,21 @@ namespace SequenceTools {
         }
     }
 
-    export function importSpeakerRender(id: string): boolean {
-        let meta = getMetaBrief(true);
-        if (!meta) return false;
+    export function importSpeakerRender(id: string, addToSeq = false): boolean {
+        console.log("importSpeakerRender: ", id);
+        let seq = findSeq();
+        let meta = getMetaBrief(true, seq);
+        if (!seq || !meta) return false;
 
         let speaker = findSpeakerItem(id, meta);
-        if (speaker && !speaker.import.render_proj_item && speaker.import.asset_path) {
+        if (speaker && speaker.import.asset_path) {
+            if(speaker.import.render_proj_item) {
+                const projItem = ProjectItemTools.find(speaker.import.render_proj_item);
+                console.log("Re-importing: " + projItem?.name);
+                ProjectItemTools.reimport(projItem);
+                if(addToSeq) checkSpeakerRenderItems(seq, meta, addToSeq);
+                return true;
+            }
             const dir = new Folder(speaker.import.asset_path);
             let files = dir.getFiles();
             if (files.length) {
@@ -426,6 +442,7 @@ namespace SequenceTools {
                 if (projItem) {
                     speaker.import.render_proj_item = projItem.nodeId;
                     saveMeta(meta);
+                    if(addToSeq) checkSpeakerRenderItems(seq, meta, addToSeq);
                     return true;
                 } else {
                     console.warn("Import failed: ", speaker.import.asset_path);

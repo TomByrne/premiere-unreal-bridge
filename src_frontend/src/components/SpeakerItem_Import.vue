@@ -16,7 +16,7 @@
 
       <span class="buttons">
         <button class="small" @click="importItem()" :disabled="!importable">
-          Import Render
+          {{ hasImported ? "Re-import Render" : "Import Render" }}
         </button>
       </span>
     </div>
@@ -26,7 +26,7 @@
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import model from "@/model";
-import { SpeakerItem } from "@/model/sequence";
+import { ReadinessState, SpeakerItem } from "@/model/sequence";
 import fs from "fs";
 import SequenceTools from "@/logic/SequenceTools";
 import FolderLink from "./FolderLink.vue";
@@ -53,16 +53,17 @@ export default class SpeakerItem_Import extends Vue {
     if (!item) return false;
     let meta = model.sequence.sequenceMeta;
     if (!meta || !meta.render_track) return false;
-    //TODO: move this logic into a service
-    const hasFiles = item.import.asset_path
-      ? fs.existsSync(item.import.asset_path) &&
-        fs.readdirSync(item.import.asset_path).length > 0
-      : false;
-    return !!(item && !item.import.render_proj_item && hasFiles);
+    return item.import.state == ReadinessState.Ready;
+  }
+
+  get hasImported(): boolean {
+    let item = this.speaker;
+    if (!item) return false;
+    return !!item.import.render_track_item;
   }
 
   importItem(): void {
-    if (this.speaker) SequenceTools.importSpeakerRender(this.speaker.id);
+    if (this.speaker) SequenceTools.importSpeakerRender(this.speaker.id, true);
   }
 }
 </script>

@@ -17,6 +17,7 @@ import model from "./model";
 import SequenceTools from "./logic/SequenceTools";
 import PipelineJobUpdater from "./logic/PipelineJobUpdater";
 import PipelineJobWatcher from "./logic/PipelineJobWatcher";
+import ImportWatcher from "./logic/ImportWatcher";
 import UnrealProjectTools from "./logic/UnrealProjectTools";
 import ProjectTools from "./logic/ProjectTools";
 import SlotRenderWatcher from "./logic/SlotRenderWatcher";
@@ -41,6 +42,7 @@ export default class App extends Vue {
     PipelineJobWatcher.setup();
     UnrealProjectTools.setup();
     SlotRenderWatcher.setup();
+    ImportWatcher.setup();
   }
 }
 </script>
