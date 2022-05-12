@@ -4,6 +4,8 @@ namespace ProjectItemTools {
     export const RenderBinName = "renders";
     export const TempBinName = ".temp";
 
+    const FPS = 30;
+
     export function find(id: string): ProjectItem | undefined {
        return findWithin(app.project.rootItem, id);
     }
@@ -81,6 +83,17 @@ namespace ProjectItemTools {
         let interp = item.getFootageInterpretation();
         return interp ? interp.frameRate : undefined;
     }
+
+    export function setFramerate(item?: ProjectItem, to:number): number | undefined {
+        if (!item) {
+            return doForSelected((item) => getFramerate(item))
+        }
+
+        let interp = item.getFootageInterpretation();
+        if(interp == 0) return;
+        interp.frameRate = to;
+        item.setFootageInterpretation(interp);
+    }
     
     export function importImageSequence(path: string | File): ProjectItem | undefined {
         const renderBin = getRenderBin();
@@ -91,9 +104,23 @@ namespace ProjectItemTools {
 
         app.project.importFiles([path], false, renderBin, true);
 
+        var ret: ProjectItem | undefined;
         for(const child of renderBin.children) {
-            if(oldIds.indexOf(child.nodeId) == -1) return child;
+            if(oldIds.indexOf(child.nodeId) == -1) {
+                ret = child;
+                break;
+            }
         }
+        if(!ret) return;
+
+        setFramerate(ret, FPS);
+
+        let actualFps = getFramerate(ret);
+        if (actualFps != FPS) {
+            console.warn("Frame rate set to " + actualFps + ".\n\nSet default rate rate in:\nPreferences > Media > Indeterminate Media Timebase.");
+        }
+
+        return ret;
     }
 
     export function reimport(item?: ProjectItem): boolean {
@@ -106,25 +133,15 @@ namespace ProjectItemTools {
             return false;
         }
 
-        let frameRate = getFramerate(item) || 30;
+        let frameRate = getFramerate(item) || FPS;
 
         // Reloads the image sequence from disk, but messes up the FPS
         item.changeMediaPath(item.getMediaPath());
 
-        // Not available sometimes ??
-        if (item.setOverrideFramerate) {
-            item.setOverrideFramerate(frameRate)
-        }
-
-        // THIS DOESN"T SEEM TO WORK ??
-        let interp = item.getFootageInterpretation();
-        if (interp && interp.frameRate != frameRate) {
-            interp.frameRate = frameRate;
-            item.setFootageInterpretation(interp)
-        }
+        setFramerate(item, frameRate);
 
         let actualFps = getFramerate(item);
-        if (actualFps != 30) {
+        if (actualFps != frameRate) {
             console.warn("Frame rate set to " + actualFps + ".\n\nSet default rate rate in:\nPreferences > Media > Indeterminate Media Timebase.");
         }
 

@@ -178,10 +178,10 @@ namespace SequenceTools {
                 }
                 const renderTrackItem = speaker.import.render_track_item ? findTrackItem(seq.videoTracks, speaker.import.render_track_item) : undefined;
                 if (!projItem) {
-                    console.log("Project item was not found");
                     // Proj item has been deleted
                     //TODO: clear track item
                     speaker.import.render_proj_item = undefined;
+                    speaker.import.render_track_item = undefined;
                     if (renderTrackItem) {
                         renderTrackItem.remove(false, false);
                         speaker.import.render_track_item = undefined;
@@ -419,7 +419,7 @@ namespace SequenceTools {
     }
 
     export function importSpeakerRender(id: string, addToSeq = false): boolean {
-        console.log("importSpeakerRender: ", id);
+        // console.log("importSpeakerRender: ", id);
         let seq = findSeq();
         let meta = getMetaBrief(true, seq);
         if (!seq || !meta) return false;
