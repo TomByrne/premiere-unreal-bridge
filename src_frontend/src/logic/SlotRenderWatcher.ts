@@ -178,6 +178,13 @@ class RenderWatcher{
 
 
         const destPath = this.getPath(frame);
+        if(fs.existsSync(destPath)) {
+            // image already exists, skip
+            this.slot.fillerDone++;
+            SequenceTools.updateSpeakerItemSoon(this.item);
+            this.next();
+            return;
+        }
         // console.log("writing empty png: ", frame, this.slot.width, this.slot.height, destPath);
         if(!this.emptyPng_buffer || this.emptyPng_width != this.slot.width || this.emptyPng_height != this.slot.height) {
             const png = new PNG({ width: this.slot.width, height: this.slot.height });
@@ -243,9 +250,9 @@ function checkJobs(){
     
     for(const id in watchers) {
         const watcher = watchers[id];
-        if(watcher.finished) delete watchers[id];
         if(!meta.speaker_items.find(x => !!x.slots[id])) {
             watcher.cleanup();
+            delete watchers[id];
         }
     }
 
