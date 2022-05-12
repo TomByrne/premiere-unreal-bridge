@@ -1,8 +1,7 @@
 import model from "@/model";
 import fs from "fs";
-import path from "path";
 import { ReadinessState, SpeakerItem, SpeakerRenderState } from "@/model/sequence";
-import SequenceTools, { findSpeakerItem } from "./SequenceTools";
+import SequenceTools from "./SequenceTools";
 import glob from "glob";
 
 export function setup(): void {
@@ -29,7 +28,7 @@ function checkJobs() {
     if (!meta || !fs.existsSync(model.settings.pipeline_jobFolder)) return;
 
     for (const i in meta.speaker_items) {
-        let item = meta.speaker_items[i];
+        const item = meta.speaker_items[i];
 
         if (!fs.existsSync(item.import.asset_path)) {
             updateJob(item, { state: ReadinessState.NotReady });
