@@ -84,7 +84,7 @@ namespace ImageSlotTools {
         app.project.deleteSequence(speakerSeq);
         app.project.activeSequence = mainSequence;
 
-        const fps = 30; // also hard-coded into epr file
+        const fps = ProjectItemTools.FPS;
         
         const start = Math.round(trackItem.start.seconds * fps);
         const duration = Math.round((trackItem.outPoint.seconds - trackItem.inPoint.seconds) * speed * fps);

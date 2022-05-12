@@ -4,7 +4,7 @@ namespace ProjectItemTools {
     export const RenderBinName = "renders";
     export const TempBinName = ".temp";
 
-    const FPS = 30;
+    export const FPS = 30; // also hard-coded into epr file
 
     export function find(id: string): ProjectItem | undefined {
        return findWithin(app.project.rootItem, id);
@@ -84,7 +84,7 @@ namespace ProjectItemTools {
         return interp ? interp.frameRate : undefined;
     }
 
-    export function setFramerate(item?: ProjectItem, to:number): number | undefined {
+    export function setFramerate(to:number, item?: ProjectItem): number | undefined {
         if (!item) {
             return doForSelected((item) => getFramerate(item))
         }
@@ -95,7 +95,7 @@ namespace ProjectItemTools {
         item.setFootageInterpretation(interp);
     }
     
-    export function importImageSequence(path: string | File): ProjectItem | undefined {
+    export function importImageSequence(path: string | File, fps:number = FPS): ProjectItem | undefined {
         const renderBin = getRenderBin();
         const oldIds = [];
         for(const child of renderBin.children) oldIds.push(child.nodeId);
@@ -113,10 +113,10 @@ namespace ProjectItemTools {
         }
         if(!ret) return;
 
-        setFramerate(ret, FPS);
+        setFramerate(fps, ret);
 
         let actualFps = getFramerate(ret);
-        if (actualFps != FPS) {
+        if (actualFps != fps) {
             console.warn("Frame rate set to " + actualFps + ".\n\nSet default rate rate in:\nPreferences > Media > Indeterminate Media Timebase.");
         }
 
@@ -138,7 +138,7 @@ namespace ProjectItemTools {
         // Reloads the image sequence from disk, but messes up the FPS
         item.changeMediaPath(item.getMediaPath());
 
-        setFramerate(item, frameRate);
+        setFramerate(frameRate, item);
 
         let actualFps = getFramerate(item);
         if (actualFps != frameRate) {

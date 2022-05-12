@@ -438,7 +438,9 @@ namespace SequenceTools {
             if (files.length) {
                 // Renders are available, create a project item
                 files = files.sort(sortFiles);
-                const projItem = ProjectItemTools.importImageSequence(files[0] as File);
+                const trackItem = findVideoTrackItem(speaker.id, seq);
+                const fps = ProjectItemTools.FPS * (trackItem?.getSpeed() || 1);
+                const projItem = ProjectItemTools.importImageSequence(files[0] as File, fps);
                 if (projItem) {
                     speaker.import.render_proj_item = projItem.nodeId;
                     saveMeta(meta);
@@ -480,6 +482,17 @@ namespace SequenceTools {
                         item.end = end;
                         console.log("End: ", item.end.seconds, end.seconds);
                     }
+                }
+            }
+        }
+    }
+    
+    export function setSeqTracksSpeed(sequence:Sequence, speed: number) {
+        for(const track of sequence.videoTracks) {
+            for(const trackItem of track.clips) {
+                console.log("setSpeed: ", (trackItem as any)["setSpeed"]);
+                for(const comp of trackItem.components) {
+                    console.log("COMP: ", comp.displayName);
                 }
             }
         }
