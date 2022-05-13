@@ -9,7 +9,6 @@ namespace SequenceTools {
     function findSeq(seq?: Sequence): Sequence | undefined {
         if (!seq && app.project.activeSequence) seq = app.project.activeSequence;
         if (!seq) {
-            console.log("No Sequence found");
             return undefined;
         } else {
             return seq;
@@ -31,41 +30,6 @@ namespace SequenceTools {
         }
         return ret;
     }
-
-    // function getTracksInfo(seq: Sequence, tracks: TrackCollection): { tracks: TrackInfo[], selected: string | undefined } {
-    //     var ret: TrackInfo[] = [];
-    //     let selected: string[] = [];
-    //     for (let i = 0; i < tracks.length; i++) {
-    //         let track = tracks[i];
-    //         if (!track) continue;
-    //         let items: TrackItemInfo[] = [];
-    //         for (let j = 0; j < track.clips.length; j++) {
-    //             let clip = track.clips[j];
-    //             if (!clip) continue;
-
-    //             if (clip.isSelected()) {
-    //                 selected.push(clip.nodeId);
-    //             }
-
-    //             items.push({
-    //                 id: clip.nodeId,
-    //                 name: clip.name,
-    //                 start: clip.start.seconds,
-    //                 end: clip.end.seconds,
-    //             });
-    //         }
-
-    //         ret.push({
-    //             id: track.id,
-    //             name: track.name,
-    //             items: items
-    //         })
-    //     }
-    //     return {
-    //         tracks: ret,
-    //         selected: (selected.length == 1 ? selected[0] : undefined),
-    //     };
-    // }
 
     function findTrack(tracks: TrackCollection, id: number): Track | undefined {
         for (const track of tracks) if (track.id == id) return track;
