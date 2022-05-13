@@ -41,6 +41,10 @@ function checkJobs() {
         const item = meta.speaker_items[i];
         if (!item.render.job_path) continue;
 
+        if(!fs.existsSync(item.import.asset_path)) {
+            fs.mkdirSync(item.import.asset_path, {recursive:true});
+        }
+
         if (item.render.job && item.render.render_path && fs.existsSync(item.render.render_path)) {
             const start = item.render.job.start_frame || 0;
             const images = fs.readdirSync(item.render.render_path);
@@ -48,8 +52,18 @@ function checkJobs() {
                 const frame = (parseInt(image) - start).toString().padStart(6, "0");
                 const imgPath = path.join(item.render.render_path, image);
                 const destPath = path.join(item.import.asset_path, `frame_${frame}.jpg`);
-                fs.copyFileSync(imgPath, destPath);
-                fs.unlinkSync(imgPath);
+
+                try {
+                    fs.copyFileSync(imgPath, destPath);
+                } catch(e){
+                    console.error("Failed to copy file: ", imgPath, destPath, e);
+                    continue;
+                }
+                try {
+                    fs.unlinkSync(imgPath);
+                } catch(e) {
+                    console.error("Failed to delete file: ", imgPath, e);
+                }
             }
 
             if(images.length) {
