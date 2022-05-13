@@ -1,5 +1,5 @@
 <template>
-  <div class="panel">
+  <div class="dev-link panel">
     <h1>Dev</h1>
     <a :href="getDevUrl()" v-if="!isAtDevUrl()">{{ getDevUrl() }}</a>
     <a @click="loadBackend()">Load Backend</a>

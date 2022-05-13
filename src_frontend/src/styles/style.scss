@@ -29,6 +29,15 @@ body {
 	color: inherit;
 	font-family: inherit;
 	font-size: inherit;
+
+	&::-webkit-scrollbar {
+		width: 0.4em;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background-color: #ffffff55;
+		border-radius: 1px;
+	}
 }
 
 button,
@@ -49,6 +58,7 @@ input[type="submit"] {
 		background: var(--input-grad1);
 		border: none;
 	}
+
 	&:focus {
 		outline: inherit;
 	}
@@ -290,7 +300,7 @@ a {
 				.label-sup {
 					margin-right: 10px;
 					min-width: 60px;
-					color: rgba(255,255,255,0.2);
+					color: rgba(255, 255, 255, 0.2);
 					font-weight: bold;
 				}
 
@@ -308,16 +318,18 @@ a {
 				height: 3px;
 				border: unset;
 
-				&.header ,
+				&.header,
 				.header {
 					opacity: 0;
 					height: 0;
 					padding: 0;
 				}
+
 				.progress {
 					opacity: 1;
 				}
 			}
+
 			&.hidden {
 				height: 0;
 				padding: 0;
@@ -362,7 +374,7 @@ a {
 }
 
 .buttons {
-    text-align: right;
+	text-align: right;
 
 	button {
 		margin-left: -1px;

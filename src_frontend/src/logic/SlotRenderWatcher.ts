@@ -4,9 +4,8 @@ import { SlotRender, SlotRenderState, SpeakerItem } from "@/model/sequence";
 import fs from "fs";
 import path from "path";
 import SequenceTools from "./SequenceTools";
-import { speakerItemDest } from "./ImageSlotTools";
 import { PNG } from "pngjs";
-import glob from "glob";
+import Fs from "@/utils/Fs";
 
 class RenderWatcher{
     nextTimer: NodeJS.Timer | undefined;
@@ -56,17 +55,19 @@ class RenderWatcher{
         }
     }
 
-    private watchFolder() {
-        if(!fs.existsSync(this.slot.dest)) {
+    async watchFolder() {
+        if(!Fs.exists(this.slot.dest)) {
             this.failed();
             this.nextLater();
         } else {
-            glob(`${this.slot.dest}/*.png`, {nodir:true}, (e, files) => {
+            // glob(`${this.slot.dest}/*.png`, {nodir:true}, (e, files) => {
+            fs.readdir(this.slot.dest, async (e, files) => {
                 if(e) {
                     console.warn("Failed to read dest folder: ", this.slot.dest, e);
                     this.nextLater();
                     return;
                 }
+                files = files.filter((f) => f.lastIndexOf('.png') == f.length - 4);
 
                 if(files.length < this.slot.fillerDone + this.slot.renderDone) {
                     this.failed();
@@ -88,15 +89,16 @@ class RenderWatcher{
         SequenceTools.updateSpeakerItemSoon(this.item);
     }
 
-    private watchAMEOutput(){
-        // fs.promises.readdir(this.slot.output)
-        glob(`${this.slot.output}/*.png`, {nodir:true}, (e, files) => {
+    async watchAMEOutput(){
+        fs.readdir(this.slot.output, async (e, files) => {
+        // glob(`${this.slot.output}/*.png`, {nodir:true}, (e, files) => {
             if(e) {
                 console.warn("Failed to read output folder: ", this.slot.output, e);
                 // this.cleanup(false);
                 this.nextLater();
                 return;
             }
+            files = files.filter((f) => f.lastIndexOf('.png') == f.length - 4);
             if(files.length == 0) {
                 this.noFilesCount++;
                 if(this.noFilesCount >= this.noFileLimit) {
@@ -112,7 +114,7 @@ class RenderWatcher{
             this.noFilesCount = 0;
     
             for(const file of files) {
-                this.checkFile(path.basename(file), file);
+                await this.checkFile(file, path.join(this.slot.output, file));
             }
     
             if(this.slot.renderDone >= this.slot.duration){
@@ -125,9 +127,9 @@ class RenderWatcher{
         });
     }
 
-    private checkFile(name: string, file: string): boolean {
+    async checkFile(name: string, file: string) {
         try {
-            const stat = fs.statSync(file);
+            const stat = await fs.promises.stat(file);
             if(stat.isDirectory()) return false;
             if(stat.size == 0) return false; // probs still writing
     
@@ -137,22 +139,19 @@ class RenderWatcher{
     
             try {
                 // fs.renameSync(file, destPath); // Doesn't handle network drive well
-                fs.copyFileSync(file, destPath);
-                fs.unlinkSync(file);
+                await fs.promises.copyFile(file, destPath);
+                await fs.promises.unlink(file);
                 this.incrementDone();
                 console.debug("Moved file to", destPath);
-                return true;
             } catch(e:unknown){
                 if(e instanceof Error && e.message.indexOf("EBUSY:") == 0) {
                     // AME still writing file
                 }else {
                     console.warn("Failed to move file: ", file, e);
                 }
-                return false;
             }
         } catch(e:unknown) {
             console.warn("Failed to check file: ", file, e);
-            return false;
         }
     }
 
@@ -161,7 +160,7 @@ class RenderWatcher{
         return `${this.slot.dest}/${frameStr}.png`;
     }
 
-    private fillImages(frame = 0): void {
+    async fillImages(frame = 0) {
         if(this.slot.state == SlotRenderState.Complete || this.slot.state == SlotRenderState.Failed) return;
 
         this.slot.state = SlotRenderState.Filling;
@@ -178,7 +177,7 @@ class RenderWatcher{
 
 
         const destPath = this.getPath(frame);
-        if(fs.existsSync(destPath)) {
+        if(await Fs.exists(destPath)) {
             // image already exists, skip
             this.slot.fillerDone++;
             SequenceTools.updateSpeakerItemSoon(this.item);
