@@ -45,8 +45,6 @@ function checkJobs() {
 }
 
 async function checkJob(item:SpeakerItem): Promise<void> {
-    console.log("checkJob: " + item.id);
-
     try {
         let files = await fs.promises.readdir(item.import.asset_path);
         files = files.filter((f) => f.lastIndexOf('.jpg') == f.length - 4);

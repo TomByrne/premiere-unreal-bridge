@@ -71,6 +71,7 @@ async function checkJob(item:SpeakerItem): Promise<void> {
     if (item.render.job && item.render.render_path && await Fs.exists(item.render.render_path)) {
         const start = item.render.job.start_frame || 0;
         const images = await fs.promises.readdir(item.render.render_path);
+        let succeeded = 0;
         for (const image of images) {
             const frame = (parseInt(image) - start).toString().padStart(6, "0");
             const imgPath = path.join(item.render.render_path, image);
@@ -86,11 +87,13 @@ async function checkJob(item:SpeakerItem): Promise<void> {
                 await fs.promises.unlink(imgPath);
             } catch(e) {
                 console.error("Failed to delete file: ", imgPath, e);
+                continue;
             }
+            succeeded++;
         }
 
-        if(images.length) {
-            item.render.frames = (item.render.frames || 0) + images.length;
+        if(succeeded) {
+            item.render.frames = (item.render.frames || 0) + succeeded;
             SequenceTools.updateSpeakerItemSoon(item);
         }
     }

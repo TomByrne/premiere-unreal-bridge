@@ -120,6 +120,8 @@ class RenderWatcher{
             if(this.slot.renderDone >= this.slot.duration){
                 console.log("Speaker export complete");
                 this.slot.fillerDone = 0;
+                this.noFileLimit = 60;
+                this.noFilesCount = 0;
                 this.slot.state = SlotRenderState.Filling;
                 SequenceTools.updateSpeakerItemSoon(this.item);
             }
