@@ -1,6 +1,6 @@
 import { call, callDetail } from "./rest";
 import model from "../model";
-import { ReadinessState, SequenceMeta, SpeakerItem, SpeakerRenderState } from "@/model/sequence";
+import { ReadinessState, SequenceMeta, SpeakerImportState, SpeakerItem } from "@/model/sequence";
 import path from "path";
 import md5 from "md5";
 import mitt from "mitt";
@@ -42,7 +42,7 @@ export function addSpeakerItem(id: string): Promise<boolean> {
                 job: undefined,
             },
             import: {
-                state: ReadinessState.NotReady,
+                state: SpeakerImportState.NotReady,
                 asset_path,
             }
         }

@@ -1,16 +1,27 @@
 <template>
   <div
     class="progress"
-    :class="{ [state]: true, minimised, hidden, complete: value >= total }"
+    :class="{
+      [(state || '').toLowerCase()]: true,
+      minimised,
+      hidden,
+      complete: (value || 0) >= (total || 0),
+    }"
   >
     <div class="track">
-      <div class="fill" :style="{ width: (value / total) * 100 + '%' }" />
+      <div
+        class="fill"
+        v-if="value && total"
+        :style="{ width: (value / total) * 100 + '%' }"
+      />
     </div>
     <div class="text">
       <span class="label">{{ label }}</span>
-      <span class="fraction" v-if="showFraction && total && value != null">{{ value }}/{{ total }}</span>
-      <span class="percent" v-if="showPercent">
-        {{ Math.round((value / total) * 100) + "%" }}
+      <span class="fraction" v-if="showFraction && total && (value != null)"
+        >{{ value }}/{{ total }}</span
+      >
+      <span class="percent" v-if="showPercent && total">
+        {{ Math.round(((value || 0) / total) * 100) + "%" }}
       </span>
     </div>
   </div>
@@ -26,6 +37,7 @@ import { Options, Vue } from "vue-class-component";
     label: String,
     state: String,
     showPercent: Boolean,
+    showFraction: Boolean,
     minimised: Boolean,
     hidden: Boolean,
   },
@@ -35,7 +47,10 @@ export default class Progress extends Vue {
   showFraction = true;
   minimised = false;
   hidden = false;
-  state = "complete";
+  state = "";
+  label: string | undefined;
+  value: number | undefined;
+  total: number | undefined;
 }
 </script>
 
@@ -67,6 +82,21 @@ export default class Progress extends Vue {
     }
   }
 
+  &.button {
+    border-radius: 4px;
+    background: #19b053;
+    cursor: pointer;
+
+    .text {
+      background: none;
+      font-size: 1.2em;
+      color: white;
+    }
+    .fill {
+      background: rgba($color: #FFF, $alpha: 0.3);
+    }
+  }
+
   .text {
     background: rgba($color: #333, $alpha: 0.8);
     border-radius: 3px;
@@ -81,6 +111,10 @@ export default class Progress extends Vue {
     .label {
       font-weight: bold;
       text-transform: uppercase;
+    }
+
+    span {
+      margin: 3px;
     }
   }
 
@@ -104,6 +138,9 @@ export default class Progress extends Vue {
 
   &.complete,
   &.done {
+    .track {
+      background: rgb(15, 37, 75);
+    }
     .fill {
       background: rgb(11, 55, 129);
     }
@@ -117,9 +154,14 @@ export default class Progress extends Vue {
     background: rgb(21, 137, 73);
   }
 
-  &.error .fill,
-  &.failed .fill {
-    background: rgb(129, 11, 11);
+  &.error,
+  &.failed {
+    .track {
+      background: #6f0e0e;
+    }
+    .fill {
+      background: #810b0b;
+    }
   }
 
   &.inactive .fill,

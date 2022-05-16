@@ -26,7 +26,7 @@
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import model from "@/model";
-import { ReadinessState, SpeakerItem } from "@/model/sequence";
+import { ReadinessState, SpeakerImportState, SpeakerItem } from "@/model/sequence";
 import fs from "fs";
 import SequenceTools from "@/logic/SequenceTools";
 import FolderLink from "./FolderLink.vue";
@@ -53,7 +53,7 @@ export default class SpeakerItem_Import extends Vue {
     if (!item) return false;
     let meta = model.sequence.sequenceMeta;
     if (!meta || !meta.render_track) return false;
-    return item.import.state == ReadinessState.Ready;
+    return item.import.state == SpeakerImportState.Ready;
   }
 
   get hasImported(): boolean {

@@ -54,19 +54,19 @@ export interface TrackItemInfo {
 }
 
 export interface SpeakerItem {
-    id: string,
+  id: string,
 
-    config: SpeakerConfig;
-    slots: Record<string, SlotRender>;
-    render: SpeakerRender;
-    import: SpeakerImport;
+  config: SpeakerConfig;
+  slots: Record<string, SlotRender>;
+  render: SpeakerRender;
+  import: SpeakerImport;
 }
 export interface SpeakerConfig {
-    state: ReadinessState,
-    project?: string | undefined,
-    scene?: string | undefined,
-    sequence?: string | undefined,
-    img_slot?: string | undefined,
+  state: ReadinessState,
+  project?: string | undefined,
+  scene?: string | undefined,
+  sequence?: string | undefined,
+  img_slot?: string | undefined,
 }
 
 
@@ -100,6 +100,7 @@ export interface PipelineJob {
 
 export enum SpeakerRenderState {
   // none = "none",
+  Invalid = "Invalid",
   Pending = "Pending",
   Rendering = "Rendering",
   Done = "Done",
@@ -109,37 +110,45 @@ export enum SpeakerRenderState {
 
 
 export interface SpeakerImport {
-  state: ReadinessState;
+  state: SpeakerImportState;
   render_track_item?: string;
   render_proj_item?: string;
   asset_path: string;
 }
 
 export interface SlotRender {
-    state: SlotRenderState;
-    id: string;          // id of the track item
-    output: string;      // folder that AME is exporting to
-    dest: string;        // destination folder that exports should be transferred to
-    start: number;       // frame offset of start of render
-    duration: number;    // duration of render in frames 
-    renderDone: number;  // frames captured and copied into UE project 
-    fillerDone: number;  // empty frames created before 'start' 
-    width: number;       // width of image sequence 
-    height: number;      // height of image sequence 
+  state: SlotRenderState;
+  id: string;          // id of the track item
+  output: string;      // folder that AME is exporting to
+  dest: string;        // destination folder that exports should be transferred to
+  start: number;       // frame offset of start of render
+  duration: number;    // duration of render in frames 
+  renderDone: number;  // frames captured and copied into UE project 
+  fillerDone: number;  // empty frames created before 'start' 
+  width: number;       // width of image sequence 
+  height: number;      // height of image sequence 
 }
 
 
 export enum SlotRenderState {
-    // NotReady = "NotReady",
-    // Ready = "Ready",
-    Rendering = "Rendering",
-    Filling = "Filling",
-    Complete = "Complete",
-    Failed = "Failed",
+  // NotReady = "NotReady",
+  // Ready = "Ready",
+  Invalid = "Invalid",
+  Rendering = "Rendering",
+  Filling = "Filling",
+  Complete = "Complete",
+  Failed = "Failed",
+}
+
+
+export enum SpeakerImportState {
+  Invalid = "Invalid",
+  NotReady = "NotReady",
+  Ready = "Ready",
 }
 
 
 export enum ReadinessState {
-    NotReady = "NotReady",
-    Ready = "Ready",
+  NotReady = "NotReady",
+  Ready = "Ready",
 }

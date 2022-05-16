@@ -4,6 +4,7 @@ import unreal from "./unreal";
 import pipeline from "./pipeline";
 import project from "./project";
 import settings from "./settings";
+import overview from "./overview";
 
 export default {
   plugin,
@@ -12,4 +13,5 @@ export default {
   pipeline,
   project,
   settings,
+  overview,
 };

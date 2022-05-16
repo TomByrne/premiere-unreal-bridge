@@ -1,10 +1,11 @@
 <template>
   <div id="content">
-    <DevLink v-if="model.plugin.devMode.value" />
+    <DevLink v-if="devMode" />
     <SpeakerItemList />
   </div>
   <SettingsPanel />
   <SettingsButton />
+  <OverviewPanel />
 </template>
 
 <script lang="ts">
@@ -12,6 +13,7 @@ import { Options, Vue } from "vue-class-component";
 import DevLink from "./components/DevLink.vue";
 import SettingsButton from "./components/SettingsButton.vue";
 import SettingsPanel from "./components/SettingsPanel.vue";
+import OverviewPanel from "./components/OverviewPanel.vue";
 import SpeakerItemList from "./components/SpeakerItemList.vue";
 import model from "./model";
 import SequenceTools from "./logic/SequenceTools";
@@ -21,6 +23,7 @@ import ImportWatcher from "./logic/ImportWatcher";
 import UnrealProjectTools from "./logic/UnrealProjectTools";
 import ProjectTools from "./logic/ProjectTools";
 import SlotRenderWatcher from "./logic/SlotRenderWatcher";
+import OverviewWatcher from "./logic/OverviewWatcher";
 
 @Options({
   components: {
@@ -28,11 +31,12 @@ import SlotRenderWatcher from "./logic/SlotRenderWatcher";
     DevLink,
     SettingsButton,
     SettingsPanel,
+    OverviewPanel,
   },
 })
 export default class App extends Vue {
-  get model(): unknown {
-    return model;
+  get devMode(): boolean {
+    return model.plugin.devMode.value;
   }
 
   mounted(): void {
@@ -43,6 +47,7 @@ export default class App extends Vue {
     UnrealProjectTools.setup();
     SlotRenderWatcher.setup();
     ImportWatcher.setup();
+    OverviewWatcher.setup();
   }
 }
 </script>

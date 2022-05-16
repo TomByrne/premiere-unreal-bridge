@@ -6,6 +6,13 @@ import path from "path";
 import SequenceTools from "./SequenceTools";
 import { PNG } from "pngjs";
 import Fs from "@/utils/Fs";
+import mitt from "mitt";
+
+
+type Events = {
+    renderStopped: [SpeakerItem, SlotRender];
+};
+export const emitter = mitt<Events>();
 
 class RenderWatcher{
     nextTimer: NodeJS.Timer | undefined;
@@ -82,6 +89,7 @@ class RenderWatcher{
         this.slot.renderDone = 0;
         this.slot.state = SlotRenderState.Failed;
         SequenceTools.updateSpeakerItemSoon(this.item);
+        emitter.emit("renderStopped", [this.item, this.slot]);
     }
 
     private success(){
@@ -110,7 +118,7 @@ class RenderWatcher{
                 return;
             }
 
-            this.noFileLimit = 10;
+            this.noFileLimit = 30;
             this.noFilesCount = 0;
     
             for(const file of files) {
@@ -258,6 +266,7 @@ function checkJobs(){
     }
 
     for(const item of meta.speaker_items) {
+
         for(const id in item.slots) {
             const slot = item.slots[id];
             
@@ -275,4 +284,5 @@ function checkJobs(){
 
 export default {
     setup,
+    emitter,
 };
