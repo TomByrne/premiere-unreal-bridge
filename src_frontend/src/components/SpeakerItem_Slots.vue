@@ -40,6 +40,7 @@
       :total="slotRender ? slotRender.start + slotRender.duration : 0"
       :value="slotRender ? slotRender.fillerDone + slotRender.renderDone : 0"
       :label="slotRender ? slotRender.state : null"
+      :showFraction="true"
     />
   </div>
 </template>
@@ -72,7 +73,7 @@ export default class SpeakerItem_Slots extends Vue {
   //needsSlotRender = false;
   open = false;
 
-  get slotPath() {
+  get slotPath(): string | undefined {
     return this.slotRender?.dest;
   }
 
@@ -81,7 +82,6 @@ export default class SpeakerItem_Slots extends Vue {
       return "inactive";
     }else{
       switch(this.slotRender.state) {
-        case SlotRenderState.Invalid: return "warning";
         case SlotRenderState.Rendering: return "active";
         case SlotRenderState.Filling: return "active-alt";
         case SlotRenderState.Complete: return "complete";

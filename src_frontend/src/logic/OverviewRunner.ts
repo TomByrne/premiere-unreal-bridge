@@ -8,6 +8,9 @@ import SequenceTools from "./SequenceTools";
 let awaitingRender = false;
 let awaitingSlots = false;
 
+// Stop running if sequence changes
+SequenceTools.emitter.on("sequenceChanged", () => stop());
+
 export function run(): void {
     if(model.overview.running_all) return;
     model.overview.running_all = true;
@@ -43,6 +46,7 @@ function runNext(){
     const overview = model.overview.nextItem;
     if(!overview) {
         console.log("Overview run complete!");
+        stop();
         return;
     }
 

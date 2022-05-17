@@ -4,7 +4,6 @@
     :class="{
       selected: selected,
       unselected: !selected,
-      'needs-action': !speaker,
     }"
     @click="select()"
   >
@@ -28,14 +27,21 @@
       </div>
     </div>
     <div class="speaker-rows" v-if="speaker">
-      <config :speaker="speaker" :hidden="!selected && !needsConfig" :minimised="!selected" />
+      <config 
+        :class="{'next-step':nextStepConfig}"
+        :speaker="speaker"
+        :hidden="!selected && !needsConfig"
+        :minimised="!selected"
+      />
       <slots
+        :class="{'next-step':nextStepSlots}"
         :speaker="speaker"
         :minimised="!selected"
         :hidden="needsConfig || !hasSlots"
         v-if="!needsConfig && hasSlots"
       />
       <render
+        :class="{'next-step':nextStepRender}"
         :speaker="speaker"
         :minimised="!selected"
         :track="track"
@@ -43,6 +49,7 @@
         v-if="!needsConfig"
       />
       <import
+        :class="{'next-step':nextStepImport}"
         :speaker="speaker"
         :minimised="!selected"
         :hidden="needsConfig"
@@ -62,6 +69,7 @@ import SpeakerItem_Config from "./SpeakerItem_Config.vue";
 import SpeakerItem_Slots from "./SpeakerItem_Slots.vue";
 import SpeakerItem_Render from "./SpeakerItem_Render.vue";
 import SpeakerItem_Import from "./SpeakerItem_Import.vue";
+import { SpeakerItemOverview, SpeakerItemStep } from "@/model/overview";
 
 @Options({
   props: {
@@ -83,6 +91,25 @@ export default class SpeakerItemView extends Vue {
   speaker: SpeakerItem | undefined;
   track: TrackItemInfo | undefined;
   removing = false;
+
+  get overview(): SpeakerItemOverview | undefined {
+    return this.speaker ? model.overview.items[this.speaker.id] : undefined;
+  }
+  get nextStep(): SpeakerItemStep | undefined {
+    return this.overview?.nextStep;
+  }
+  get nextStepConfig(): boolean {
+    return !!this.overview?.needsConfig;
+  }
+  get nextStepSlots(): boolean {
+    return this.nextStep === SpeakerItemStep.SLOTS;
+  }
+  get nextStepRender(): boolean {
+    return this.nextStep === SpeakerItemStep.RENDER;
+  }
+  get nextStepImport(): boolean {
+    return this.nextStep === SpeakerItemStep.IMPORT;
+  }
 
   get needsProject(): boolean {
     return !this.speaker?.config.project;

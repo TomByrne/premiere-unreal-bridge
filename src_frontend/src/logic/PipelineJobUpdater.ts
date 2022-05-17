@@ -87,6 +87,10 @@ export function checkItem(id:string): boolean {
     const track = model.sequence.findTrackItem(speaker.id);
     const projDetails = speaker.config.project ? model.unreal.findProjectDetails(speaker.config.project) : undefined;
 
+    if(!projDetails && speaker.config.project && model.unreal.findProject(speaker.config.project)) {
+        return false;
+    }
+
     if( !track ||
         !projDetails ||
         !speaker.config.project ||
@@ -109,7 +113,7 @@ export function checkItem(id:string): boolean {
         sequence: fileToAsset(speaker.config.sequence),
         render_settings: "4.27_RenderQueueSettings_rushes_quick_v3",
         output: speaker.config.project + "/Saved/PipelineRenders/" + speaker.id,
-        output_format: "{frame_number}.jpg",
+        output_format: "{frame_number}",
         start_frame: start,
         end_frame: end,
     }

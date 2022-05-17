@@ -367,9 +367,20 @@ namespace SequenceTools {
         return false;
     }
 
-    export function updateSpeakerItems(items: SpeakerItem[], seq?: Sequence): void {
+    export function findSequenceById(id: number): Sequence | undefined {
+        for(const seq of app.project.sequences) {
+            if(seq.id == id) return seq;
+        }
+    }
+
+    export function updateSpeakerItems(items: {seq:number, item:SpeakerItem}[]): void {
         for(const item of items) {
-            updateSpeakerItem(item, seq);
+            const seq = findSequenceById(item.seq);
+            if(!seq) {
+                console.log("Failed to find sequence: " + seq);
+                continue;
+            }
+            updateSpeakerItem(item.item, seq);
         }
     }
 

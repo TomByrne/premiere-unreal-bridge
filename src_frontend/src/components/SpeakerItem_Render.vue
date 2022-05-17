@@ -60,6 +60,7 @@
       :total="speaker.render.total"
       :value="speaker.render.frames"
       :label="speaker ? speaker.render.state : null"
+      :showFraction="true"
     />
   </div>
 </template>

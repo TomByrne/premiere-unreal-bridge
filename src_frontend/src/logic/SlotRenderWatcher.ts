@@ -67,20 +67,33 @@ class RenderWatcher{
             this.failed();
             this.nextLater();
         } else {
-            // glob(`${this.slot.dest}/*.png`, {nodir:true}, (e, files) => {
-            fs.readdir(this.slot.dest, async (e, files) => {
-                if(e) {
-                    console.warn("Failed to read dest folder: ", this.slot.dest, e);
-                    this.nextLater();
-                    return;
-                }
-                files = files.filter((f) => f.lastIndexOf('.png') == f.length - 4);
+            let files;
+            try {
+                files = await Fs.readdir(this.slot.dest, '.png');
+            }catch(e){
+                console.warn("Failed to read dest folder: ", this.slot.dest, e);
+                this.nextLater();
+                return;
+            }
+            if(files.length < this.slot.fillerDone + this.slot.renderDone) {
+                this.failed();
+            }
+            this.nextLater(5);
 
-                if(files.length < this.slot.fillerDone + this.slot.renderDone) {
-                    this.failed();
-                }
-                this.nextLater(5);
-            });
+            // glob(`${this.slot.dest}/*.png`, {nodir:true}, (e, files) => {
+            // fs.readdir(this.slot.dest, async (e, files) => {
+                // if(e) {
+                //     console.warn("Failed to read dest folder: ", this.slot.dest, e);
+                //     this.nextLater();
+                //     return;
+                // }
+                // files = files.filter((f) => f.lastIndexOf('.png') == f.length - 4);
+
+                // if(files.length < this.slot.fillerDone + this.slot.renderDone) {
+                //     this.failed();
+                // }
+                // this.nextLater(5);
+            // });
         }
     }
 

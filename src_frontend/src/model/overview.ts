@@ -1,7 +1,7 @@
 import { reactive } from "vue";
 
 export class OverviewModel {
-  items:SpeakerItemOverview[] = [];
+  items:Record<string, SpeakerItemOverview> = {};
 
   nextItem: SpeakerItemOverview | undefined;
 

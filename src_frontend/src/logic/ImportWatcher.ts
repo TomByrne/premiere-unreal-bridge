@@ -1,7 +1,7 @@
 import model from "@/model";
-import fs from "fs";
 import { ReadinessState, SpeakerItem, SpeakerRenderState } from "@/model/sequence";
 import SequenceTools from "./SequenceTools";
+import Fs from "@/utils/Fs";
 
 export function setup(): void {
     checkJobsSoon();
@@ -46,8 +46,9 @@ function checkJobs() {
 
 async function checkJob(item:SpeakerItem): Promise<void> {
     try {
-        let files = await fs.promises.readdir(item.import.asset_path);
-        files = files.filter((f) => f.lastIndexOf('.jpg') == f.length - 4);
+        // let files = await fs.promises.readdir(item.import.asset_path);
+        // files = files.filter((f) => f.lastIndexOf('.jpg') == f.length - 4);
+        const files = await Fs.readdir(item.import.asset_path, '.jpg');
 
         if (files && (item.render.total && files.length == item.render.total) || (files.length && item.render.state == SpeakerRenderState.Done)) {
             updateJob(item, { state: ReadinessState.Ready });

@@ -71,47 +71,70 @@ function checkJobs() {
 async function checkJob(item:SpeakerItem): Promise<void> {
     if (!item.render.job_path) return;
 
+    // Create destination folder if doesn't exist
     if(!await Fs.exists(item.import.asset_path)) {
         await fs.promises.mkdir(item.import.asset_path, {recursive:true});
     }
 
-    if (item.render.job && item.render.render_path && await Fs.exists(item.render.render_path)) {
-        const start = item.render.job.start_frame || 0;
-        const images = await fs.promises.readdir(item.render.render_path);
-        let succeeded = 0;
-        for (const image of images) {
-            const frame = (parseInt(image) - start).toString().padStart(6, "0");
-            const imgPath = path.join(item.render.render_path, image);
-            const destPath = path.join(item.import.asset_path, `frame_${frame}.jpg`);
-
-            try {
-                await fs.promises.copyFile(imgPath, destPath);
-            } catch(e){
-                console.error("Failed to copy file: ", imgPath, destPath, e);
-                continue;
+    // Copy render frames from UE project into destination folder
+    if(item.render.state == SpeakerRenderState.Pending || item.render.state == SpeakerRenderState.Rendering) {
+        if (item.render.job && item.render.render_path && await Fs.exists(item.render.render_path)) {
+            const start = item.render.job.start_frame || 0;
+            // let images = await fs.promises.readdir(item.render.render_path);
+            // images = images.filter((f) => f.lastIndexOf('.jpeg') == f.length - 5);
+            const images = await Fs.readdir(item.render.render_path, '.jpeg');
+            let succeeded = 0;
+            for (const image of images) {
+                const frame = (parseInt(image) - start).toString().padStart(6, "0");
+                const imgPath = path.join(item.render.render_path, image);
+                const destPath = path.join(item.import.asset_path, `frame_${frame}.jpg`);
+    
+                try {
+                    await fs.promises.copyFile(imgPath, destPath);
+                } catch(e){
+                    console.error("Failed to copy file: ", imgPath, destPath, e);
+                    continue;
+                }
+                try {
+                    await fs.promises.unlink(imgPath);
+                } catch(e) {
+                    console.error("Failed to delete file: ", imgPath, e);
+                    continue;
+                }
+                succeeded++;
             }
-            try {
-                await fs.promises.unlink(imgPath);
-            } catch(e) {
-                console.error("Failed to delete file: ", imgPath, e);
-                continue;
+    
+            if(succeeded) {
+                item.render.frames = (item.render.frames || 0) + succeeded;
+                SequenceTools.updateSpeakerItemSoon(item);
             }
-            succeeded++;
-        }
-
-        if(succeeded) {
-            item.render.frames = (item.render.frames || 0) + succeeded;
-            SequenceTools.updateSpeakerItemSoon(item);
         }
     }
 
+    item.render.saved = await Fs.exists(item.render.job_path);
+
+    // Check destination folder in case images are missing
+    if(item.render.state == SpeakerRenderState.Done) {
+        // let images = await fs.promises.readdir(item.import.asset_path);
+        // images = images.filter((f) => f.lastIndexOf('.jpg') == f.length - 4);
+        const images = await Fs.readdir(item.import.asset_path, '.jpg');
+        const looksDone = images.length == item.render.total;
+        if(!looksDone) {
+            item.render.state = SpeakerRenderState.Failed;
+            SequenceTools.updateSpeakerItemSoon(item);
+            return;
+        }
+    }
+
+    // If finalised , we're done
     if (item.render.state == SpeakerRenderState.Done ||
         item.render.state == SpeakerRenderState.Failed ||
-        item.render.state == SpeakerRenderState.Cancelled) return;
+        item.render.state == SpeakerRenderState.Cancelled)  return;
 
     const name = path.basename(item.render.job_path);
 
-    if (!await Fs.exists(item.render.job_path)) {
+    // Check the pipeline folders for more job info 
+    if (!item.render.saved) {
         if (await Fs.exists(path.join(model.settings.pipeline_jobFolder, model.pipeline.doneFolder, name))) {
             updateJob(item, { state: SpeakerRenderState.Done, saved: false });
 

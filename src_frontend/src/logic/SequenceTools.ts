@@ -6,6 +6,7 @@ import md5 from "md5";
 import mitt from "mitt";
 
 type Events = {
+    sequenceChanged: number | undefined;
     removeSpeakerItem: SpeakerItem;
 };
 export const emitter = mitt<Events>();
@@ -58,17 +59,24 @@ export function removeSpeakerItem(id: string): Promise<boolean> {
     }
     return call("SequenceTools.removeSpeakerItem", [id]);
 }
-let updating: SpeakerItem[] = [];
-export function updateSpeakerItem(item: SpeakerItem): Promise<boolean> {
-    if(itemsToSend.length) itemsToSend = itemsToSend.filter((i) => i.id != item.id);
-    if(updating.length) updating = updating.filter((i) => i.id != item.id);
-    updating.push(item);
+let updating: SpeakerItemUpdate[] = [];
+export function updateSpeakerItem(item: SpeakerItem): void {
+    if(!model.sequence.sequenceMeta) {
+        console.error("Failed to schedule item update");
+        return;
+    }
+    if(itemsToSend.length) itemsToSend = itemsToSend.filter((i) => i.item.id != item.id);
+    if(updating.length) updating = updating.filter((i) => i.item.id != item.id);
+    updating.push({
+        seq: model.sequence.sequenceMeta.id,
+        item,
+    });
     const ret = call<boolean>("SequenceTools.updateSpeakerItem", [item]);
     ret.finally(() => {
-        updating = updating.filter((i) => i != item);
+        updating = updating.filter((i) => i.item != item);
     });
 
-    return ret;
+    return;
 }
 export function selectTrackItem(id: string): Promise<boolean> {
     return call("SequenceTools.selectTrackItem", [id]);
@@ -80,11 +88,20 @@ export function clearMeta(): Promise<boolean> {
     return call("SequenceTools.clearMeta", []);
 }
 
+interface  SpeakerItemUpdate {
+    seq:number,
+    item:SpeakerItem
+}
+
 let itemTimer: NodeJS.Timeout | undefined;
-let itemsToSend: SpeakerItem[] = [];
+let itemsToSend: SpeakerItemUpdate[] = [];
 export function updateSpeakerItemSoon(item: SpeakerItem): void {
-    itemsToSend = itemsToSend.filter((i) => i.id != item.id);
-    itemsToSend.push(item);
+    if(!model.sequence.sequenceMeta) {
+        console.error("Failed to schedule item update");
+        return;
+    }
+    itemsToSend = itemsToSend.filter((i) => i.item.id != item.id);
+    itemsToSend.push({seq:model.sequence.sequenceMeta.id,  item});
     if(!itemTimer) {
         itemTimer = setTimeout(() => sendItemUpdates(), 1000);
     }
@@ -99,10 +116,10 @@ function sendItemUpdates(){
     if(itemsToSend.length) {
         const items = itemsToSend;
         for(const item of items){
-            if(updating.length) updating = updating.filter((i) => i.id != item.id);
+            if(updating.length) updating = updating.filter((i) => i.item.id != item.item.id);
             updating.push(item);
         }
-        const ret = call("SequenceTools.updateSpeakerItems", [items]);
+        const ret = call("SequenceTools.updateSpeakerItems", items);
         ret.finally(() => {
             updating = updating.filter((i) => items.indexOf(i) == -1);
         });
@@ -117,12 +134,14 @@ export function setup(): void {
     watching = true;
     loadMeta();
 }
-function updateMetaItems(meta:SequenceMeta, items:SpeakerItem[]) {
+function updateMetaItems(meta:SequenceMeta, items:SpeakerItemUpdate[]) {
     for(let i=0; i<items.length; i++){
         const item = items[i];
-        const itemInd = meta.speaker_items.findIndex(i => i.id == item.id);
-        if(itemInd == -1) meta.speaker_items.push(item);
-        else meta.speaker_items[itemInd] = item;
+        if(item.seq != meta.id) continue;
+
+        const itemInd = meta.speaker_items.findIndex(i => i.id == item.item.id);
+        if(itemInd == -1) meta.speaker_items.push(item.item);
+        else meta.speaker_items[itemInd] = item.item;
     }
 }
 let lastRes: string | undefined;
@@ -135,10 +154,17 @@ export function loadMeta(): void {
                 console.log("Sequence Metadata: ", resp.parsed);
 
                 const meta = resp.parsed;
+                const diffSeq = (meta?.id != model.sequence.sequenceMeta?.id);
+
                 // Need to update with any pending speaker item changes
                 updateMetaItems(meta, updating);
                 updateMetaItems(meta, itemsToSend);
+
                 model.sequence.sequenceMeta = meta;
+
+                if(diffSeq){
+                    emitter.emit("sequenceChanged", meta?.id);
+                }
             }
             timerId = setTimeout(() => {
                 timerId = undefined;

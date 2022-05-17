@@ -26,8 +26,7 @@
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import model from "@/model";
-import { ReadinessState, SpeakerImportState, SpeakerItem } from "@/model/sequence";
-import fs from "fs";
+import { SpeakerImportState, SpeakerItem } from "@/model/sequence";
 import SequenceTools from "@/logic/SequenceTools";
 import FolderLink from "./FolderLink.vue";
 

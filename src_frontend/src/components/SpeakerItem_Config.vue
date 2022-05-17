@@ -2,7 +2,6 @@
   <div
     class="speaker-row"
     :class="{
-      'needs-action': needsConfig,
       open: open,
       minimised: minimised,
       hidden: hidden,
@@ -31,7 +30,7 @@
       </span>
     </div>
 
-    <Progress :value="stepsDone" :total="stepsTotal" :minimised="true"/>
+    <Progress :value="stepsDone" :total="stepsTotal" :minimised="true" :showFraction="true"/>
 
     <div v-if="open" class="controls labelled-list">
       <div class="labelled">

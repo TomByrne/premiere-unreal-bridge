@@ -2,18 +2,13 @@ import model from "@/model";
 import { SpeakerItemOverview, SpeakerItemStep } from "@/model/overview";
 import { SlotRenderState, SpeakerItem, SpeakerRenderState } from "@/model/sequence";
 import { UnrealProjectDetail } from "@/UnrealProject";
-import { watch } from "vue";
 
 /**
  * This class watches all jobs and populates the overview model
  * with what remains to be done on this sequence.
  */
 export function setup(): void {
-    watch(
-        () => checkJobsSoon(),
-        () => [model.sequence.sequenceMeta?.speaker_items],
-        {immediate:true}
-    );
+    checkJobsSoon();
 }
 
 function checkJobsSoon(secs = 1) {
@@ -28,7 +23,7 @@ function checkJobs() {
     let nextItem:SpeakerItemOverview | undefined;
     let progress = 0;
     let total = 0;
-    const items: SpeakerItemOverview[] = [];
+    const items: Record<string, SpeakerItemOverview> = {};
     for(const item of meta.speaker_items) {
         
         const hasSlots = getHasSlots(item);
@@ -64,7 +59,7 @@ function checkJobs() {
           
             nextStep: (!slotsDone ? SpeakerItemStep.SLOTS : (!renderDone ? SpeakerItemStep.RENDER : (!importDone ? SpeakerItemStep.IMPORT : undefined))),
         }
-        items.push(overview);
+        items[item.id] = overview;
 
         const allDone = (!needsConfig && slotsDone && renderDone && importDone);
         if(!nextItem && !allDone) nextItem = overview;
@@ -74,6 +69,8 @@ function checkJobs() {
     model.overview.nextItem = nextItem;
     model.overview.progress = progress;
     model.overview.total = total;
+    
+    checkJobsSoon();
 }
 
 

@@ -8,7 +8,7 @@
       :label="label"
       :state="state"
       :minimised="!overview.total"
-      :show-fraction="!!overview.progress"
+      :show-fraction="(!!overview.progress) || isRunning"
       @click="toggleRun"
     />
   </div>

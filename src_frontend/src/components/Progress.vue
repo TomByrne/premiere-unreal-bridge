@@ -60,7 +60,7 @@ export default class Progress extends Vue {
   position: relative;
   text-align: center;
   overflow: hidden;
-  background: rgba($color: #000, $alpha: 0.4);
+  background: rgba($color: #000, $alpha: 0.2);
 
   > * {
     position: absolute;
@@ -79,21 +79,6 @@ export default class Progress extends Vue {
       border-radius: 4px;
       background: rgb(151, 181, 234);
       transition: width 0.1s ease, color 0.2s ease;
-    }
-  }
-
-  &.button {
-    border-radius: 4px;
-    background: #19b053;
-    cursor: pointer;
-
-    .text {
-      background: none;
-      font-size: 1.2em;
-      color: white;
-    }
-    .fill {
-      background: rgba($color: #FFF, $alpha: 0.3);
     }
   }
 
@@ -161,6 +146,24 @@ export default class Progress extends Vue {
     }
     .fill {
       background: #810b0b;
+    }
+  }
+
+  &.button {
+    border-radius: 4px;
+    background: #19b053;
+    cursor: pointer;
+
+    .text {
+      background: none;
+      font-size: 1.2em;
+      color: white;
+    }
+    .track {
+      background: none;
+    }
+    .fill {
+      background: rgba($color: #FFF, $alpha: 0.3);
     }
   }
 

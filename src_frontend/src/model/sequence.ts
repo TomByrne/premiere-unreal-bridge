@@ -99,8 +99,6 @@ export interface PipelineJob {
 }
 
 export enum SpeakerRenderState {
-  // none = "none",
-  Invalid = "Invalid",
   Pending = "Pending",
   Rendering = "Rendering",
   Done = "Done",
@@ -131,9 +129,6 @@ export interface SlotRender {
 
 
 export enum SlotRenderState {
-  // NotReady = "NotReady",
-  // Ready = "Ready",
-  Invalid = "Invalid",
   Rendering = "Rendering",
   Filling = "Filling",
   Complete = "Complete",
@@ -142,7 +137,6 @@ export enum SlotRenderState {
 
 
 export enum SpeakerImportState {
-  Invalid = "Invalid",
   NotReady = "NotReady",
   Ready = "Ready",
 }
