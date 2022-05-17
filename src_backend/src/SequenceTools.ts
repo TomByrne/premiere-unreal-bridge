@@ -420,6 +420,8 @@ namespace SequenceTools {
                     speaker.import.render_proj_item = projItem.nodeId;
                     saveMeta(meta);
                     if(addToSeq) checkSpeakerRenderItems(seq, meta, addToSeq);
+                    speaker.import.invalid = false;
+                    updateSpeakerItem(speaker, seq);
                     return true;
                 } else {
                     console.warn("Import failed: ", speaker.import.asset_path);

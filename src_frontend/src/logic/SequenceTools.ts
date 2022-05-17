@@ -36,6 +36,7 @@ export function addSpeakerItem(id: string): Promise<boolean> {
             },
             slots: {},
             render: {
+                invalid: false,
                 state: undefined,
                 saved: false,
                 job_path: undefined,
@@ -43,6 +44,7 @@ export function addSpeakerItem(id: string): Promise<boolean> {
                 job: undefined,
             },
             import: {
+                invalid: false,
                 state: SpeakerImportState.NotReady,
                 asset_path,
             }

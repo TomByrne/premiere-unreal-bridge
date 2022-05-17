@@ -36,9 +36,9 @@ function checkJobs() {
 
         const slotRender = item?.slots[item.id];
 
-        const slotsDone = !needsConfig && slotRender?.state == SlotRenderState.Complete;
-        const renderDone = (!hasSlots || slotsDone) && item.render.state == SpeakerRenderState.Done;
-        const importDone = renderDone && !!item.import.render_track_item;
+        const slotsDone = !needsConfig && !slotRender?.invalid && slotRender?.state == SlotRenderState.Complete;
+        const renderDone = (!hasSlots || slotsDone) && !item.render.invalid && item.render.state == SpeakerRenderState.Done;
+        const importDone = renderDone && !item.import.invalid && !!item.import.render_track_item;
 
         total += 3;
         progress += (slotsDone ? 1 : 0) + (renderDone ? 1 : 0) + (importDone ? 1 : 0);

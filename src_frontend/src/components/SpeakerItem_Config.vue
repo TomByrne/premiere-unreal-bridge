@@ -173,7 +173,14 @@ export default class SpeakerItem_Config extends Vue {
           this.speaker.config.img_slot = this.ueProjectDetail.imgSlots[0];
         }
 
-        if (changes) SequenceTools.updateSpeakerItem(this.speaker);
+        if (changes) {
+          for(const id in this.speaker.slots){
+            this.speaker.slots[id].invalid = true;
+          }
+          this.speaker.render.invalid = true;
+          this.speaker.import.invalid = true;
+          SequenceTools.updateSpeakerItem(this.speaker);
+        }
       }
     );
   }

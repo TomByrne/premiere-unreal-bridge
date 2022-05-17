@@ -92,6 +92,7 @@ namespace ImageSlotTools {
         console.log(`Slot render started: ${duration} frames`);
 
         speaker.slots[speaker.id] = {
+            invalid: false,
             state: SlotRenderState.Rendering,
             id: id,
             output: tempPath.fsName,
@@ -103,6 +104,9 @@ namespace ImageSlotTools {
             width: speakerSeq.frameSizeHorizontal,
             height: speakerSeq.frameSizeVertical,
         }
+
+        speaker.render.invalid = true;
+        speaker.import.invalid = true;
 
         SequenceTools.updateSpeakerItem(speaker);
 

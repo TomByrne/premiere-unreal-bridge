@@ -4,6 +4,7 @@ import PipelineTools from "@/logic/PipelineTools";
 import path from "path";
 import { PipelineJob, SpeakerItem, SpeakerRenderState } from "@/model/sequence";
 import SequenceTools from "./SequenceTools";
+import Fs from "@/utils/Fs";
 
 /**
  * This class CRUDs pipeline jobs based on the configured data
@@ -80,7 +81,7 @@ function fileToAsset(file: string): string {
     return "/" + file.replaceAll("\\", "/")
 }
 
-export function checkItem(id:string): boolean {
+export async function checkItem(id:string): Promise<boolean> {
     const speaker = model.sequence.findSpeakerItem(id);
     if(!speaker) return false;
 
@@ -121,20 +122,23 @@ export function checkItem(id:string): boolean {
     let jobPath;
     if(speaker.render.job){
         // Job already started, see if needs updating
-        if(speaker.render.saved && speaker.render.state != SpeakerRenderState.Failed && objEqual(speaker.render.job, newJob)) {
+        if(speaker.render.state != SpeakerRenderState.Failed && speaker.render.state != SpeakerRenderState.Cancelled && objEqual(speaker.render.job, newJob)) {
             // Job hasn't changed, skip
             return false;
         }
         speaker.render.job = newJob;
         speaker.render.saved = false;
-        jobPath = speaker.render.job_path;
+        if(speaker.render.job_path && await Fs.exists(speaker.render.job_path)) jobPath = speaker.render.job_path;
     } else{
         // New job
         speaker.render.state = SpeakerRenderState.Pending;
         speaker.render.saved = false;
         speaker.render.job = newJob;
     }
-    if(!jobPath) jobPath = PipelineTools.resolveJobPath(`${speaker.id}_${projDetails.name}_${lastPart(speaker.config.scene, ".umap")}_${lastPart(speaker.config.sequence, ".uasset")}`, true);
+    if(!jobPath){
+        const rid = Math.round(Math.random() * 10000)
+        jobPath = PipelineTools.resolveJobPath(`${speaker.id}_${rid}_${projDetails.name}_${lastPart(speaker.config.scene, ".umap")}_${lastPart(speaker.config.sequence, ".uasset")}`, true);
+    }
     speaker.render.job_path = jobPath;
 
     SequenceTools.updateSpeakerItem(speaker);
@@ -145,6 +149,8 @@ export function checkItem(id:string): boolean {
 export function beginJob(id: string): boolean {
     const item = model.sequence.findSpeakerItem(id);
     if(item && item.render.job_path && item.render.job) {
+        item.render.invalid = false;
+
         const job = item.render.job;
         item.render.saved = true;
         item.render.state = SpeakerRenderState.Pending;
@@ -152,6 +158,10 @@ export function beginJob(id: string): boolean {
         item.render.total = (job.end_frame || 0) - (job.start_frame || 0);
         item.render.frames = 0;
         PipelineTools.writeJob(item.render.job_path, job);
+    
+        item.import.invalid = true;
+        SequenceTools.updateSpeakerItem(item);
+
         return true;
     }else{
         console.warn("Couldn't start job: ", id, item);

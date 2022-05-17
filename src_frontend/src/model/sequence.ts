@@ -26,7 +26,7 @@ export default reactive(new SequenceModel());
 export interface SequenceMetaBrief {
   id: number;
   name: string,
-  render_track: string | undefined;
+  render_track: number | undefined;
   speaker_items: SpeakerItem[];
 }
 
@@ -71,6 +71,7 @@ export interface SpeakerConfig {
 
 
 export interface SpeakerRender {
+  invalid: boolean;
   state: SpeakerRenderState | undefined;
   render_path: string | undefined;
   job_path: string | undefined;
@@ -98,16 +99,9 @@ export interface PipelineJob {
   end_frame?: number,
 }
 
-export enum SpeakerRenderState {
-  Pending = "Pending",
-  Rendering = "Rendering",
-  Done = "Done",
-  Failed = "Failed",
-  Cancelled = "Cancelled",
-}
-
 
 export interface SpeakerImport {
+  invalid: boolean;
   state: SpeakerImportState;
   render_track_item?: string;
   render_proj_item?: string;
@@ -116,6 +110,7 @@ export interface SpeakerImport {
 
 export interface SlotRender {
   state: SlotRenderState;
+  invalid: boolean;
   id: string;          // id of the track item
   output: string;      // folder that AME is exporting to
   dest: string;        // destination folder that exports should be transferred to
@@ -125,6 +120,14 @@ export interface SlotRender {
   fillerDone: number;  // empty frames created before 'start' 
   width: number;       // width of image sequence 
   height: number;      // height of image sequence 
+}
+
+export enum SpeakerRenderState {
+  Pending = "Pending",
+  Rendering = "Rendering",
+  Done = "Done",
+  Failed = "Failed",
+  Cancelled = "Cancelled",
 }
 
 

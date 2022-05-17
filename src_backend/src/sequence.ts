@@ -1,35 +1,32 @@
 
-
-
-// What gets stored
 declare interface SequenceMetaBrief {
-    id: number,
+    id: number;
     name: string,
-    render_track?: number;
+    render_track: number | undefined;
     speaker_items: SpeakerItem[];
 }
 
 // What gets decorated dynamically
 declare interface SequenceMeta extends SequenceMetaBrief {
-    saved: boolean,
-    // videoTracks: TrackInfo[],
-    selectedItem: TrackItemInfo | undefined,
+    saved: boolean;
+    // videoTracks: TrackInfo[];
+    selectedItem: TrackItemInfo | undefined;
 
-    items: Record<string, TrackItemInfo>,
+    items: Record<string, TrackItemInfo>;
 }
 
 // declare interface TrackInfo {
-//     id: number,
-//     name: string,
+//   id: number;
+//   name: string;
 
-//     items: TrackItemInfo[]
+//   items: TrackItemInfo[];
 // }
 
 declare interface TrackItemInfo {
-    id: string,
-    name: string,
-    start: number,
-    end: number,
+    id: string;
+    name: string;
+    start: number;
+    end: number;
 }
 
 declare interface SpeakerItem {
@@ -50,6 +47,7 @@ declare interface SpeakerConfig {
 
 
 declare interface SpeakerRender {
+    invalid: boolean;
     state: SpeakerRenderState | undefined;
     render_path: string | undefined;
     job_path: string | undefined;
@@ -77,18 +75,10 @@ declare interface PipelineJob {
     end_frame?: number,
 }
 
-enum SpeakerRenderState {
-    // none = "none",
-    Pending = "Pending",
-    Rendering = "Rendering",
-    Done = "Done",
-    Failed = "Failed",
-    Cancelled = "Cancelled",
-}
-
 
 declare interface SpeakerImport {
-    state: ReadinessState;
+    invalid: boolean;
+    state: SpeakerImportState;
     render_track_item?: string;
     render_proj_item?: string;
     asset_path: string;
@@ -96,9 +86,10 @@ declare interface SpeakerImport {
 
 declare interface SlotRender {
     state: SlotRenderState;
+    invalid: boolean;
     id: string;          // id of the track item
-    output: string;      // folder that AME is exporting to
-    dest: string;        // destination folder that exports should be transferred to
+    output: string;      // folder that AME is declareing to
+    dest: string;        // destination folder that declares should be transferred to
     start: number;       // frame offset of start of render
     duration: number;    // duration of render in frames 
     renderDone: number;  // frames captured and copied into UE project 
@@ -107,14 +98,28 @@ declare interface SlotRender {
     height: number;      // height of image sequence 
 }
 
+enum SpeakerRenderState {
+    Pending = "Pending",
+    Rendering = "Rendering",
+    Done = "Done",
+    Failed = "Failed",
+    Cancelled = "Cancelled",
+}
+
 
 enum SlotRenderState {
-    // NotReady = "NotReady",
-    // Ready = "Ready",
     Rendering = "Rendering",
+    Filling = "Filling",
     Complete = "Complete",
     Failed = "Failed",
 }
+
+
+enum SpeakerImportState {
+    NotReady = "NotReady",
+    Ready = "Ready",
+}
+
 
 enum ReadinessState {
     NotReady = "NotReady",
