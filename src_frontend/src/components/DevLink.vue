@@ -4,7 +4,7 @@
     <a :href="getDevUrl()" v-if="!isAtDevUrl()">{{ getDevUrl() }}</a>
     <a @click="loadBackend()">Load Backend</a>
     <a @click="clearMeta()">Clear Metadata</a>
-    <JsonViewer :value="model" :openable="true"/>
+    <JsonViewer class="model-viewer" :value="model" :openable="true"/>
   </div>
 </template>
 
@@ -39,4 +39,9 @@ export default class DevLink extends Vue {
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.model-viewer {
+  background: #333;
+  border-radius: 3px;
+}
+</style>

@@ -151,24 +151,24 @@ export default class JsonViewer extends Vue {
 
   .name {
     font-weight: bold;
-    color: purple;
+    color: lightblue;
   }
 
   &.simple > .value {
     font-weight: bold;
-    color: green;
+    color: lightgreen;
   }
 
   .type-boolean .value {
-    color: blue;
+    color: lightpink;
   }
 
   .type-keyword .value {
-    color: blue;
+    color: lightpink;
   }
 
   .type-number .value {
-    color: darkcyan;
+    color: aqua;
   }
 
   &.open > .value {
