@@ -30,7 +30,6 @@
       <config 
         :class="{'next-step':nextStepConfig}"
         :speaker="speaker"
-        :hidden="!selected && !needsConfig"
         :minimised="!selected"
       />
       <slots

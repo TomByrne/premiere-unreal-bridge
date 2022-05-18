@@ -1,5 +1,5 @@
 <template>
-  <div class="item-list panel">
+  <div class="speaker-list panel">
     
     <SpeakerItemView v-for="item in renderableItems"
       :key="item.id"
@@ -86,4 +86,7 @@ interface ItemBundle {
 </script>
 
 <style scoped lang="scss">
+.speaker-list {
+  padding: 0;
+}
 </style>

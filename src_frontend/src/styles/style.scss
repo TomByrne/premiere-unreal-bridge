@@ -145,11 +145,11 @@ a {
 
 .panel {
 	text-align: left;
-	border: 1px solid #333;
 	margin-bottom: -1px;
-	padding: 16px 10px 10px;
+	padding: 16px 0 10px;
 	flex-grow: 0;
 	box-sizing: border-box;
+	padding: 10px;
 
 	h1 {
 		font-size: 1.5em;
@@ -190,10 +190,6 @@ a {
 	margin: 1px 0;
 	align-items: center;
 	background: rgba($color: #fff, $alpha: 0.1);
-
-	&.selected {
-		background: rgba($color: #fff, $alpha: 0.25);
-	}
 
 	.label,
 	.info {
@@ -236,25 +232,34 @@ a {
 
 .list-item {
 	&:first-child {
-		border-top-left-radius: 6px;
-		border-top-right-radius: 6px;
+		border-top-left-radius: 3px;
+		border-top-right-radius: 3px;
 	}
 
 	&:last-child {
-		border-bottom-left-radius: 6px;
-		border-bottom-right-radius: 6px;
+		border-bottom-left-radius: 3px;
+		border-bottom-right-radius: 3px;
 	}
 }
 
 .speaker-item {
 	@extend .labelled;
-	@extend .list-item;
 
-	margin: 2px;
 	padding: 3px 6px 7px;
 	flex-direction: column;
 	box-sizing: border-box;
 	position: relative;
+	background: none;
+	border-bottom: 1px #444 solid;
+	
+
+	&.selected {
+		background: rgba($color: #fff, $alpha: 0.05);
+	}
+
+	&:last-child {
+		border-bottom: none;
+	}
 
 	>* {
 		margin: 3px 0;
@@ -274,6 +279,8 @@ a {
 
 	.speaker-rows {
 		width: 100%;
+		border: 1px #151515 solid;
+		border-radius: 3px;
 
 		.speaker-row {
 			@extend .list-item;
@@ -289,7 +296,7 @@ a {
 			.header {
 				@extend .labelled;
 
-				background: #2b2b2b;
+				background: #383838;
 				box-sizing: border-box;
 
 				margin: 0;
