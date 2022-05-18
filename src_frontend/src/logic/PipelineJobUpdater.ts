@@ -20,19 +20,26 @@ export function setup(): void {
       );
 
     SequenceTools.emitter.on("removeSpeakerItem", (item) => {
-        killJob(item, false);
+        killJob(item.id, false);
     });
 }
 
-function killJob(item:SpeakerItem, save = true) {
-    if(item.render.job_path){
+function clearJobFile(item:SpeakerItem){
+    if(!item.render.job_path) return;
         PipelineTools.deleteJob(item.render.job_path);
         item.render.job_path = undefined;
     }
     
-    if(!item.render.job ||
-        item.render.state == undefined) return;
+export function killJob(id: string, save = true) {
+    const item = model.sequence.findSpeakerItem(id);
+    if(!item) return;
 
+    clearJobFile(item);
+    if(item.render.job_path){
+        PipelineTools.deleteJob(item.render.job_path);
+        item.render.job_path = undefined;
+    }
+    item.render.saved = false;
     item.render.job = undefined;
     item.render.state = undefined;
 
@@ -98,7 +105,7 @@ export async function checkItem(id:string): Promise<boolean> {
         !speaker.config.scene ||
         !speaker.config.sequence) {
 
-        killJob(speaker);
+        killJob(speaker.id);
         return false;
     }
     
@@ -122,7 +129,7 @@ export async function checkItem(id:string): Promise<boolean> {
     let jobPath;
     if(speaker.render.job){
         // Job already started, see if needs updating
-        if(speaker.render.state != SpeakerRenderState.Failed && speaker.render.state != SpeakerRenderState.Cancelled && objEqual(speaker.render.job, newJob)) {
+        if(objEqual(speaker.render.job, newJob)) {
             // Job hasn't changed, skip
             return false;
         }
@@ -139,6 +146,7 @@ export async function checkItem(id:string): Promise<boolean> {
         const rid = Math.round(Math.random() * 10000)
         jobPath = PipelineTools.resolveJobPath(`${speaker.id}_${rid}_${projDetails.name}_${lastPart(speaker.config.scene, ".umap")}_${lastPart(speaker.config.sequence, ".uasset")}`, true);
     }
+    clearJobFile(speaker);
     speaker.render.job_path = jobPath;
 
     SequenceTools.updateSpeakerItem(speaker);
@@ -170,6 +178,7 @@ export function beginJob(id: string): boolean {
 }
 
 export default {
+    killJob,
     checkItem,
     beginJob,
     setup,

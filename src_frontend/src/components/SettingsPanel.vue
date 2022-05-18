@@ -85,7 +85,7 @@ export default class SettingsPanel extends Vue {
   left:0;
   transition: all 0.35s ease;
   overflow: hidden;
-  padding-bottom: 50px;
+  padding-bottom: 95px;
   height: fit-content;
   width: 100%;
   background-color: var(--bg);

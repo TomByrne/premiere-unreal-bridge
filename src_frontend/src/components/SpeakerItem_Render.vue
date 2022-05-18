@@ -19,19 +19,19 @@
       <div class="label" v-else-if="!speaker.render.state">
         No render queued
       </div>
-      <div class="label" v-else-if="speaker.render.state == 'pending'">
+      <div class="label" v-else-if="pending">
         Waiting for renderer
       </div>
-      <div class="label" v-else-if="speaker.render.state == 'doing'">
-        Rendering on '{{ speaker.render.processor }}' node
+      <div class="label" v-else-if="rendering">
+        Rendering on '{{ speaker.render.processor || "Unknown" }}' node
       </div>
-      <div class="label" v-else-if="speaker.render.state == 'done'">
+      <div class="label" v-else-if="done">
         Render Complete
       </div>
-      <div class="label" v-else-if="speaker.render.state == 'failed'">
+      <div class="label" v-else-if="failed">
         Render Failed
       </div>
-      <div class="label" v-else-if="speaker.render.state == 'cancelled'">
+      <div class="label" v-else-if="cancelled">
         Render Cancelled
       </div>
       <div class="label" v-else></div>
@@ -47,9 +47,9 @@
           class="small"
           v-if="jobRenderable"
           @click="doJob()"
-          :disabled="!speaker.render.job || speaker.render.saved"
+          :disabled="!rendering && (!speaker.render.job || speaker.render.saved)"
         >
-          Queue Render
+          {{ rendering ? "Cancel Render" : "Queue Render" }}
         </button>
       </span>
     </div>
@@ -91,6 +91,22 @@ export default class SpeakerItem_Render extends Vue {
   track: TrackItemInfo | undefined;
   open = false;
 
+  get rendering():boolean {
+    return this.speaker?.render.state == SpeakerRenderState.Rendering;
+  }
+  get pending():boolean {
+    return this.speaker?.render.state == SpeakerRenderState.Pending;
+  }
+  get done():boolean {
+    return this.speaker?.render.state == SpeakerRenderState.Done;
+  }
+  get failed():boolean {
+    return this.speaker?.render.state == SpeakerRenderState.Failed;
+  }
+  get cancelled():boolean {
+    return this.speaker?.render.state == SpeakerRenderState.Cancelled;
+  }
+
   get renderPath():string | undefined {
     return this.speaker?.render.render_path;
   }
@@ -115,7 +131,13 @@ export default class SpeakerItem_Render extends Vue {
   }
 
   doJob(): void {
-    if (this.speaker) PipelineJobUpdater.beginJob(this.speaker.id);
+    if (this.speaker) {
+      if(this.rendering){
+        PipelineJobUpdater.killJob(this.speaker.id);
+      }else{
+        PipelineJobUpdater.beginJob(this.speaker.id);
+      }
+    }
   }
 }
 </script>

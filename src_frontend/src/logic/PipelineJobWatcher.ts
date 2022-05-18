@@ -77,7 +77,7 @@ async function checkJob(item:SpeakerItem): Promise<void> {
     }
 
     // Copy render frames from UE project into destination folder
-    if(item.render.state == SpeakerRenderState.Pending || item.render.state == SpeakerRenderState.Rendering) {
+    if(item.render.state == SpeakerRenderState.Rendering) {
         if (item.render.job && item.render.render_path && await Fs.exists(item.render.render_path)) {
             const start = item.render.job.start_frame || 0;
             // let images = await fs.promises.readdir(item.render.render_path);
@@ -112,6 +112,7 @@ async function checkJob(item:SpeakerItem): Promise<void> {
     }
 
     item.render.saved = await Fs.exists(item.render.job_path);
+    console.log(":item.render.saved: ", item.render.saved);
 
     // Check destination folder in case images are missing
     if(item.render.state == SpeakerRenderState.Done) {
