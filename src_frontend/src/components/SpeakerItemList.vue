@@ -88,5 +88,6 @@ interface ItemBundle {
 <style scoped lang="scss">
 .speaker-list {
   padding: 0;
+  padding-bottom: 40px;
 }
 </style>
