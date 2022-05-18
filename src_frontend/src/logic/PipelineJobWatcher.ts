@@ -82,10 +82,8 @@ async function checkJob(item:SpeakerItem): Promise<void> {
     if(item.render.state == SpeakerRenderState.Rendering) {
         if (item.render.job && item.render.render_path) {
             const start = item.render.job.start_frame || 0;
-            // let images = await fs.promises.readdir(item.render.render_path);
-            // images = images.filter((f) => f.lastIndexOf('.jpeg') == f.length - 5);
             const images = await Fs.readdir(item.render.render_path, '.jpeg');
-            console.log("images:", images.length);
+            // console.log("images:", images.length);
             let highestFrame = item.render.frames || 0;
             for (const image of images) {
                 const frame = (parseInt(image) - start);
@@ -122,8 +120,6 @@ async function checkJob(item:SpeakerItem): Promise<void> {
 
     // Check destination folder in case images are missing
     if(item.render.state == SpeakerRenderState.Done) {
-        // let images = await fs.promises.readdir(item.import.asset_path);
-        // images = images.filter((f) => f.lastIndexOf('.jpg') == f.length - 4);
         const images = await Fs.readdir(item.import.asset_path, '.jpg');
         const looksDone = images.length == item.render.total;
         if(!looksDone) {

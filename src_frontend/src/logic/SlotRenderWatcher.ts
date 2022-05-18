@@ -79,21 +79,6 @@ class RenderWatcher{
                 this.failed();
             }
             this.nextLater(5);
-
-            // glob(`${this.slot.dest}/*.png`, {nodir:true}, (e, files) => {
-            // fs.readdir(this.slot.dest, async (e, files) => {
-                // if(e) {
-                //     console.warn("Failed to read dest folder: ", this.slot.dest, e);
-                //     this.nextLater();
-                //     return;
-                // }
-                // files = files.filter((f) => f.lastIndexOf('.png') == f.length - 4);
-
-                // if(files.length < this.slot.fillerDone + this.slot.renderDone) {
-                //     this.failed();
-                // }
-                // this.nextLater(5);
-            // });
         }
     }
 
@@ -112,10 +97,8 @@ class RenderWatcher{
 
     async watchAMEOutput(){
         fs.readdir(this.slot.output, async (e, files) => {
-        // glob(`${this.slot.output}/*.png`, {nodir:true}, (e, files) => {
             if(e) {
                 console.warn("Failed to read output folder: ", this.slot.output, e);
-                // this.cleanup(false);
                 this.nextLater();
                 return;
             }
@@ -124,7 +107,6 @@ class RenderWatcher{
                 this.noFilesCount++;
                 if(this.noFilesCount >= this.noFileLimit) {
                     console.warn("Speaker export timed out");
-                    // this.cleanup(false);
                     this.failed();
                 }
                 this.nextLater();
