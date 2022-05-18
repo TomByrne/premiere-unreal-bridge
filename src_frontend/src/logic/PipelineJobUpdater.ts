@@ -41,7 +41,7 @@ export function killJob(id: string, save = true):void {
     if(save) SequenceTools.updateSpeakerItem(item);
 }
 
-function objEqual<R>(o1:R, o2:R): boolean{
+function objEqual<R>(o1:R, o2:R): boolean {
     let k: keyof typeof o1;
     for(k in o1){
         if(o1[k] !== o2[k]){

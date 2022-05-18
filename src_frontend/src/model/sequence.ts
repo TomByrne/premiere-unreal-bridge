@@ -56,6 +56,11 @@ export interface TrackItemInfo {
 export interface SpeakerItem {
   id: string,
 
+  // These are used to repair speaker items when sequence is copied
+  nodeId: string,
+  start: number,
+  end: number,
+
   config: SpeakerConfig;
   slots: Record<string, SlotRender>;
   render: SpeakerRender;

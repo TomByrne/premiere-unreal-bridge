@@ -129,6 +129,11 @@ namespace SequenceTools {
                 continue;
             }
 
+            // Update these every time they're taken
+            speaker.nodeId = origTrackItem.projectItem.nodeId;
+            speaker.start = origTrackItem.start.seconds;
+            speaker.end = origTrackItem.end.seconds;
+
             // Remove Track rendered track item if invalid
             if (item && (!renderTrack || findNodeIdIndex(renderTrack.clips, item.nodeId) == -1)) {
                 console.log("Remove item: " + speaker.import.render_track_item);
@@ -173,6 +178,41 @@ namespace SequenceTools {
                 }
             }
         }
+
+        if(!meta.speaker_items.length && items.length) {
+            // If ALL speaker items are removed, assume that this is a copy of a sequence, and attempt repair of speaker items
+            meta.speaker_items = items;
+            return repairSpeakerItemIds(meta, seq);
+        }
+
+        return ret;
+    }
+
+    function repairSpeakerItemIds(meta:SequenceMetaBrief, seq:Sequence): boolean {
+        let ret = false;
+        const items = meta.speaker_items.concat([]);
+        for(const item of items) {
+            let found = false;
+            for(const track of seq.videoTracks) {
+                for(const trackItem of track.clips) {
+                    if(
+                        trackItem.projectItem.nodeId == item.nodeId &&
+                        Math.abs(trackItem.start.seconds - item.start) < 0.01 &&
+                        Math.abs(trackItem.end.seconds - item.end) < 0.01
+                      ){
+                            item.id = trackItem.nodeId;
+                            ret = true;
+                            found = true;
+                            break;
+                    }
+                }
+                if(found) break;
+            }
+            if(!found) {
+                meta.speaker_items.splice(meta.speaker_items.indexOf(item), 1);
+            }
+        }
+        console.log("Repaired speaker items: " + meta.speaker_items.length);
         return ret;
     }
 
@@ -310,19 +350,45 @@ namespace SequenceTools {
         return XMP.setValue(seq.projectItem, creatorNS, creatorKey, xmpValue);
     }
 
-    export function addSpeakerItem(item: SpeakerItem, seq?: Sequence): boolean {
+    export function addSpeakerItem(id: string, asset_path: string, seq?: Sequence): boolean {
         let meta = getMetaBrief(true, seq);
         if (!meta) return false;
 
         let index = 0;
-        const trackItem1 = findVideoTrackItem(item.id, seq);
-        if(!trackItem1) return false;
+        const trackItem = findVideoTrackItem(id, seq);
+        if(!trackItem) return false;
 
         for (let speaker of meta.speaker_items) {
-            if (speaker.id == item.id) return false;
+            if (speaker.id == id) return false;
             const trackItem2 = findVideoTrackItem(speaker.id, seq);
-            if(trackItem2 && trackItem2.start.seconds < trackItem1.start.seconds) {
+            if(trackItem2 && trackItem2.start.seconds < trackItem.start.seconds) {
                 index++;
+            }
+        }
+
+        const item: SpeakerItem = {
+            id,
+
+            nodeId: trackItem.projectItem.nodeId,
+            start: trackItem.start.seconds,
+            end: trackItem.end.seconds,
+
+            config: {
+                state: ReadinessState.NotReady,
+            },
+            slots: {},
+            render: {
+                invalid: false,
+                state: undefined,
+                saved: false,
+                job_path: undefined,
+                render_path: undefined,
+                job: undefined,
+            },
+            import: {
+                invalid: false,
+                state: SpeakerImportState.NotReady,
+                asset_path,
             }
         }
 

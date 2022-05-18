@@ -29,27 +29,27 @@ export function addSpeakerItem(id: string): Promise<boolean> {
         }
         const itemHash = md5(model.project.meta.id + "_" + model.sequence.sequenceMeta.id + "_" + id).substring(0, 8);
         const asset_path = path.join(dir, `ue_renders/item_${itemHash}`);
-        const item: SpeakerItem = {
-            id,
-            config: {
-                state: ReadinessState.NotReady,
-            },
-            slots: {},
-            render: {
-                invalid: false,
-                state: undefined,
-                saved: false,
-                job_path: undefined,
-                render_path: undefined,
-                job: undefined,
-            },
-            import: {
-                invalid: false,
-                state: SpeakerImportState.NotReady,
-                asset_path,
-            }
-        }
-        const prom = call<boolean>("SequenceTools.addSpeakerItem", [item]);
+        // const item: SpeakerItem = {
+        //     id,
+        //     config: {
+        //         state: ReadinessState.NotReady,
+        //     },
+        //     slots: {},
+        //     render: {
+        //         invalid: false,
+        //         state: undefined,
+        //         saved: false,
+        //         job_path: undefined,
+        //         render_path: undefined,
+        //         job: undefined,
+        //     },
+        //     import: {
+        //         invalid: false,
+        //         state: SpeakerImportState.NotReady,
+        //         asset_path,
+        //     }
+        // }
+        const prom = call<boolean>("SequenceTools.addSpeakerItem", [id, asset_path]);
         prom.catch(reject);
         prom.then(resolve);
     });

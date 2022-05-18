@@ -71,7 +71,7 @@ namespace ImageSlotTools {
             height: 0,
         }
         
-        console.log(`Slot render check: ${duration} frames: ` + speaker.slots[speaker.id].output);
+        // console.log(`Slot render check: ${duration} frames: ` + speaker.slots[speaker.id].output);
 
         speaker.render.invalid = true;
         speaker.import.invalid = true;
@@ -135,7 +135,7 @@ namespace ImageSlotTools {
         speakerSeq.setInPoint(trackItem.inPoint.seconds * speed);
         speakerSeq.setOutPoint(trackItem.outPoint.seconds * speed);
 
-        console.log("Begin slot render: " + slotRender.output);
+        // console.log("Begin slot render: " + slotRender.output);
 
         const ret = app.encoder.encodeSequence(
             speakerSeq,

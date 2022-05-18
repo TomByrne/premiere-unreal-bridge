@@ -15,13 +15,6 @@ declare interface SequenceMeta extends SequenceMetaBrief {
     items: Record<string, TrackItemInfo>;
 }
 
-// declare interface TrackInfo {
-//   id: number;
-//   name: string;
-
-//   items: TrackItemInfo[];
-// }
-
 declare interface TrackItemInfo {
     id: string;
     name: string;
@@ -31,6 +24,11 @@ declare interface TrackItemInfo {
 
 declare interface SpeakerItem {
     id: string,
+
+    // These are used to repair speaker items when sequence is copied
+    nodeId: string,
+    start: number,
+    end: number,
 
     config: SpeakerConfig;
     slots: Record<string, SlotRender>;
