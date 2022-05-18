@@ -324,7 +324,7 @@ namespace SequenceTools {
         }
 
         meta.speaker_items.splice(index, 0, item);
-        saveMeta(meta);
+        saveMeta(meta, seq);
         return true;
     }
 
@@ -344,7 +344,7 @@ namespace SequenceTools {
         for (let i = 0; i < meta.speaker_items.length; i++) {
             if (meta.speaker_items[i].id == id) {
                 meta.speaker_items.splice(i, 1);
-                saveMeta(meta);
+                saveMeta(meta, seq);
                 return true;
             }
         }
@@ -360,6 +360,8 @@ namespace SequenceTools {
             if (meta.speaker_items[i].id == item.id) {
                 meta.speaker_items[i] = item;
                 saveMeta(meta, seq);
+                console.log("saveMeta: ", JSON.stringify(meta.speaker_items[i]));
+                console.log("cache: ", JSON.stringify(CachedSeqMeta.speaker_items[i]));
                 return true;
             }
         }
@@ -374,6 +376,7 @@ namespace SequenceTools {
     }
 
     export function updateSpeakerItems(items: {seq:number, item:SpeakerItem}[]): void {
+        console.log("updateSpeakerItems: ", items.length);
         for(const item of items) {
             const seq = findSequenceById(item.seq);
             if(!seq) {
@@ -381,6 +384,7 @@ namespace SequenceTools {
                 continue;
             }
             updateSpeakerItem(item.item, seq);
+            console.log("success: ", seq.id);
         }
     }
 
@@ -418,7 +422,7 @@ namespace SequenceTools {
                 const projItem = ProjectItemTools.importImageSequence(files[0] as File, fps);
                 if (projItem) {
                     speaker.import.render_proj_item = projItem.nodeId;
-                    saveMeta(meta);
+                    saveMeta(meta, seq);
                     if(addToSeq) checkSpeakerRenderItems(seq, meta, addToSeq);
                     speaker.import.invalid = false;
                     updateSpeakerItem(speaker, seq);

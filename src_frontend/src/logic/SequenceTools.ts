@@ -121,7 +121,7 @@ function sendItemUpdates(){
             if(updating.length) updating = updating.filter((i) => i.item.id != item.item.id);
             updating.push(item);
         }
-        const ret = call("SequenceTools.updateSpeakerItems", items);
+        const ret = call("SequenceTools.updateSpeakerItems", [items]);
         ret.finally(() => {
             updating = updating.filter((i) => items.indexOf(i) == -1);
         });
