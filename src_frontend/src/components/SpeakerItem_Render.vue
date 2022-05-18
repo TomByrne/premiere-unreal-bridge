@@ -36,12 +36,6 @@
       </div>
       <div class="label" v-else></div>
 
-      <div class="info" v-if="speaker.render.frames">
-        {{ speaker.render.frames }} / {{ speaker.render.total }} ({{
-          Math.round((speaker.render.frames / speaker.render.total) * 100)
-        }}%)
-      </div>
-
       <span class="buttons">
         <button
           class="small"
