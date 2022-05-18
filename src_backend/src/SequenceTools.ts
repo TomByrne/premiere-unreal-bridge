@@ -208,8 +208,8 @@ namespace SequenceTools {
         // if(CachedSeqMeta) console.log("getMeta: "+ CachedSeqMeta?.speaker_items[0].import.render_proj_item);
         if (CachedSeqMeta) {
             if (CachedSeqMeta.id != seq.id) {
+                // console.log("Clear CachedSeqMeta: " + CachedSeqMeta.id,  seq.id);
                 CachedSeqMeta = undefined;
-                // console.log("Clear CachedSeqMeta");
             }
             else metaBrief = CachedSeqMeta;
         }
@@ -223,6 +223,8 @@ namespace SequenceTools {
                 } catch (e) {
                     console.log("Failed to parse sequence meta");
                 }
+                if(metaBrief)
+                    metaBrief.id = seq.id; // In this sequence was copied from another
             }
         }
 
@@ -242,6 +244,7 @@ namespace SequenceTools {
 
     //Only call from FE, expensive
     export function getMeta(create?: boolean): SequenceMeta | undefined {
+
         const seq = findSeq();
         if (!seq) return undefined;
 
@@ -360,8 +363,6 @@ namespace SequenceTools {
             if (meta.speaker_items[i].id == item.id) {
                 meta.speaker_items[i] = item;
                 saveMeta(meta, seq);
-                console.log("saveMeta: ", JSON.stringify(meta.speaker_items[i]));
-                console.log("cache: ", JSON.stringify(CachedSeqMeta.speaker_items[i]));
                 return true;
             }
         }
@@ -376,7 +377,6 @@ namespace SequenceTools {
     }
 
     export function updateSpeakerItems(items: {seq:number, item:SpeakerItem}[]): void {
-        console.log("updateSpeakerItems: ", items.length);
         for(const item of items) {
             const seq = findSequenceById(item.seq);
             if(!seq) {
@@ -384,8 +384,8 @@ namespace SequenceTools {
                 continue;
             }
             updateSpeakerItem(item.item, seq);
-            console.log("success: ", seq.id);
         }
+        console.log("updateSpeakerItems.cache.speaker: ", CachedSeqMeta?.speaker_items[0]?.render.state);
     }
 
     export function findSpeakerItem(id: string, meta?: SequenceMetaBrief): SpeakerItem | undefined {
