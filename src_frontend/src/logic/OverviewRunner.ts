@@ -4,6 +4,7 @@ import PipelineJobUpdater from "./PipelineJobUpdater";
 import PipelineJobWatcher from "./PipelineJobWatcher";
 import SlotRenderWatcher from "./SlotRenderWatcher";
 import SequenceTools from "./SequenceTools";
+import ProjectTools from "./ProjectTools";
 
 let awaitingRender = false;
 let awaitingSlots = false;
@@ -47,6 +48,9 @@ function runNext(){
     if(!overview) {
         console.log("Overview run complete!");
         stop();
+        if(model.settings.plugin_overviewSave){
+            ProjectTools.save();
+        }
         return;
     }
 

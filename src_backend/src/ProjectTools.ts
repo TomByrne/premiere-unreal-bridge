@@ -6,6 +6,11 @@ namespace ProjectTools {
             path: app.project.path,
         }
     }
+    
+    export function save(): boolean {
+        app.project.save();
+        return true;
+    }
 }
 interface ProjectMeta {
     id: string;

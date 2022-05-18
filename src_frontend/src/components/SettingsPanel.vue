@@ -1,6 +1,15 @@
 <template>
   <div class="settings panel" :class="{ closed: !settings_open }">
     <h1>Settings</h1>
+
+    <h2>Plugin Settings</h2>
+    <div class="setting labelled">
+      <div class="label">
+        <input id="plugin_overviewSave" v-model="model.settings.plugin_overviewSave" type="checkbox"/>
+        <label for="plugin_overviewSave">Save project after 'Run All':</label>
+      </div>
+    </div>
+
     <h2>UE Pipeline Settings</h2>
     <div class="setting labelled">
       <div class="label">Pipeline Job Dest:</div>
@@ -14,6 +23,7 @@
         ...
       </div>
     </div>
+
     <h2>Unreal Scrape Settings</h2>
     <div class="setting labelled">
       <div class="label">UE Project Folder:</div>

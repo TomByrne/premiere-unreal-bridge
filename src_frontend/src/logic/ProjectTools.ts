@@ -1,4 +1,4 @@
-import { callDetail } from "./rest";
+import { call, callDetail } from "./rest";
 import model from "../model";
 import { ProjectMeta } from "@/model/project";
 
@@ -26,6 +26,11 @@ function loadMeta() {
     });
 }
 
+export function save(): Promise<boolean> {
+  return call("ProjectTools.save");
+}
+
 export default {
+  save,
   setup,
 };

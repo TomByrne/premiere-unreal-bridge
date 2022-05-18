@@ -6,6 +6,9 @@ const storageKey = "SettingsModel";
 export class SettingsModel {
   panel_shown = false;
 
+  // Plugin
+  plugin_overviewSave = true;
+
   // Pipeline
   pipeline_jobFolder = "W:\\UnrealTools\\jobs";
 
