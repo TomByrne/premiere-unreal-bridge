@@ -113,14 +113,23 @@ namespace SequenceTools {
     function checkSpeakerRenderItems(seq: Sequence, meta: SequenceMetaBrief, addToSeq = false): boolean {
         const renderTrack = meta.render_track == undefined ? undefined : findTrack(seq.videoTracks, meta.render_track);
         let ret = false;
-        for (const speaker of meta.speaker_items) {
+        const items = meta.speaker_items.concat([]);
+        for (const speaker of items) {
             let item: TrackItem | undefined;
             if (speaker.import.render_track_item) {
                 if (renderTrack) item = findTrackItem([renderTrack], speaker.import.render_track_item);
                 if (!item) item = findTrackItem(seq.videoTracks, speaker.import.render_track_item);
             }
 
-            // Remove Track item if invalid
+            const origTrackItem = findTrackItem(seq.videoTracks, speaker.id);
+            // Orig track item gone, remove speaker item
+            if (!origTrackItem) {
+                meta.speaker_items.splice(meta.speaker_items.indexOf(speaker), 1);
+                ret = true;
+                continue;
+            }
+
+            // Remove Track rendered track item if invalid
             if (item && (!renderTrack || findNodeIdIndex(renderTrack.clips, item.nodeId) == -1)) {
                 console.log("Remove item: " + speaker.import.render_track_item);
                 item.remove(false, false);
@@ -129,17 +138,8 @@ namespace SequenceTools {
                 item = undefined;
             }
 
-            // if(importSpeakerRender(speaker.id)){
-            //     ret = true;
-            // }
-
             if (!item && renderTrack && speaker.import.render_proj_item) {
                 const projItem = ProjectItemTools.find(speaker.import.render_proj_item);
-                const origTrackItem = findTrackItem(seq.videoTracks, speaker.id);
-                if (!origTrackItem) {
-                    // TODO: Orig item removed, should remove spearker item
-                    continue;
-                }
                 const renderTrackItem = speaker.import.render_track_item ? findTrackItem(seq.videoTracks, speaker.import.render_track_item) : undefined;
                 if (!projItem) {
                     // Proj item has been deleted
