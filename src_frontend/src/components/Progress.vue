@@ -60,7 +60,7 @@ export default class Progress extends Vue {
   position: relative;
   text-align: center;
   overflow: hidden;
-  background: rgba($color: #000, $alpha: 0.2);
+  background: rgba($color: #000, $alpha: 0.3);
 
   > * {
     position: absolute;
