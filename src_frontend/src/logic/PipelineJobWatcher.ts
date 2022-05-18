@@ -76,43 +76,49 @@ async function checkJob(item:SpeakerItem): Promise<void> {
         await fs.promises.mkdir(item.import.asset_path, {recursive:true});
     }
 
+    let someFailed = false;
+
     // Copy render frames from UE project into destination folder
     if(item.render.state == SpeakerRenderState.Rendering) {
-        if (item.render.job && item.render.render_path && await Fs.exists(item.render.render_path)) {
+        if (item.render.job && item.render.render_path) {
             const start = item.render.job.start_frame || 0;
             // let images = await fs.promises.readdir(item.render.render_path);
             // images = images.filter((f) => f.lastIndexOf('.jpeg') == f.length - 5);
             const images = await Fs.readdir(item.render.render_path, '.jpeg');
-            let succeeded = 0;
+            console.log("images:", images.length);
+            let highestFrame = item.render.frames || 0;
             for (const image of images) {
-                const frame = (parseInt(image) - start).toString().padStart(6, "0");
+                const frame = (parseInt(image) - start);
+                const frame_str = frame.toString().padStart(6, "0");
                 const imgPath = path.join(item.render.render_path, image);
-                const destPath = path.join(item.import.asset_path, `frame_${frame}.jpg`);
+                const destPath = path.join(item.import.asset_path, `frame_${frame_str}.jpg`);
+
     
                 try {
                     await fs.promises.copyFile(imgPath, destPath);
                 } catch(e){
                     console.error("Failed to copy file: ", imgPath, destPath, e);
+                    someFailed = true;
                     continue;
                 }
                 try {
                     await fs.promises.unlink(imgPath);
                 } catch(e) {
                     console.error("Failed to delete file: ", imgPath, e);
+                    someFailed = true;
                     continue;
                 }
-                succeeded++;
+                highestFrame = Math.max(highestFrame, frame+1); // zero based to one based
             }
     
-            if(succeeded) {
-                item.render.frames = (item.render.frames || 0) + succeeded;
+            if(item.render.frames != highestFrame) {
+                item.render.frames = highestFrame;
                 SequenceTools.updateSpeakerItemSoon(item);
             }
         }
     }
 
     item.render.saved = await Fs.exists(item.render.job_path);
-    console.log(":item.render.saved: ", item.render.saved);
 
     // Check destination folder in case images are missing
     if(item.render.state == SpeakerRenderState.Done) {
@@ -136,8 +142,12 @@ async function checkJob(item:SpeakerItem): Promise<void> {
 
     // Check the pipeline folders for more job info 
     if (!item.render.saved) {
+
+        if(someFailed) return; // Leave in rendering state for now
+
         if (await Fs.exists(path.join(model.settings.pipeline_jobFolder, model.pipeline.doneFolder, name))) {
-            updateJob(item, { state: SpeakerRenderState.Done, saved: false });
+            const got_all = (item.render.frames || 0) >= (item.render.total || 0);
+            updateJob(item, { state: got_all ? SpeakerRenderState.Done : SpeakerRenderState.Failed, saved: false });
 
         } else if (await Fs.exists(path.join(model.settings.pipeline_jobFolder, model.pipeline.failedFolder, name))) {
             updateJob(item, { state: SpeakerRenderState.Failed, saved: false });

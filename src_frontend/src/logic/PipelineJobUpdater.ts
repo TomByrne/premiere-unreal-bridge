@@ -5,6 +5,7 @@ import path from "path";
 import { PipelineJob, SpeakerItem, SpeakerRenderState } from "@/model/sequence";
 import SequenceTools from "./SequenceTools";
 import Fs from "@/utils/Fs";
+import fs from "fs";
 
 /**
  * This class CRUDs pipeline jobs based on the configured data
@@ -27,7 +28,6 @@ export function setup(): void {
 function clearJobFile(item:SpeakerItem){
     if(!item.render.job_path) return;
         PipelineTools.deleteJob(item.render.job_path);
-        item.render.job_path = undefined;
     }
     
 export function killJob(id: string, save = true) {
@@ -35,13 +35,8 @@ export function killJob(id: string, save = true) {
     if(!item) return;
 
     clearJobFile(item);
-    if(item.render.job_path){
-        PipelineTools.deleteJob(item.render.job_path);
-        item.render.job_path = undefined;
-    }
     item.render.saved = false;
-    item.render.job = undefined;
-    item.render.state = undefined;
+    item.render.state = SpeakerRenderState.Cancelled;
 
     if(save) SequenceTools.updateSpeakerItem(item);
 }
@@ -160,6 +155,19 @@ export function beginJob(id: string): boolean {
         item.render.invalid = false;
 
         const job = item.render.job;
+        if(job.output && fs.existsSync(job.output)) {
+            // Clear existing output files
+            const files = fs.readdirSync(job.output);
+            for(const file of files){
+                const filepath = path.join(job.output, file);
+                try {
+                    fs.rmSync(filepath);
+                }catch(e) {
+                    console.warn("Failed to delete existing render file: ", filepath, e);
+                }
+            }
+        }
+
         item.render.saved = true;
         item.render.state = SpeakerRenderState.Pending;
         item.render.render_path = job.output;
