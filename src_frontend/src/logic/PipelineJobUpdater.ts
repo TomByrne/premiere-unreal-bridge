@@ -25,12 +25,12 @@ export function setup(): void {
     });
 }
 
-function clearJobFile(item:SpeakerItem){
+function clearJobFile(item:SpeakerItem):void {
     if(!item.render.job_path) return;
         PipelineTools.deleteJob(item.render.job_path);
     }
     
-export function killJob(id: string, save = true) {
+export function killJob(id: string, save = true):void {
     const item = model.sequence.findSpeakerItem(id);
     if(!item) return;
 
@@ -61,16 +61,6 @@ export function checkJobs():void {
         //TODO: clear all
         return;
     }
-
-    //Remove any old jobs which no longer have a related speaker item
-    // for(const id in model.pipeline.jobs) {
-    //     const speaker = model.sequence.findSpeakerItem(id);
-    //     if(speaker) continue; // Still a valid job
-
-    //     const job = model.pipeline.jobs[id];
-    //     delete model.pipeline.jobs[id];
-    //     PipelineTools.deleteJob(job.path);
-    // }
 
     for(const speaker of meta.speaker_items) {
         checkItem(speaker.id);

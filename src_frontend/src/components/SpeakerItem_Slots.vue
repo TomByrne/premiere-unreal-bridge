@@ -82,6 +82,7 @@ export default class SpeakerItem_Slots extends Vue {
       return "inactive";
     }else{
       switch(this.slotRender.state) {
+        case SlotRenderState.Idle: return "inactive";
         case SlotRenderState.Rendering: return "active";
         case SlotRenderState.Filling: return "active-alt";
         case SlotRenderState.Complete: return "complete";

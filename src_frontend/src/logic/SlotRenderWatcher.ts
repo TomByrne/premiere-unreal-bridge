@@ -7,6 +7,7 @@ import SequenceTools from "./SequenceTools";
 import { PNG } from "pngjs";
 import Fs from "@/utils/Fs";
 import mitt from "mitt";
+import ImageSlotTools from "./ImageSlotTools";
 
 
 type Events = {
@@ -25,12 +26,6 @@ class RenderWatcher{
 
     constructor(public item:SpeakerItem, public slot:SlotRender){
         console.log("Watching slot render: ", item, slot);
-        // if(slot.state == SlotRenderState.Filling) {
-        //     this.fillImages(slot.fillerDone);
-        // }else{
-        //     this.timer = setInterval(() => this.watchAMEOutput(), 1000);
-        //     this.watchAMEOutput();
-        // }
         this.next();
     }
     
@@ -44,6 +39,10 @@ class RenderWatcher{
 
     private next() {
         switch(this.slot.state) {
+            case SlotRenderState.Idle:
+                this.nextLater(2);
+                break;
+
             case SlotRenderState.Rendering:
                 this.watchAMEOutput();
                 break;
@@ -262,17 +261,23 @@ function checkJobs(){
 
     for(const item of meta.speaker_items) {
 
+        let hasSlots = false;
+
         for(const id in item.slots) {
             const slot = item.slots[id];
             
             if(!watchers[id]) {
-
-                // if(slot.state != SlotRenderState.Failed && slot.state != SlotRenderState.Complete)
-                    watchers[id] = new RenderWatcher(item, slot);
+                watchers[id] = new RenderWatcher(item, slot);
             }else{
                 watchers[id].item = item;
                 watchers[id].slot = slot;
             }
+
+            hasSlots = true;
+        }
+
+        if(!hasSlots && item.config.img_slot) {
+            ImageSlotTools.checkSpeakerItem(item.id);
         }
     }
 }

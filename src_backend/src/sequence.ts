@@ -108,6 +108,7 @@ enum SpeakerRenderState {
 
 
 enum SlotRenderState {
+    Idle = "Idle",
     Rendering = "Rendering",
     Filling = "Filling",
     Complete = "Complete",

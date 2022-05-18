@@ -11,6 +11,14 @@ function resolveExtFile(file: string): string {
     return path.normalize(root + file);
 }
 
+export function checkSpeakerItem(id: string): Promise<boolean> {
+    const ret = call<boolean>("ImageSlotTools.checkSpeakerItem", [id]);
+    ret.then((success) => {
+        if(success) SequenceTools.loadMeta();
+    });
+    return ret;
+}
+
 export function exportSpeakerItem(id: string): Promise<boolean> {
     const epr = resolveExtFile("/epr/png_export_4k.epr");
     const ret = call<boolean>("ImageSlotTools.exportSpeakerItem", [id, epr]);
@@ -38,6 +46,7 @@ export function speakerItemDest(speaker: SpeakerItem, slot:SlotRender, checkExis
 }
 
 export default {
+    checkSpeakerItem,
     exportSpeakerItem,
     speakerItemDest,
 };

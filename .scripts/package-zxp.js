@@ -12,6 +12,11 @@ const manifest = "/manifest.xml";
 const cert = ".tools/cert.p12";
 const cert_pw = "pw";
 
+function replaceAll(str, find, replace) {
+    while(str.indexOf(find) != -1) str = str.replace(find, replace);
+    return str;
+}
+
 async function packageZxp(){
 
     // Get the current version from git tags
@@ -38,8 +43,8 @@ async function packageZxp(){
     const mani_to = dist + CSXS + manifest;
     let manifest_txt = fs.readFileSync(mani_from).toString();
     console.log(`Setting manifest version: ${version}`);
-    manifest_txt = manifest_txt.replaceAll("{version}", version);
-    manifest_txt = manifest_txt.replaceAll(dist, here);
+    manifest_txt = replaceAll(manifest_txt, "{version}", version);
+    manifest_txt = replaceAll(manifest_txt, dist, here);
     console.log(`Copying manifest file: ${mani_from} > ${mani_to}`);
     fs.writeFileSync(mani_to, manifest_txt);
 

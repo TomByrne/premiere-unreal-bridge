@@ -132,6 +132,7 @@ export enum SpeakerRenderState {
 
 
 export enum SlotRenderState {
+  Idle = "Idle",
   Rendering = "Rendering",
   Filling = "Filling",
   Complete = "Complete",

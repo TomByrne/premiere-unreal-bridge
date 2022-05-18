@@ -385,7 +385,6 @@ namespace SequenceTools {
             }
             updateSpeakerItem(item.item, seq);
         }
-        console.log("updateSpeakerItems.cache.speaker: ", CachedSeqMeta?.speaker_items[0]?.render.state);
     }
 
     export function findSpeakerItem(id: string, meta?: SequenceMetaBrief): SpeakerItem | undefined {
