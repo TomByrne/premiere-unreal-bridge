@@ -99,30 +99,6 @@ export default class SpeakerItem_Slots extends Vue {
     return slots ? slots.length > 0 : false;
   }
 
-  /*mounted(): void {
-    this.isMounted = true;
-    this.checkNeedsSlotRender();
-  }
-  unmounted(): void {
-    this.isMounted = false;
-  }
-  checkNeedsSlotRender(): void {
-    if (!this.speaker || !this.isMounted) return;
-    if (!this.hasSlots || !this.slotRender) {
-      this.needsSlotRender = false;
-      this.checkNeedsSlotRenderLater();
-      return;
-    }
-    ImageSlotTools.needsSlotRender(this.speaker, this.slotRender)
-    .then((value) => {
-      this.needsSlotRender = value;
-      this.checkNeedsSlotRenderLater();
-    })
-  }
-  checkNeedsSlotRenderLater(): void {
-    if (!this.isMounted) return;
-    setTimeout(() => this.checkNeedsSlotRender(), 5000);
-  }*/
 
   get slotRenderable(): boolean {
     return !!this.speaker?.config.img_slot;
@@ -152,6 +128,7 @@ export default class SpeakerItem_Slots extends Vue {
   }
 
   renderSlot(): void {
+    this.open = true;
     if (this.speaker) ImageSlotTools.exportSpeakerItem(this.speaker.id);
   }
 }

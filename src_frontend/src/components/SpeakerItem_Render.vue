@@ -126,6 +126,7 @@ export default class SpeakerItem_Render extends Vue {
 
   doJob(): void {
     if (this.speaker) {
+      this.open = !this.rendering;
       if(this.rendering){
         PipelineJobUpdater.killJob(this.speaker.id);
       }else{
