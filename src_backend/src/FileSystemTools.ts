@@ -8,4 +8,9 @@ namespace FileSystemTools {
         const ret = Folder.selectDialog(prompt);
         return ret ? ret.fsName : undefined;
     }
+
+    export function browseForFile(prompt: string, filter?:string | string[]): string | undefined {
+        const ret = File.openDialog(prompt, filter);
+        return ret instanceof File ? ret.fsName : undefined;
+    }
 }

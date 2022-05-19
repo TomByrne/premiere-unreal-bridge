@@ -30,26 +30,32 @@
     <div class="setting labelled">
       <div class="label">Pipeline command file:</div>
       <input class="value" v-model="model.settings.pipeline_cmd" />
-      <!-- <div
+      <div
         class="pick-dir"
         @click="
-          pickFolder('pipeline_jobFolder', 'Select UE CMD file')
+          pickFile('pipeline_cmd', 'Select UE CMD file', [
+            'Unreal CMD:*.ps1',
+            'All files:*.*',
+          ])
         "
       >
         ...
-      </div> -->
+      </div>
     </div>
     <div class="setting labelled">
       <div class="label">Pipeline setting file:</div>
       <input class="value" v-model="model.settings.pipeline_settings" />
-      <!-- <div
+      <div
         class="pick-dir"
         @click="
-          pickFolder('pipeline_jobFolder', 'Select UE Settings file')
+          pickFile('pipeline_jobFolder', 'Select UE Settings file', [
+            'Unreal render settings:*.utxt',
+            'All files:*.*',
+          ])
         "
       >
         ...
-      </div> -->
+      </div>
     </div>
 
     <h2>Unreal Scrape Settings</h2>
@@ -110,6 +116,16 @@ export default class SettingsPanel extends Vue {
     );
   }
 
+  pickFile(prop: string, prompt: string, ext: string): void {
+    FileSystemTools.browseForFile(prompt, ext).then(
+      (value: string | undefined) => {
+        if (value) {
+          Reflect.set(model.settings, prop, value);
+        }
+      }
+    );
+  }
+
   reset(): void {
     reset();
   }
@@ -122,7 +138,7 @@ export default class SettingsPanel extends Vue {
   bottom: 0;
   left: 0;
   transition: all 0.35s ease;
-  overflow: hidden;
+  overflow: auto;
   padding-bottom: 95px;
   height: fit-content;
   width: 100%;
@@ -154,7 +170,7 @@ export default class SettingsPanel extends Vue {
   }
 
   .buttons {
-    padding-right: 24px;
+    padding: 5px 24px;
   }
 }
 </style>
