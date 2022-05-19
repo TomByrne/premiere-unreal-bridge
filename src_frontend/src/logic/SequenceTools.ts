@@ -115,7 +115,6 @@ function sendItemUpdates(){
 }
 
 let watching = false;
-let timerId: NodeJS.Timeout | undefined;
 export function setup(): void {
     if (watching) return;
     watching = true;
@@ -132,6 +131,7 @@ function updateMetaItems(meta:SequenceMeta, items:SpeakerItemUpdate[]) {
     }
 }
 let lastRes: string | undefined;
+let metaTimer: NodeJS.Timeout | undefined;
 export function loadMeta(): void {
     clearMetaTimer();
     callDetail<SequenceMeta>("SequenceTools.getMeta", [true], {outputScript:false})
@@ -153,17 +153,11 @@ export function loadMeta(): void {
                     emitter.emit("sequenceChanged", meta?.id);
                 }
             }
-            timerId = setTimeout(() => {
-                timerId = undefined;
-                loadMeta();
-            }, 500);
+            startMetaTimer();
         })
         .catch((e) => {
             console.warn("Failed to load sequence meta: ", e);
-            timerId = setTimeout(() => {
-                timerId = undefined;
-                loadMeta();
-            }, 1500);
+            startMetaTimer();
         });
 }
 export function stopWatchingMeta(): void {
@@ -172,10 +166,19 @@ export function stopWatchingMeta(): void {
     clearMetaTimer();
 }
 
+function startMetaTimer(){
+    if (metaTimer == undefined) {
+        metaTimer = setTimeout(() => {
+            metaTimer = undefined;
+            loadMeta();
+        }, 500);
+    }
+}
+
 function clearMetaTimer(){
-    if (timerId) {
-        clearInterval(timerId);
-        timerId = undefined;
+    if (metaTimer) {
+        clearTimeout(metaTimer);
+        metaTimer = undefined;
     }
 }
 
