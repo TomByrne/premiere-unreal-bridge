@@ -4,12 +4,12 @@ import { getDevMode } from "./logic/PluginTools";
 import plugin from "./model/plugin";
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faMousePointer } from '@fortawesome/free-solid-svg-icons';
+import { faMousePointer, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 import IconButton from "./components/IconButton.vue";
 
-library.add(faMousePointer);
+library.add(faMousePointer, faTrash);
 
 getDevMode()
   .then((res: boolean) => {

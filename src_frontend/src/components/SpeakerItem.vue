@@ -12,10 +12,10 @@
       <div class="info">
         {{ track.start.toFixed(2) }}s to {{ track.end.toFixed(2) }}s
       </div>
-      <div class="buttons">
-        <button class="small" v-if="!speaker" @click="link()">Enable</button>
-        <button class="small" v-else @click="removing = true">Remove</button>
+      <div class="buttons" v-if="!speaker">
+        <button class="small" @click="link()">Enable</button>
       </div>
+      <IconButton icon="trash" title="Remove this item" @click="removing = true"/>
     </div>
     <div class="removing" v-if="removing">
       <div class="cont">

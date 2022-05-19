@@ -1,6 +1,6 @@
 <template>
   <div class="icon-button">
-    <Icon class="icon" :icon="icon" />
+    <Icon class="icon" :icon="icon" :title="title"/>
   </div>
 </template>
 
@@ -10,10 +10,12 @@ import { Options, Vue } from "vue-class-component";
 @Options({
   props: {
     icon: String,
+    title: String,
   },
 })
 export default class IconButton extends Vue {
   icon = "";
+  title= "";
 }
 </script>
 
