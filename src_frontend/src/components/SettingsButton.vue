@@ -15,7 +15,7 @@ export default class SettingsButton extends Vue {
   get open(): boolean {
     return model.settings.panel_shown;
   }
-  toggleOpen() {
+  toggleOpen():void {
     console.log("toggleOpen: ", model.settings.panel_shown);
     model.settings.panel_shown = !model.settings.panel_shown;
   }
