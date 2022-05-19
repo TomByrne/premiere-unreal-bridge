@@ -11,6 +11,7 @@
     "copy-epr": "node .scripts/copy-epr.js"
   },
   "dependencies": {
+    "@fortawesome/vue-fontawesome": "^3.0.0-5",
     "windows-elevate": "^1.0.1"
   },
   "devDependencies": {
