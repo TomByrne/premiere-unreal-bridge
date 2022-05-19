@@ -49,6 +49,7 @@
         class="pick-dir"
         @click="
           pickFile('pipeline_jobFolder', 'Select UE Settings file', [
+            'Unreal pipeline settings:*.json',
             'Unreal render settings:*.utxt',
             'All files:*.*',
           ])
