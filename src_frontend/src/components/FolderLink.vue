@@ -20,7 +20,7 @@ import FileSystemTools from "@/logic/FileSystemTools";
 export default class FolderLink extends Vue {
   path:string | undefined;
 
-  openPath(){
+  openPath():void {
     if(this.path)
       FileSystemTools.openFolder(this.path);
   }

@@ -7,6 +7,8 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faMousePointer } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
+import IconButton from "./components/IconButton.vue";
+
 library.add(faMousePointer);
 
 getDevMode()
@@ -20,6 +22,7 @@ getDevMode()
 
 createApp(App)
   .component('Icon', FontAwesomeIcon)
+  .component('IconButton', IconButton)
   .mount("#app");
 
 onLoaded();

@@ -8,11 +8,15 @@
   >
     <div class="header">
       <span class="label-sup">
-        <FolderLink :path="imgPath" title="Unreal render path (relative to Premiere project)"/>
+        <FolderLink
+          :path="imgPath"
+          title="Unreal render path (relative to Premiere project)"
+        />
         Import:
       </span>
 
-      <div class="label">{{label}}</div>
+      <div class="label">{{ label }}</div>
+      <IconButton icon="mouse-pointer" v-if="selectable" @click="selectProjItem"/>
 
       <span class="buttons">
         <button class="small" @click="importItem()" :disabled="!importable">
@@ -43,25 +47,33 @@ import FolderLink from "./FolderLink.vue";
 export default class SpeakerItem_Import extends Vue {
   speaker: SpeakerItem | undefined;
 
-  get label():string {
-    switch(this.speaker?.import.state) {
-      case SpeakerImportState.Done: return "Imported";
-      case SpeakerImportState.Ready: return "Ready to import";
+  get label(): string {
+    switch (this.speaker?.import.state) {
+      case SpeakerImportState.Done:
+        return "Imported";
+      case SpeakerImportState.Ready:
+        return "Ready to import";
       case SpeakerImportState.NotReady:
-        if(!model.sequence.sequenceMeta?.render_track) return "Must add video track first";
+        if (!model.sequence.sequenceMeta?.render_track)
+          return "Must add video track first";
         else return "Not ready to import";
 
-      default: return "Unknown state";
+      default:
+        return "Unknown state";
     }
   }
 
-  get imgPath():string | undefined {
+  get imgPath(): string | undefined {
     return this.speaker?.import.asset_path;
   }
 
   get importable(): boolean {
     const state = this.speaker?.import.state;
     return !!(state && state != SpeakerImportState.NotReady);
+  }
+
+  get selectable(): boolean {
+    return !!this.speaker?.import.render_track_item;
   }
 
   get hasImported(): boolean {
@@ -72,6 +84,11 @@ export default class SpeakerItem_Import extends Vue {
 
   importItem(): void {
     if (this.speaker) SequenceTools.importSpeakerRender(this.speaker.id, true);
+  }
+
+  selectProjItem(): void {
+    const item = this.speaker?.import.render_track_item;
+    if(item) SequenceTools.selectTrackItem(item);
   }
 }
 </script>
