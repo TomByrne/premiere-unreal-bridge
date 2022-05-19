@@ -65,7 +65,11 @@ export function selectTrackItem(id: string): Promise<boolean> {
     return call("SequenceTools.selectTrackItem", [id]);
 }
 export function importSpeakerRender(id: string, addToSeq = false): Promise<boolean> {
-    return call("SequenceTools.importSpeakerRender", [id, addToSeq]);
+    const ret = call<boolean>("SequenceTools.importSpeakerRender", [id, addToSeq])
+    ret.then(() => {
+        loadMeta();
+    });
+    return ret;
 }
 export function clearMeta(): Promise<boolean> {
     return call("SequenceTools.clearMeta", []);

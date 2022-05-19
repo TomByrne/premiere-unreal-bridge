@@ -475,6 +475,10 @@ namespace SequenceTools {
                 console.log("Re-importing: " + projItem?.name);
                 ProjectItemTools.reimport(projItem);
                 if(addToSeq) checkSpeakerRenderItems(seq, meta, addToSeq);
+                if(speaker.import.invalid) {
+                    speaker.import.invalid = false;
+                    updateSpeakerItem(speaker, seq);
+                }
                 return true;
             }
             const dir = new Folder(speaker.import.asset_path);
