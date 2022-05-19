@@ -117,6 +117,7 @@ enum SlotRenderState {
 enum SpeakerImportState {
     NotReady = "NotReady",
     Ready = "Ready",
+    Done = "Done",
 }
 
 

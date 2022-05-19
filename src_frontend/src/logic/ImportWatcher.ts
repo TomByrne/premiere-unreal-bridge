@@ -1,5 +1,5 @@
 import model from "@/model";
-import { ReadinessState, SpeakerItem, SpeakerRenderState } from "@/model/sequence";
+import { SequenceMeta, SpeakerImportState, SpeakerItem, SpeakerRenderState } from "@/model/sequence";
 import SequenceTools from "./SequenceTools";
 import Fs from "@/utils/Fs";
 
@@ -36,7 +36,7 @@ function checkJobs() {
     // Run sequentially
     const starterPromise = Promise.resolve(null);
     meta.speaker_items.reduce(
-        (p, item) => p.then(() => checkJob(item).then()),
+        (p, item) => p.then(() => checkJob(meta, item).then()),
         starterPromise
     )
     .finally(() => {
@@ -44,18 +44,22 @@ function checkJobs() {
     });
 }
 
-async function checkJob(item:SpeakerItem): Promise<void> {
+async function checkJob(meta:SequenceMeta, item:SpeakerItem): Promise<void> {
+    if(!meta.render_track) {
+        updateJob(item, { state: SpeakerImportState.NotReady });
+        return;
+    }
     try {
         const files = await Fs.readdir(item.import.asset_path, '.jpg');
 
         if (files && (item.render.total && files.length == item.render.total) || (files.length && item.render.state == SpeakerRenderState.Done)) {
-            updateJob(item, { state: ReadinessState.Ready });
+            updateJob(item, { state: item.import.render_track_item ? SpeakerImportState.Done : SpeakerImportState.Ready });
         } else {
-            updateJob(item, { state: ReadinessState.NotReady });
+            updateJob(item, { state: SpeakerImportState.NotReady });
         }
 
     } catch(e) {
-        updateJob(item, { state: ReadinessState.NotReady });
+        updateJob(item, { state: SpeakerImportState.NotReady });
     }
 }
 

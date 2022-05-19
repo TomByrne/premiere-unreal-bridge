@@ -1,13 +1,5 @@
 <template>
   <div class="speaker-list panel">
-    
-    <SpeakerItemView v-for="item in renderableItems"
-      :key="item.id"
-      :id="item.id"
-      :speaker="item.speaker"
-      :track="item.track"
-      :selected="item.selected"
-      />
       
     <div class="sub" v-if="!meta">
       Loading sequence metadata...
@@ -16,6 +8,18 @@
     <div class="sub" v-else-if="!selectedTrackItem && !renderableItems.length">
       Select a timeline video item to begin adding Unreal shot info.
     </div>
+      
+    <div class="sub" v-else-if="!meta.render_track">
+      Add an empty video track to sequence to enable importing.
+    </div>
+    
+    <SpeakerItemView v-for="item in renderableItems"
+      :key="item.id"
+      :id="item.id"
+      :speaker="item.speaker"
+      :track="item.track"
+      :selected="item.selected"
+      />
   </div>
 </template>
 
@@ -89,5 +93,13 @@ interface ItemBundle {
 .speaker-list {
   padding: 0;
   padding-bottom: 40px;
+
+  .sub {
+    margin: 20px;
+    background: #eece50;
+    color: black;
+    font-size: 1.2em;
+    font-weight: bold;
+  }
 }
 </style>

@@ -12,7 +12,7 @@
         Import:
       </span>
 
-      <div class="label"></div>
+      <div class="label">{{label}}</div>
 
       <span class="buttons">
         <button class="small" @click="importItem()" :disabled="!importable">
@@ -43,16 +43,25 @@ import FolderLink from "./FolderLink.vue";
 export default class SpeakerItem_Import extends Vue {
   speaker: SpeakerItem | undefined;
 
+  get label() {
+    switch(this.speaker?.import.state) {
+      case SpeakerImportState.Done: return "Imported";
+      case SpeakerImportState.Ready: return "Ready to import";
+      case SpeakerImportState.NotReady:
+        if(!model.sequence.sequenceMeta?.render_track) return "Must add video track first";
+        else return "Not ready to import";
+
+      default: return "Unknown state";
+    }
+  }
+
   get imgPath() {
     return this.speaker?.import.asset_path;
   }
 
   get importable(): boolean {
-    let item = this.speaker;
-    if (!item) return false;
-    let meta = model.sequence.sequenceMeta;
-    if (!meta || !meta.render_track) return false;
-    return item.import.state == SpeakerImportState.Ready;
+    const state = this.speaker?.import.state;
+    return !!(state && state != SpeakerImportState.NotReady);
   }
 
   get hasImported(): boolean {

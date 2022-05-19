@@ -7,7 +7,7 @@ export class SettingsModel {
   panel_shown = false;
 
   // Plugin
-  plugin_overviewSave = true;
+  plugin_overviewSave = false;
 
   // Pipeline
   pipeline_jobFolder = "W:\\UnrealTools\\jobs";

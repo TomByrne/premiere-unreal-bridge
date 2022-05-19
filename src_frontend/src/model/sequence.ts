@@ -148,6 +148,7 @@ export enum SlotRenderState {
 export enum SpeakerImportState {
   NotReady = "NotReady",
   Ready = "Ready",
+  Done = "Done",
 }
 
 
