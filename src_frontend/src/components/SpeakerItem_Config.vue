@@ -22,7 +22,9 @@
       <div class="label" v-else>Configured</div>
 
       <span class="buttons">
-        <button class="small" @click="open = !open">{{ open ? "Close" : "Open" }}</button>
+        <button class="small" @click="open = !open">
+          {{ open ? "Close" : "Open" }}
+        </button>
       </span>
     </div>
 
@@ -84,7 +86,7 @@
         </select>
       </div>
       <div class="labelled" v-if="hasSlots">
-        <div class="label">Slot:</div>
+        <div class="label">Speaker:</div>
         <select
           class="value"
           v-model="speaker.config.img_slot"
@@ -95,6 +97,15 @@
             {{ seq }}
           </option>
         </select>
+      </div>
+      <div class="labelled">
+        <div class="label">Time Offset (secs):</div>
+        <input
+          class="value"
+          type="number"
+          v-model="speaker.config.ue_time_offset"
+          @change="setTimeOffset($event.target)"
+        />
       </div>
       <div class="buttons">
         <button
@@ -174,16 +185,20 @@ export default class SpeakerItem_Config extends Vue {
           this.speaker.config.img_slot = this.ueProjectDetail.imgSlots[0];
         }
 
-        if (changes) {
-          for (const id in this.speaker.slots) {
-            this.speaker.slots[id].invalid = true;
-          }
-          this.speaker.render.invalid = true;
-          this.speaker.import.invalid = true;
-          SequenceTools.updateSpeakerItem(this.speaker);
-        }
+        if (changes) this.save();
       }
     );
+  }
+
+  save() {
+    const speaker = this.speaker;
+    if (!speaker) return;
+    for (const id in speaker.slots) {
+      speaker.slots[id].invalid = true;
+    }
+    speaker.render.invalid = true;
+    speaker.import.invalid = true;
+    SequenceTools.updateSpeakerItem(speaker);
   }
 
   get stepsDone(): number {
@@ -271,7 +286,16 @@ export default class SpeakerItem_Config extends Vue {
         Reflect.set(config, clearProp, undefined);
       }
     }
-    SequenceTools.updateSpeakerItem(speakerItem);
+    this.save();
+  }
+
+  setTimeOffset(element: HTMLSelectElement): void {
+    let offset = parseFloat(element.value) || 0;
+    console.log(`TimeOffset: `, offset);
+    let speakerItem = this.speaker;
+    if (!speakerItem) return;
+    speakerItem.config.ue_time_offset = offset;
+    this.save();
   }
 
   refresh(): void {

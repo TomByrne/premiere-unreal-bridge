@@ -96,8 +96,8 @@ export async function checkItem(id:string): Promise<boolean> {
     
     const fps = 30; // also hard-coded into epr file
 
-    const start = Math.round(track.start * fps);
-    const end = Math.round(track.end * fps);
+    const start = Math.max(0, Math.round((track.start + speaker.config.ue_time_offset) * fps));
+    const end = Math.round((start + (track.end - track.start)) * fps);
 
     const newJob:PipelineJob = {
         cmd: model.settings.pipeline_cmd,

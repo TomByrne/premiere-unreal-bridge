@@ -41,6 +41,7 @@ declare interface SpeakerConfig {
     scene?: string | undefined,
     sequence?: string | undefined,
     img_slot?: string | undefined,
+    ue_time_offset: number,
 }
 
 

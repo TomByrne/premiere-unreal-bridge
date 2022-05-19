@@ -375,6 +375,7 @@ namespace SequenceTools {
 
             config: {
                 state: ReadinessState.NotReady,
+                ue_time_offset: 0,
             },
             slots: {},
             render: {

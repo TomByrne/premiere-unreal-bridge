@@ -54,7 +54,7 @@ namespace ImageSlotTools {
         const speed = trackItem.getSpeed();
         const fps = ProjectItemTools.FPS;
         
-        const start = Math.round(trackItem.start.seconds * fps);
+        const start = Math.max(0, Math.round((trackItem.start.seconds + speaker.config.ue_time_offset) * fps));
         const duration = Math.round((trackItem.outPoint.seconds - trackItem.inPoint.seconds) * speed * fps);
 
         speaker.slots[speaker.id] = {

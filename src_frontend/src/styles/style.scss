@@ -43,6 +43,7 @@ body {
 button,
 select,
 input[type="text"],
+input[type="number"],
 input:not([type]),
 input[type="button"],
 input[type="submit"] {
@@ -65,6 +66,7 @@ input[type="submit"] {
 }
 
 input[type="text"],
+input[type="number"],
 input:not([type]) {
 	padding: 1px 3px;
 	background-color: var(--input-bg);

@@ -157,6 +157,11 @@ export function loadMeta(): void {
         })
         .catch((e) => {
             console.warn("Failed to load sequence meta: ", e);
+            if(model.sequence.sequenceMeta) {
+                lastRes = undefined;
+                model.sequence.sequenceMeta = undefined;
+                emitter.emit("sequenceChanged", undefined);
+            }
             startMetaTimer();
         });
 }
