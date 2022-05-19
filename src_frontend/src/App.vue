@@ -61,7 +61,7 @@ export default class App extends Vue {
 
 .settings-icon {
   position: absolute;
-  right: 25px;
-  bottom: 70px;
+  right: 10px;
+  bottom: 55px;
 }
 </style>
