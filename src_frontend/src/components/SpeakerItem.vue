@@ -15,7 +15,7 @@
       <div class="buttons" v-if="!speaker">
         <button class="small" @click="link()">Enable</button>
       </div>
-      <IconButton icon="trash" title="Remove this item" @click="removing = true"/>
+      <IconButton icon="trash" title="Remove this item" @click="removing = true" v-if="speaker"/>
     </div>
     <div class="removing" v-if="removing">
       <div class="cont">
