@@ -7,12 +7,9 @@
       hidden: hidden,
     }"
   >
-    <div
-      class="header"
-      :class="{ success: !needsConfig }"
-    >
+    <div class="header" :class="{ success: !needsConfig }">
       <span class="label-sup">
-        <OpenChevron :open="open" @click="open = !open"/>
+        <OpenChevron :open="open" @click="open = !open" />
         Config:
       </span>
 
@@ -25,12 +22,16 @@
       <div class="label" v-else>Configured</div>
 
       <span class="buttons">
-        <button class="small" v-if="!open">Open</button>
-        <button class="small" v-else>Close</button>
+        <button class="small" @click="open = !open">{{ open ? "Close" : "Open" }}</button>
       </span>
     </div>
 
-    <Progress :value="stepsDone" :total="stepsTotal" :minimised="true" :showFraction="true"/>
+    <Progress
+      :value="stepsDone"
+      :total="stepsTotal"
+      :minimised="true"
+      :showFraction="true"
+    />
 
     <div v-if="open" class="controls labelled-list">
       <div class="labelled">
@@ -174,7 +175,7 @@ export default class SpeakerItem_Config extends Vue {
         }
 
         if (changes) {
-          for(const id in this.speaker.slots){
+          for (const id in this.speaker.slots) {
             this.speaker.slots[id].invalid = true;
           }
           this.speaker.render.invalid = true;
