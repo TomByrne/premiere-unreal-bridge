@@ -166,6 +166,14 @@ export default class Progress extends Vue {
       background: rgba($color: #FFF, $alpha: 0.3);
     }
   }
+  
+  &.disabled {
+    opacity: 0.5;
+    background: #666;
+    .track {
+      opacity: 0;
+    }
+  }
 
   &.inactive .fill,
   &.inactive > .track {

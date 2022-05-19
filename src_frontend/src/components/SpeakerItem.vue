@@ -50,8 +50,7 @@
       <import
         :class="{'next-step':nextStepImport}"
         :speaker="speaker"
-        :minimised="!selected"
-        :hidden="needsConfig"
+        :hidden="!selected || needsConfig"
         v-if="!needsConfig"
       />
     </div>

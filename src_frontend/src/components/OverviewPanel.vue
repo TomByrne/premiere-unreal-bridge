@@ -3,12 +3,13 @@
     <Progress
       id="progress"
       class="button"
+      :class="{ disabled: no_render_track }"
       :value="overview.progress"
       :total="overview.total"
       :label="label"
       :state="state"
       :minimised="!overview.total"
-      :show-fraction="(!!overview.progress) || isRunning"
+      :show-fraction="!no_render_track && (!!overview.progress || isRunning)"
       @click="toggleRun"
     />
   </div>
@@ -31,8 +32,14 @@ export default class OverviewPanel extends Vue {
     return model.overview;
   }
 
+  get no_render_track(): boolean {
+    return !model.sequence.sequenceMeta?.render_track;
+  }
+
   get label(): string {
-    if (this.isRunning) {
+    if (this.no_render_track) {
+      return "Not ready";
+    } else if (this.isRunning) {
       return "Running...";
     } else if (this.overview.progress < this.overview.total) {
       return "Run all steps";
@@ -56,6 +63,7 @@ export default class OverviewPanel extends Vue {
   }
 
   toggleRun(): void {
+    if (this.no_render_track) return;
     if (this.isRunning) OverviewRunner.stop();
     else OverviewRunner.run();
   }
