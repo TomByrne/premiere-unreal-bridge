@@ -5,7 +5,11 @@
     <h2>Plugin Settings</h2>
     <div class="setting labelled">
       <div class="label">
-        <input id="plugin_overviewSave" v-model="model.settings.plugin_overviewSave" type="checkbox"/>
+        <input
+          id="plugin_overviewSave"
+          v-model="model.settings.plugin_overviewSave"
+          type="checkbox"
+        />
         <label for="plugin_overviewSave">Save project after 'Run All':</label>
       </div>
     </div>
@@ -22,6 +26,30 @@
       >
         ...
       </div>
+    </div>
+    <div class="setting labelled">
+      <div class="label">Pipeline command file:</div>
+      <input class="value" v-model="model.settings.pipeline_cmd" />
+      <!-- <div
+        class="pick-dir"
+        @click="
+          pickFolder('pipeline_jobFolder', 'Select UE CMD file')
+        "
+      >
+        ...
+      </div> -->
+    </div>
+    <div class="setting labelled">
+      <div class="label">Pipeline setting file:</div>
+      <input class="value" v-model="model.settings.pipeline_settings" />
+      <!-- <div
+        class="pick-dir"
+        @click="
+          pickFolder('pipeline_jobFolder', 'Select UE Settings file')
+        "
+      >
+        ...
+      </div> -->
     </div>
 
     <h2>Unreal Scrape Settings</h2>
@@ -82,7 +110,7 @@ export default class SettingsPanel extends Vue {
     );
   }
 
-  reset():void {
+  reset(): void {
     reset();
   }
 }
@@ -92,13 +120,15 @@ export default class SettingsPanel extends Vue {
 .settings {
   position: absolute;
   bottom: 0;
-  left:0;
+  left: 0;
   transition: all 0.35s ease;
   overflow: hidden;
   padding-bottom: 95px;
   height: fit-content;
   width: 100%;
-  background-color: var(--bg);
+  background-color: var(--input-grad1);
+  max-height: 100%;
+  border-top: 3px var(--border) solid;
 
   &.closed {
     opacity: 0;
@@ -107,7 +137,6 @@ export default class SettingsPanel extends Vue {
     padding-bottom: 0;
     padding-top: 0;
   }
-
 
   h2 {
     padding-top: 10px;

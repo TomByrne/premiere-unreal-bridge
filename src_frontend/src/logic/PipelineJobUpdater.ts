@@ -100,11 +100,11 @@ export async function checkItem(id:string): Promise<boolean> {
     const end = Math.round(track.end * fps);
 
     const newJob:PipelineJob = {
-        cmd: "cmd_4.27",
+        cmd: model.settings.pipeline_cmd,
         project: speaker.config.project,
         scene: fileToAsset(speaker.config.scene),
         sequence: fileToAsset(speaker.config.sequence),
-        render_settings: "4.27_RenderQueueSettings_rushes_quick_v3",
+        render_settings: model.settings.pipeline_settings,
         output: speaker.config.project + "/Saved/PipelineRenders/" + speaker.id,
         output_format: "{frame_number}",
         start_frame: start,

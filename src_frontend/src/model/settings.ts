@@ -11,6 +11,8 @@ export class SettingsModel {
 
   // Pipeline
   pipeline_jobFolder = "W:\\UnrealTools\\jobs";
+  pipeline_cmd = "cmd_4.27";
+  pipeline_settings = "4.27_RenderQueueSettings_rushes_quick_v3";
 
   // Unreal
   unreal_projectFolder = "W:\\2660_AWS_ReINVENT\\4 Motion Design\\3D\\Unreal_Projects";
