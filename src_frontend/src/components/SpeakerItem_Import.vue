@@ -43,7 +43,7 @@ import FolderLink from "./FolderLink.vue";
 export default class SpeakerItem_Import extends Vue {
   speaker: SpeakerItem | undefined;
 
-  get label() {
+  get label():string {
     switch(this.speaker?.import.state) {
       case SpeakerImportState.Done: return "Imported";
       case SpeakerImportState.Ready: return "Ready to import";
@@ -55,7 +55,7 @@ export default class SpeakerItem_Import extends Vue {
     }
   }
 
-  get imgPath() {
+  get imgPath():string | undefined {
     return this.speaker?.import.asset_path;
   }
 

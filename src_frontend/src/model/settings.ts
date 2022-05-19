@@ -40,7 +40,7 @@ watch(() => [react], () => {
   deep:true
 });
 
-export function reset() {
+export function reset():void {
   Object.assign(react, new SettingsModel())
 }
 

@@ -65,14 +65,14 @@ import { reset } from "@/model/settings";
 import FileSystemTools from "@/logic/FileSystemTools";
 
 export default class SettingsPanel extends Vue {
-  get model() {
+  get model(): unknown {
     return model;
   }
   get settings_open(): boolean {
     return model.settings.panel_shown;
   }
 
-  pickFolder(prop: string, prompt: string) {
+  pickFolder(prop: string, prompt: string): void {
     FileSystemTools.browseForFolder(prompt).then(
       (value: string | undefined) => {
         if (value) {
@@ -82,7 +82,7 @@ export default class SettingsPanel extends Vue {
     );
   }
 
-  reset(){
+  reset():void {
     reset();
   }
 }
